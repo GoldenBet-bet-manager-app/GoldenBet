@@ -28,12 +28,7 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
+# Gradle files
+.gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
-### Mac OS ###
-.DS_Store
