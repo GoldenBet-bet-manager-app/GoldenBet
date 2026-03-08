@@ -164,5 +164,9 @@ public class Game {
     public void setJackpot(BigDecimal jackpot) {
         this.jackpot = jackpot;
     }
+
+    public BigDecimal[] getMultipliers ( ) {
+        return multipliers;
+    }
 }
 
