@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Worker {
+    private int workerid;
     private HashMap<String, Game> myGames = new HashMap<> ( );
     private HashMap<String, BigDecimal> profits = new HashMap<> ( );
 
@@ -25,7 +26,11 @@ public class Worker {
                 playerPayout = bet.multiply(gamemultiplies[index]);
             }
             systemProfitFromThisBet = bet.subtract ( playerPayout );
-            //edo thelei sigxronismso
+
+            synchronized (profits) {
+                BigDecimal currentProfit = profits.getOrDefault(game.getGameName(), BigDecimal.ZERO);
+                profits.put(game.getGameName (),currentProfit.add(systemProfitFromThisBet));
+            }
         } catch (Exception e) {
             System.err.println ( "Σφάλμα κατά τον υπολογισμό κέρδους: " + e.getMessage ( ) );
         }
