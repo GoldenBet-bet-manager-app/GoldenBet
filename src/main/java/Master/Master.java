@@ -7,5 +7,4 @@ public class Master{
         int hash=Math.abs ( gameName.hashCode () );
         return hash % numbersofWorkers;
     }
-
 }

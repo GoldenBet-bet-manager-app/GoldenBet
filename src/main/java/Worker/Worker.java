@@ -9,6 +9,7 @@ public class Worker {
     private int workerid;
     private HashMap<String, Game> myGames = new HashMap<> ( );
     private HashMap<String, BigDecimal> profits = new HashMap<> ( );
+    private HashMap<String, BigDecimal> playerProfits = new HashMap<>();
 
     public BigDecimal CalculateProfit (BigDecimal bet, Game game) { //edo mpainei h parametros ths genitrias
         BigDecimal playerPayout = BigDecimal.ZERO;
