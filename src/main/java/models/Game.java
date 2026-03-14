@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Game {
+public class Game implements Serializable {
 
     private String gameName;
     private String providerName;
@@ -20,6 +21,7 @@ public class Game {
     public Game(String gameName, String providerName, int stars, int votes,
                 String gameLogo, BigDecimal minBet, BigDecimal maxBet,
                 String riskLevel, String hashKey) {
+        super();
         this.gameName = gameName;
         this.providerName = providerName;
         this.stars = stars;
