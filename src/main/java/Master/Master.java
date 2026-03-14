@@ -1,8 +1,6 @@
 package Master;
 
 
-import Worker.Worker;
-
 public class Master{
 
     private int hashGameToWorker(String gameName,int numbersofWorkers){
@@ -10,8 +8,4 @@ public class Master{
         return hash % numbersofWorkers;
     }
 
-    public static void main(String[] args){
-        int numworkers=Integer.parseInt ( args[ 0 ] );
-        
-    }
 }
