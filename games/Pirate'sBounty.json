@@ -1,0 +1,11 @@
+{
+  "GameName":"Pirate's Bounty",
+  "ProviderName": "OceanGames",
+  "Stars": 3,
+  "NoOfVotes": 45,
+  "GameLogo": "images/pirate's_bounty_logo.png",
+  "MinBet": 1.0,
+  "MaxBet": 20,
+  "RiskLevel": "medium",
+  "HashKey": "Pirate_Bounty_secret_22"
+}

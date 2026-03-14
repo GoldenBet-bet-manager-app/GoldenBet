@@ -1,0 +1,11 @@
+{
+  "GameName":"High Roller Poker",
+  "ProviderName": "Casino",
+  "Stars": 4,
+  "NoOfVotes": 15,
+  "GameLogo": "images/high_roller_poker_logo.png",
+  "MinBet": 0.1,
+  "MaxBet": 10,
+  "RiskLevel": "high",
+  "HashKey": "High_Roller_Poker_secret_key_97"
+}

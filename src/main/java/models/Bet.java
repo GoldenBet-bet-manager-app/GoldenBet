@@ -14,7 +14,7 @@ public class Bet implements Serializable {
         this.gamename = gamename;
     }
 
-    public BigDecimal getAmount ( ) {
+    public BigDecimal getAmount () {
         return amount;
     }
 
@@ -22,7 +22,7 @@ public class Bet implements Serializable {
         this.amount = amount;
     }
 
-    public String getPlayername ( ) {
+    public String getPlayername() {
         return playername;
     }
 
@@ -30,7 +30,7 @@ public class Bet implements Serializable {
         this.playername = playername;
     }
 
-    public String getGamename ( ) {
+    public String getGamename(){
         return gamename;
     }
 

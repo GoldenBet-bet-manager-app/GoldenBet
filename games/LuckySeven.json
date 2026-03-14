@@ -1,0 +1,11 @@
+{
+  "GameName":"Lucky Seven",
+  "ProviderName": "ClassicCasino",
+  "Stars": 2,
+  "NoOfVotes": 10,
+  "GameLogo": "images/lucky_seven_logo.png",
+  "MinBet": 1.0,
+  "MaxBet": 50,
+  "RiskLevel": "low",
+  "HashKey": "Lucky_Seven_secret_44"
+}
