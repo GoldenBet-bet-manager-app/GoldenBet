@@ -22,7 +22,7 @@ public class Worker {
         int index;
         BigDecimal[] gamemultiplies;
         Random gen = new Random ( );
-        int random = gen.nextInt ( 1000 ); // Βγάζει έναν ακέραιο από 0 έως 999
+        int random = gen.nextInt ( 1000 );
         try {
             if ( random % 100 == 0 )
                 playerPayout = bet.getAmount ().multiply ( game.getJackpot ( ) );

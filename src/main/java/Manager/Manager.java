@@ -1,9 +1,8 @@
 package Manager;
-import models.User;
 
 import java.util.Scanner;
 
-public class Manager extends User {
+public class Manager {
     private String managerId;
 
     Manager(String managerId){
