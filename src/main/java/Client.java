@@ -4,45 +4,46 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Client extends Thread{
-   private String ip;
-   private int port;
-   private Object object;
-   private Object response;
+public class Client extends Thread {
+    private String ip;
+    private int port;
+    private Object object;
+    private Object response;
 
-    public Client (String ip, int port, Object object){
+    public Client (String ip, int port, Object object) {
         this.ip = ip;
         this.port = port;
         this.object = object;
     }
 
-    public void run(){
+    public void run ( ) {
         ObjectOutputStream out = null;
         ObjectInputStream in = null;
-        Socket socket=null;
+        Socket socket = null;
         try {
-             socket=new Socket ( ip,port );
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
+            socket = new Socket ( ip, port );
+            out = new ObjectOutputStream ( socket.getOutputStream ( ) );
+            in = new ObjectInputStream ( socket.getInputStream ( ) );
 
             out.writeObject ( object );
-            out.flush();
-            response = in.readObject();
+            out.flush ( );
+            response = in.readObject ( );
+
         } catch (UnknownHostException unknownHost) {
-            System.err.println("You are trying to connect to an unknown host!");
-        }catch (IOException e) {
-            System.err.println("Σφάλμα I/O στην επικοινωνία με την πόρτα " + port);
-            e.printStackTrace();
+            System.err.println ( "You are trying to connect to an unknown host!" );
+        } catch (IOException e) {
+            System.err.println ( "Σφάλμα I/O στην επικοινωνία με την πόρτα " + port );
+            e.printStackTrace ( );
         } catch (ClassNotFoundException e) {
-            System.err.println("Η κλάση του αντικειμένου που διαβάστηκε δεν βρέθηκε!");
-            e.printStackTrace();
-        }finally {
+            System.err.println ( "Η κλάση του αντικειμένου που διαβάστηκε δεν βρέθηκε!" );
+            e.printStackTrace ( );
+        } finally {
             try {
-                in.close();
-                out.close();
-                socket.close();
+                in.close ( );
+                out.close ( );
+                socket.close ( );
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                ioException.printStackTrace ( );
             }
         }
     }
