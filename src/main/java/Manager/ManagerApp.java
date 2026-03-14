@@ -24,6 +24,7 @@ public class ManagerApp {
                 case "0":
                     running=false;
                 case "1":
+
                 case "2":
                 case "3":
                 case "4":
