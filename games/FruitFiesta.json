@@ -1,0 +1,11 @@
+{
+  "GameName":"Fruit Fiesta",
+  "ProviderName": "FruitSlots",
+  "Stars": 5,
+  "NoOfVotes": 120,
+  "GameLogo": "images/fruit_fiesta_logo.png",
+  "MinBet": 0.1,
+  "MaxBet": 5,
+  "RiskLevel": "low",
+  "HashKey": "Fruit_Fiesta_secret_11"
+}

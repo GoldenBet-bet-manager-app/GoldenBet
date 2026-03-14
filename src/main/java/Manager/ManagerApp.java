@@ -1,16 +1,10 @@
 package Manager;
-import models.User;
 
 import java.util.Scanner;
 
-public class Manager extends User {
-    private String managerId;
+public class ManagerApp {
 
-    Manager(String managerId){
-        this.managerId=managerId;
-    }
-
-    public void startConsoleMenu() {
+    public static void startConsoleMenu() {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
@@ -40,7 +34,7 @@ public class Manager extends User {
         scanner.close();
     }
     public static void main(String[] args) {
-        Manager manager=new Manager ( "manager1" );
-        manager.startConsoleMenu ();
+        startConsoleMenu ();
+
     }
 }
