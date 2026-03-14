@@ -2,45 +2,70 @@ package Worker;
 
 import models.Bet;
 import models.Game;
+
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Random;
 
+
 public class Worker {
+    private String ip;
+    private int port;
     private final int workerid;
-    private HashMap<String, Game> myGames = new HashMap<> ( );
-    private HashMap<String, BigDecimal> profits = new HashMap<> ( );
-    private HashMap<String, BigDecimal> playerProfits = new HashMap<>();
+    private int counter=0;
 
-    public Worker (int workerid) {
-        this.workerid = workerid;
+    public Worker(String ip, int port) {
+        this.ip = ip;
+        this.port = port;
+        this.workerid = counter++;
     }
+    public String getIp() { return ip; }
+    public int getPort() { return port; }
 
-    public BigDecimal CalculateProfit (Bet bet/*kathe bet einai ena thread*/, Game game) { //edo mpainei h parametros ths genitrias
-        BigDecimal playerProfit,systemProfitFromThisBet = BigDecimal.ZERO;
-        BigDecimal playerPayout=BigDecimal.ZERO;
-        int index;
-        BigDecimal[] gamemultiplies;
-        Random gen = new Random ( );
-        int random = gen.nextInt ( 1000 ); // Βγάζει έναν ακέραιο από 0 έως 999
-        try {
-            if ( random % 100 == 0 )
-                playerPayout = bet.getAmount ().multiply ( game.getJackpot ( ) );
-            else {
-                index = random % 10;
-                gamemultiplies = game.getMultipliers ( );
-                playerPayout = bet.getAmount ().multiply(gamemultiplies[index]);
-            }
-            systemProfitFromThisBet = bet.getAmount ().subtract ( playerPayout );
-            playerProfit=playerPayout.subtract ( bet.getAmount () );
 
-            synchronized (profits) {
-                BigDecimal currentProfit = profits.getOrDefault(game.getGameName(), BigDecimal.ZERO);
-                profits.put(game.getGameName (),currentProfit.add(systemProfitFromThisBet));
-            }
-        } catch (Exception e) {
-            System.err.println ( "Σφάλμα κατά τον υπολογισμό κέρδους: " + e.getMessage ( ) );
+
+    public static void main(String args[]) {
+        if (args.length < 1) {
+            System.out.println("Error: Please provide a port number.");
+            System.out.println("Usage: java Worker.Worker <port>");
+            return;
         }
-        return playerPayout;
+
+        int port = Integer.parseInt(args[0]);
+        String ip = "127.0.0.1";
+
+        Worker w = new Worker(ip, port);
+        w.openServer();
     }
+
+
+
+    ServerSocket providerSocket;
+    Socket connection = null;
+
+    void openServer() {
+        try {
+            providerSocket = new ServerSocket(4321, 10);
+
+            while (true) {
+                connection = providerSocket.accept();
+
+                Thread workerHandler = new WorkerHandler(connection);
+                workerHandler.start();
+
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } finally {
+            try {
+                providerSocket.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
+
 }
