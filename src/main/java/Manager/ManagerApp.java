@@ -2,14 +2,9 @@ package Manager;
 
 import java.util.Scanner;
 
-public class Manager {
-    private String managerId;
+public class ManagerApp {
 
-    Manager(String managerId){
-        this.managerId=managerId;
-    }
-
-    public void startConsoleMenu() {
+    public static void startConsoleMenu() {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
@@ -29,6 +24,7 @@ public class Manager {
                 case "0":
                     running=false;
                 case "1":
+
                 case "2":
                 case "3":
                 case "4":
@@ -39,7 +35,7 @@ public class Manager {
         scanner.close();
     }
     public static void main(String[] args) {
-        Manager manager=new Manager ( "manager1" );
-        manager.startConsoleMenu ();
+        startConsoleMenu ();
+
     }
 }
