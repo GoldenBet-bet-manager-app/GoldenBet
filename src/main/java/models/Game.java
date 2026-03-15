@@ -180,5 +180,20 @@ public class Game implements Serializable {
     public void setCategory (String category) {
         this.category = category;
     }
+
+
+    @Override
+    public String toString() {
+        return "Game {" +
+                "\n  Name:         '" + gameName + '\'' +
+                "\n  Provider:     '" + providerName + '\'' +
+                "\n  Rating:       " + stars + " stars (" + votes + " votes)" +
+                "\n  Risk:         " + riskLevel.toUpperCase() +
+                "\n  Bets:         " + minBet + "(min) - " + maxBet + "(max) [" + betCategory + "]" +
+                "\n  Jackpot:      " + jackpot +
+                "\n  Multipliers:  " + java.util.Arrays.toString(multipliers) +
+                "\n  HashKey:      '" + hashKey + '\'' +
+                "\n}";
+    }
 }
 

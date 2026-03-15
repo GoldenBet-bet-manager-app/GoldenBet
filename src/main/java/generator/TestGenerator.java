@@ -37,7 +37,7 @@ public class TestGenerator {
             System.out.print("δωσε ονομα παιχνιδου: ");
             String name = sc.nextLine();
 
-            while (name != "finish"){
+            while (!name.equalsIgnoreCase("finish")){
                s = new Socket("127.0.0.1", 5000);
                out= new ObjectOutputStream(s.getOutputStream());
                in = new ObjectInputStream(s.getInputStream());
