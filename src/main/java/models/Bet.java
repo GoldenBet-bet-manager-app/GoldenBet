@@ -5,12 +5,12 @@ import java.math.BigDecimal;
 
 public class Bet implements Serializable {
     BigDecimal amount;
-    String playername,gamename;
+    String playerid,gamename;
 
 
-    public Bet (BigDecimal amount, String playername, String gamename) {
+    public Bet (BigDecimal amount, String playerid, String gamename) {
         this.amount = amount;
-        this.playername = playername;
+        this.playerid = playerid;
         this.gamename = gamename;
     }
 
@@ -23,11 +23,11 @@ public class Bet implements Serializable {
     }
 
     public String getPlayername() {
-        return playername;
+        return playerid;
     }
 
     public void setPlayername (String playername) {
-        this.playername = playername;
+        this.playerid = playername;
     }
 
     public String getGamename(){
