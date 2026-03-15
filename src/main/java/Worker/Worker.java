@@ -53,8 +53,8 @@ public class Worker {
             while (true) {
                 connection = providerSocket.accept();
 
-                Thread workerHandler = new WorkerHandler(connection);
-                workerHandler.start();
+                //Thread workerHandler = new WorkerHandler(connection);
+                //workerHandler.start();
 
             }
         } catch (IOException ioException) {
