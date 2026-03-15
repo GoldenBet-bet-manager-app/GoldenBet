@@ -1,7 +1,10 @@
 package Client;
 
+import models.Bet;
 import models.MasterMessage;
 import models.MasterMessageType;
+
+import java.math.BigDecimal;
 
 public class PlayClient extends Client {
 
@@ -13,12 +16,17 @@ public class PlayClient extends Client {
     public void run() {
         super.run();
         Object response = getResponse();
-        System.out.println("\n===== Αποτέλεσμα Παιχνιδιού =====");
+        BigDecimal payout = (BigDecimal) response;
+        System.out.println("\n======= Αποτέλεσμα Παιχνιδιού =======");
         if (response != null) {
-            System.out.println(response.toString());// edo prepei na emfanizetai exases h kerdises p 50 token
+            if(payout.compareTo(BigDecimal.ZERO) > 0){
+                System.out.println("Συγχαρητήρια! Κερδίσατε " + payout + " tokens!");
+            } else {
+                System.out.println ( "Δυστυχώς δεν κερδίσατε αυτή τη φορά. Καλή τύχη στο επόμενο ποντάρισμα!" );
+            }
         } else {
             System.out.println("Σφάλμα: Δεν λάβαμε απάντηση από τον Master.");
         }
-        System.out.println("=============================\n");
+
     }
 }

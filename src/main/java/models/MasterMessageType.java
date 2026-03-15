@@ -1,4 +1,4 @@
-package Master;
+package models;
 
 public enum MasterMessageType {
     ADD_GAME,
@@ -6,5 +6,6 @@ public enum MasterMessageType {
     SEARCH,
     PLAY,
     ADD_BALANCE,
-    STATS
+    STATS,
+    RATE
 }

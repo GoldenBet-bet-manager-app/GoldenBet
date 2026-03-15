@@ -18,7 +18,6 @@ public class Master{
 
     void openServer() {
 
-
         loadWorkersConfig("workers.conf");
 
         try {

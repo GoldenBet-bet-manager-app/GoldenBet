@@ -1,11 +1,10 @@
 package Master;
 
-import models.Game;
+import models.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -30,7 +29,10 @@ public class MasterHandler extends Thread{
 
     @Override
     public void run() {
-
+        int numofworkes = workers.size();
+        int gameWorkerIndex;
+        Worker target;
+        Object response;
         try {
 
             MasterMessage message = (MasterMessage) in.readObject();
@@ -39,25 +41,48 @@ public class MasterHandler extends Thread{
             switch (type){
                 case ADD_GAME:
                     Game addedGame = (Game) message.getPayload();
-                    int n = workers.size();
-                    int gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),n);
+                     gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numofworkes);
+                     target = workers.get(gameWorkerIndex);
 
-                    Worker target = workers.get(gameWorkerIndex);
-
-
-                    Object response = sendRequestToWorker(target, message); // response returned to master
+                     response = sendRequestToWorker(target, message); // response returned to master
 
                     out.writeObject(response); // response returned to manager
                     out.flush();
 
 
-
                     break;
                 case REMOVE_GAME:
                 case SEARCH:
+                    ArrayList<Game> allMatchedGames = new ArrayList<> ();
+                    for(Worker w:workers) {
+                        response = sendRequestToWorker ( w, message );
+                        if ( response instanceof ArrayList<?> ) {
+                            allMatchedGames.addAll ( (ArrayList<Game>) response );
+                        }
+
+                    }
+                    out.writeObject(allMatchedGames); // response returned to manager
+                    out.flush();
+                    break;
                 case PLAY:
+                    Bet bet = (Bet) message.getPayload ();
+                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numofworkes);
+                    target = workers.get(gameWorkerIndex);
+                    response = sendRequestToWorker(target, message); // response returned to master
+                    out.writeObject(response); // response returned to manager
+                    out.flush();
+                    break;
+
                 case ADD_BALANCE:
                 case STATS:
+                case RATE:
+                    Rating rating = (Rating) message.getPayload ();
+                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numofworkes);
+                    target = workers.get(gameWorkerIndex);
+                    response = sendRequestToWorker(target, message); // response returned to master
+                    out.writeObject(response); // response returned to manager
+                    out.flush();
+                    break;
 
             }
 
@@ -86,33 +111,33 @@ public class MasterHandler extends Thread{
         ObjectInputStream inWorker = null;
 
         try {
-            requestSocket = new Socket(target.getIp(), target.getPort());
-            outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
-            inWorker = new ObjectInputStream(requestSocket.getInputStream());
+            requestSocket = new Socket ( target.getIp ( ), target.getPort ( ) );
+            outWorker = new ObjectOutputStream ( requestSocket.getOutputStream ( ) );
+            inWorker = new ObjectInputStream ( requestSocket.getInputStream ( ) );
 
-            outWorker.writeObject(message);
-            outWorker.flush();
+            outWorker.writeObject ( message );
+            outWorker.flush ( );
 
-            return inWorker.readObject();
+            return inWorker.readObject ( );
 
         } catch (UnknownHostException unknownHost) {
-            System.err.println("You are trying to connect to an unknown host!");
+            System.err.println ( "You are trying to connect to an unknown host!" );
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ioException.printStackTrace ( );
         } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            e.printStackTrace ( );
         } finally {
             try {
 
-                in.close();	out.close();
-                requestSocket.close();
+                in.close ( );
+                out.close ( );
+                requestSocket.close ( );
 
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                ioException.printStackTrace ( );
             }
         }
-
+        return null;
     }
 
 
