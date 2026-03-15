@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 public class RandomNumberGenerator extends Thread{
 
-    private LinkedList<Integer> buffer;
+    private final LinkedList<Integer> buffer;
     private int maxCapacity;
 
     public RandomNumberGenerator(){
@@ -26,8 +26,9 @@ public class RandomNumberGenerator extends Thread{
             try {
                 wait();
             }catch(InterruptedException e) {
-
+                System.err.println("Generator thread was interrupted while waiting to add a number.");
             }
+
         }
         buffer.add(number);
         notifyAll();
@@ -39,7 +40,7 @@ public class RandomNumberGenerator extends Thread{
             try {
                 wait();
             }catch(InterruptedException e){
-
+                System.err.println("Handler thread was interrupted while waiting for a number.");
             }
         }
         int number = buffer.removeFirst();
@@ -55,4 +56,12 @@ public class RandomNumberGenerator extends Thread{
         while(true) addNumberToBuffer(Math.abs(r.nextInt()));
     }
 
+
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
 }

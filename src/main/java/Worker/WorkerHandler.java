@@ -79,7 +79,7 @@ public class WorkerHandler extends Thread {
             int newStarRating = rating.getStars ( );
             int totalstars = (currentStars * currentVotes) + newStarRating;
             int newVotes = currentVotes + 1;
-            int average = totalstars / newVotes;
+            average = totalstars / newVotes;
             game.setStars ( totalstars );
             game.setVotes ( newVotes );
             return average;

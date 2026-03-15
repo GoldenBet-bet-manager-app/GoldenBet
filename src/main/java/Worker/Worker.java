@@ -15,19 +15,22 @@ public class Worker {
     private String ip;
     private int port;
     private final int workerid;
-    private int counter=0;
+    private int counter = 0;
 
     public Worker(String ip, int port) {
+
         this.ip = ip;
         this.port = port;
         this.workerid = counter++;
     }
+
     public String getIp() { return ip; }
     public int getPort() { return port; }
 
 
 
-    public static void main(String args[]) {
+    public static void main(String [] args) {
+
         if (args.length < 1) {
             System.out.println("Error: Please provide a port number.");
             System.out.println("Usage: java Worker.Worker <port>");
@@ -48,7 +51,7 @@ public class Worker {
 
     void openServer() {
         try {
-            providerSocket = new ServerSocket(4321, 10);
+            providerSocket = new ServerSocket(this.port, 10);
 
             while (true) {
                 connection = providerSocket.accept();

@@ -7,7 +7,7 @@ import Worker.Worker;
 
 public class Master{
 
-    public static void main(String args[]) {
+    public static void main(String []args) {
         new Master().openServer();
     }
 
