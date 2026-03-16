@@ -12,11 +12,14 @@ import java.util.ArrayList;
 import Worker.Worker;
 
 public class MasterHandler extends Thread{
+
+
     ObjectInputStream in;
     ObjectOutputStream out;
     private ArrayList<Worker> workers;
 
     public MasterHandler(Socket connection,ArrayList<Worker> workers) {
+
         this.workers = workers;
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
@@ -28,7 +31,8 @@ public class MasterHandler extends Thread{
 
 
     @Override
-    public void run() {
+    public void run(){
+
         int numofworkes = workers.size();
         int gameWorkerIndex;
         Worker target;
@@ -40,20 +44,25 @@ public class MasterHandler extends Thread{
 
             switch (type){
                 case ADD_GAME:
+
                     Game addedGame = (Game) message.getPayload();
-                     gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numofworkes);
-                     target = workers.get(gameWorkerIndex);
+                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numofworkes);
+                    target = workers.get(gameWorkerIndex);
 
-                     response = sendRequestToWorker(target, message); // response returned to master
+                    response = sendRequestToWorker(target, message); // response returned to master
 
-                    out.writeObject(response); // response returned to manager
-                    out.flush();
-
-
+                    if (response == null) {
+                        out.writeObject("Error: Could not communicate with Worker.");
+                    }else{
+                        out.writeObject(response); // response returned to manager
+                        out.flush();
+                    }
                     break;
+
                 case REMOVE_GAME:
                 case SEARCH:
                     ArrayList<Game> allMatchedGames = new ArrayList<> ();
+
                     for(Worker w:workers) {
                         response = sendRequestToWorker ( w, message );
                         if ( response instanceof ArrayList<?> ) {
@@ -64,6 +73,7 @@ public class MasterHandler extends Thread{
                     out.writeObject(allMatchedGames); // response returned to manager
                     out.flush();
                     break;
+
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
                     gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numofworkes);
@@ -99,50 +109,33 @@ public class MasterHandler extends Thread{
                 ioException.printStackTrace();
             }
         }
-
-
     }
 
 
     private Object sendRequestToWorker(Worker target, MasterMessage message) {
 
-        Socket requestSocket = null;
-        ObjectOutputStream outWorker = null;
-        ObjectInputStream inWorker = null;
+        try(Socket requestSocket = new Socket(target.getIp(), target.getPort());
+            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
+            ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
 
-        try {
-            requestSocket = new Socket ( target.getIp ( ), target.getPort ( ) );
-            outWorker = new ObjectOutputStream ( requestSocket.getOutputStream ( ) );
-            inWorker = new ObjectInputStream ( requestSocket.getInputStream ( ) );
+            outWorker.writeObject(message);
+            outWorker.flush();
 
-            outWorker.writeObject ( message );
-            outWorker.flush ( );
-
-            return inWorker.readObject ( );
+            return inWorker.readObject();
 
         } catch (UnknownHostException unknownHost) {
-            System.err.println ( "You are trying to connect to an unknown host!" );
-        } catch (IOException ioException) {
-            ioException.printStackTrace ( );
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace ( );
-        } finally {
-            try {
-
-                in.close ( );
-                out.close ( );
-                requestSocket.close ( );
-
-            } catch (IOException ioException) {
-                ioException.printStackTrace ( );
-            }
+            System.err.println("You are trying to connect to an unknown host!");
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Worker Connection Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
 
 
-    private int hashGameToWorker(String gameName,int numbersofWorkers){
-        int hash=Math.abs ( gameName.hashCode () );
-        return hash % numbersofWorkers;
+    private int hashGameToWorker(String gameName,int numbersOfWorkers){
+
+        int hash = Math.abs ( gameName.hashCode () );
+        return hash % numbersOfWorkers;
     }
 }
