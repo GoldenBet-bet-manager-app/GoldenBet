@@ -29,10 +29,11 @@ public class MasterHandler extends Thread{
 
     @Override
     public void run() {
-        int numofworkes = workers.size();
+        int numofworkers = workers.size();
         int gameWorkerIndex;
         Worker target;
         Object response;
+
         try {
 
             MasterMessage message = (MasterMessage) in.readObject();
@@ -41,10 +42,11 @@ public class MasterHandler extends Thread{
             switch (type){
                 case ADD_GAME:
                     Game addedGame = (Game) message.getPayload();
-                     gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numofworkes);
-                     target = workers.get(gameWorkerIndex);
+                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numofworkers);
+                    target = workers.get(gameWorkerIndex);
 
-                     response = sendRequestToWorker(target, message); // response returned to master
+                    System.out.println("Master is adding game: "+addedGame.getGameName());
+                    response = sendRequestToWorker(target, message); // response returned to master
 
                     out.writeObject(response); // response returned to manager
                     out.flush();
@@ -52,6 +54,7 @@ public class MasterHandler extends Thread{
 
                     break;
                 case REMOVE_GAME:
+                    break;
                 case SEARCH:
                     ArrayList<Game> allMatchedGames = new ArrayList<> ();
                     for(Worker w:workers) {
@@ -66,7 +69,7 @@ public class MasterHandler extends Thread{
                     break;
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numofworkes);
+                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numofworkers);
                     target = workers.get(gameWorkerIndex);
                     response = sendRequestToWorker(target, message); // response returned to master
                     out.writeObject(response); // response returned to manager
@@ -77,7 +80,7 @@ public class MasterHandler extends Thread{
                 case STATS:
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numofworkes);
+                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numofworkers);
                     target = workers.get(gameWorkerIndex);
                     response = sendRequestToWorker(target, message); // response returned to master
                     out.writeObject(response); // response returned to manager
@@ -106,37 +109,24 @@ public class MasterHandler extends Thread{
 
     private Object sendRequestToWorker(Worker target, MasterMessage message) {
 
-        Socket requestSocket = null;
-        ObjectOutputStream outWorker = null;
-        ObjectInputStream inWorker = null;
 
-        try {
-            requestSocket = new Socket ( target.getIp ( ), target.getPort ( ) );
-            outWorker = new ObjectOutputStream ( requestSocket.getOutputStream ( ) );
-            inWorker = new ObjectInputStream ( requestSocket.getInputStream ( ) );
+        try (Socket requestSocket = new Socket(target.getIp(), target.getPort());
+            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
+            ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream())) {
 
-            outWorker.writeObject ( message );
-            outWorker.flush ( );
+            outWorker.writeObject(message);
+            outWorker.flush();
 
-            return inWorker.readObject ( );
+            return inWorker.readObject();
 
-        } catch (UnknownHostException unknownHost) {
-            System.err.println ( "You are trying to connect to an unknown host!" );
-        } catch (IOException ioException) {
-            ioException.printStackTrace ( );
+        } catch (UnknownHostException e) {
+            System.err.println("Άγνωστος Host: " + target.getIp());
+        } catch (IOException e) {
+            System.err.println("Σφάλμα I/O κατά την επικοινωνία με τον Worker στο port " + target.getPort());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace ( );
-        } finally {
-            try {
-
-                in.close ( );
-                out.close ( );
-                requestSocket.close ( );
-
-            } catch (IOException ioException) {
-                ioException.printStackTrace ( );
-            }
+            System.err.println("Η κλάση της απάντησης δεν βρέθηκε.");
         }
+
         return null;
     }
 

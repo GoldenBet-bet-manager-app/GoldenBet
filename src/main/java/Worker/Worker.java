@@ -16,9 +16,10 @@ public class Worker {
     private int port;
     private final int workerid;
     private int counter = 0;
+    private HashMap<String, BigDecimal> profits = new HashMap<> ( );
+    private HashMap<String, Game> myGames = new HashMap<> ( );
 
     public Worker(String ip, int port) {
-
         this.ip = ip;
         this.port = port;
         this.workerid = counter++;
@@ -55,9 +56,8 @@ public class Worker {
 
             while (true) {
                 connection = providerSocket.accept();
-
-                //Thread workerHandler = new WorkerHandler(connection);
-                //workerHandler.start();
+                Thread workerHandler = new WorkerHandler(connection, myGames, profits);
+                workerHandler.start();
 
             }
         } catch (IOException ioException) {

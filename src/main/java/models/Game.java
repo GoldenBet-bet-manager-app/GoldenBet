@@ -18,6 +18,9 @@ public class Game implements Serializable {
     private BigDecimal jackpot;
     private String category;
     private BigDecimal[] multipliers;
+    private boolean active = true;
+
+
 
 
     public Game (String gameName, String providerName, int stars, int votes,
@@ -180,6 +183,10 @@ public class Game implements Serializable {
     public void setCategory (String category) {
         this.category = category;
     }
+
+    public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
 
 
     @Override
