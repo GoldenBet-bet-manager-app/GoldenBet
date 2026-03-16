@@ -1,7 +1,6 @@
 package Master;
 
 import models.*;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,7 +9,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import Worker.Worker;
-
 import static java.util.UUID.randomUUID;
 
 
@@ -38,10 +36,11 @@ public class MasterHandler extends Thread{
     @Override
     public void run(){
 
-        int numOfWorker = workers.size();
+        int numOfWorkers = workers.size();
         int gameWorkerIndex;
         Worker target;
         Object response;
+
         try {
 
             MasterMessage message = (MasterMessage) in.readObject();
@@ -49,11 +48,12 @@ public class MasterHandler extends Thread{
 
             switch (type){
                 case ADD_GAME:
-
                     Game addedGame = (Game) message.getPayload();
-                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorker);
+                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorkers);
+                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorkers);
                     target = workers.get(gameWorkerIndex);
 
+                    System.out.println("Master is adding game: "+addedGame.getGameName());
                     response = sendRequestToWorker(target, message); // response returned to master
 
                     if (response == null) {
@@ -65,6 +65,7 @@ public class MasterHandler extends Thread{
                     break;
 
                 case REMOVE_GAME:
+                    break;
                 case SEARCH:
 
                     int currentMapId = Math.abs(randomUUID().hashCode());
@@ -101,18 +102,16 @@ public class MasterHandler extends Thread{
 
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numOfWorker);
+                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numOfWorkers);
                     target = workers.get(gameWorkerIndex);
                     response = sendRequestToWorker(target, message); // response returned to master
                     out.writeObject(response); // response returned to manager
                     out.flush();
                     break;
-
-                case ADD_BALANCE:
                 case STATS:
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numOfWorker);
+                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numOfWorkers);
                     target = workers.get(gameWorkerIndex);
                     response = sendRequestToWorker(target, message); // response returned to master
                     out.writeObject(response); // response returned to manager
@@ -153,6 +152,7 @@ public class MasterHandler extends Thread{
             System.err.println("Worker Connection Error: " + e.getMessage());
             e.printStackTrace();
         }
+
         return null;
     }
 

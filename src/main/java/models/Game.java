@@ -7,7 +7,7 @@ public class Game implements Serializable {
 
     private String gameName;
     private String providerName;
-    private int stars;
+    private float stars;
     private int votes;
     private String gameLogo;
     private BigDecimal minBet;
@@ -18,9 +18,12 @@ public class Game implements Serializable {
     private BigDecimal jackpot;
     private String category;
     private BigDecimal[] multipliers;
+    private boolean active = true;
 
 
-    public Game (String gameName, String providerName, int stars, int votes,
+
+
+    public Game (String gameName, String providerName, float stars, int votes,
                  String gameLogo, BigDecimal minBet, BigDecimal maxBet,
                  String riskLevel, String hashKey) {
         super ( );
@@ -97,11 +100,11 @@ public class Game implements Serializable {
         this.providerName = providerName;
     }
 
-    public int getStars ( ) {
+    public float getStars ( ) {
         return stars;
     }
 
-    public void setStars (int stars) {
+    public void setStars (float stars) {
         this.stars = stars;
     }
 
@@ -180,6 +183,10 @@ public class Game implements Serializable {
     public void setCategory (String category) {
         this.category = category;
     }
+
+    public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
 
 
     @Override

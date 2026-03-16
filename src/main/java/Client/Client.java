@@ -30,7 +30,7 @@ public class Client extends Thread {
             out.writeObject ( object );
             out.flush ( );
             response = in.readObject ( );
-//EDO KANO PRINT TO RESPONSE
+
         } catch (UnknownHostException unknownHost) {
             System.err.println ( "You are trying to connect to an unknown host!" );
         } catch (IOException e) {

@@ -5,7 +5,6 @@ public enum MasterMessageType {
     REMOVE_GAME,
     SEARCH,
     PLAY,
-    ADD_BALANCE,
     STATS,
     RATE
 }
