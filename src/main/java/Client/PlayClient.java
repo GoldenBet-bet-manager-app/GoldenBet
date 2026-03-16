@@ -1,9 +1,5 @@
 package Client;
 
-import models.Bet;
-import models.MasterMessage;
-import models.MasterMessageType;
-
 import java.math.BigDecimal;
 
 public class PlayClient extends Client {

@@ -3,7 +3,10 @@ package Master;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import Worker.Worker;
+import models.MasterMessage;
 
 public class Master{
 
@@ -12,33 +15,72 @@ public class Master{
         new Master().openServer();
     }
 
-    ServerSocket providerSocket;
-    Socket connection = null;
-    ArrayList<Worker> workersList = new ArrayList<>();
+    final ArrayList<Worker> workersList = new ArrayList<>();
+    final HashMap<Integer, ResultBox> sharedResults = new HashMap<>();
 
     void openServer() {
 
         loadWorkersConfig("workers.conf");
 
-        try {
-            providerSocket = new ServerSocket(43210, 10);
+        startReducerListener(43211);
 
-            while (true) {
+        try(ServerSocket providerSocket = new ServerSocket(43210, 50);){
 
-                connection = providerSocket.accept();
-                Thread t = new MasterHandler(connection,workersList);
+            System.out.println("Listening for Clients on port 43210...");
+            while(true) {
+
+                Socket connection = providerSocket.accept();
+                Thread t = new MasterHandler(connection, workersList , sharedResults);
                 t.start();
-
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();
-        } finally {
-            try {
-                providerSocket.close();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
         }
+    }
+
+
+
+    private void startReducerListener(int port){
+
+        new Thread(()-> {
+            try(ServerSocket reducerSocket = new ServerSocket(port)) {
+
+                System.out.println("Master is listening for Reducer results on port " + port + "...");
+                while(true){
+
+                    Socket reducerConnection = reducerSocket.accept();
+                    new Thread(() -> {
+
+                        try(ObjectInputStream in = new ObjectInputStream(reducerConnection.getInputStream()) ;){
+
+                            MasterMessage incomingMessage = (MasterMessage) in.readObject();
+                            int mapId = incomingMessage.getMapId();
+
+                            ResultBox targetBox;
+
+                            synchronized (sharedResults){
+                                targetBox = sharedResults.remove(mapId);
+                            }
+
+                            if(targetBox != null){
+                                synchronized(targetBox){
+                                    targetBox.setFinalMessage(incomingMessage);
+                                    targetBox.notify();
+                                }
+                            }
+                            reducerConnection.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                }
+
+            }catch (IOException e) {
+                System.err.println("Reducer Listener Error: " + e.getMessage());
+            }
+
+        }).start();
     }
 
 

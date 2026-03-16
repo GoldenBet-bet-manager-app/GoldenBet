@@ -1,8 +1,6 @@
 package Client;
 
 import models.Game;
-import models.MasterMessage;
-import models.MasterMessageType;
 
 import java.util.ArrayList;
 

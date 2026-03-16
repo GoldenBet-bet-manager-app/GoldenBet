@@ -8,8 +8,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import Worker.Worker;
+
+import static java.util.UUID.randomUUID;
+
 
 public class MasterHandler extends Thread{
 
@@ -17,10 +20,12 @@ public class MasterHandler extends Thread{
     ObjectInputStream in;
     ObjectOutputStream out;
     private ArrayList<Worker> workers;
+    private HashMap<Integer, ResultBox> sharedResults;
 
-    public MasterHandler(Socket connection,ArrayList<Worker> workers) {
+    public MasterHandler(Socket connection,ArrayList<Worker> workers, HashMap<Integer, ResultBox> sharedResults ) {
 
         this.workers = workers;
+        this.sharedResults = sharedResults;
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
@@ -33,7 +38,7 @@ public class MasterHandler extends Thread{
     @Override
     public void run(){
 
-        int numofworkes = workers.size();
+        int numOfWorker = workers.size();
         int gameWorkerIndex;
         Worker target;
         Object response;
@@ -46,7 +51,7 @@ public class MasterHandler extends Thread{
                 case ADD_GAME:
 
                     Game addedGame = (Game) message.getPayload();
-                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numofworkes);
+                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorker);
                     target = workers.get(gameWorkerIndex);
 
                     response = sendRequestToWorker(target, message); // response returned to master
@@ -61,22 +66,42 @@ public class MasterHandler extends Thread{
 
                 case REMOVE_GAME:
                 case SEARCH:
-                    ArrayList<Game> allMatchedGames = new ArrayList<> ();
 
-                    for(Worker w:workers) {
-                        response = sendRequestToWorker ( w, message );
-                        if ( response instanceof ArrayList<?> ) {
-                            allMatchedGames.addAll ( (ArrayList<Game>) response );
-                        }
+                    int currentMapId = Math.abs(randomUUID().hashCode());
+                    message.setMapId(currentMapId);
 
+                    ResultBox myBox = new ResultBox();
+
+                    synchronized(sharedResults){
+                        sharedResults.put(currentMapId, myBox);
                     }
-                    out.writeObject(allMatchedGames); // response returned to manager
+
+                    for(Worker w: workers){
+                        new Thread(() -> {
+                            sendMapRequestToWorker(w, message);
+                        }).start();
+                    }
+
+                    synchronized (myBox){
+                        while(myBox.getFinalMessage() == null) {
+                            try {
+                                myBox.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    MasterMessage finalResultMsg = myBox.getFinalMessage();
+                    ArrayList<Game> finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
+
+                    out.writeObject(finalGames);
                     out.flush();
                     break;
 
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numofworkes);
+                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numOfWorker);
                     target = workers.get(gameWorkerIndex);
                     response = sendRequestToWorker(target, message); // response returned to master
                     out.writeObject(response); // response returned to manager
@@ -87,13 +112,12 @@ public class MasterHandler extends Thread{
                 case STATS:
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numofworkes);
+                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numOfWorker);
                     target = workers.get(gameWorkerIndex);
                     response = sendRequestToWorker(target, message); // response returned to master
                     out.writeObject(response); // response returned to manager
                     out.flush();
                     break;
-
             }
 
 
@@ -130,6 +154,18 @@ public class MasterHandler extends Thread{
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void sendMapRequestToWorker(Worker w, MasterMessage message){
+        try(Socket requestSocket = new Socket(w.getIp(), w.getPort());
+            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());){
+
+            outWorker.writeObject(message);
+            outWorker.flush();
+
+        }catch (IOException e) {
+            System.err.println("Worker Map Phase Connection Error: " + e.getMessage());
+        }
     }
 
 

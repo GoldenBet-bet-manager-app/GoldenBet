@@ -4,27 +4,39 @@ import java.io.Serializable;
 
 public class MasterMessage implements Serializable {
 
-    private MasterMessageType type;
+    private final MasterMessageType type;
     private Object payload;
+    private int mapId;
 
     public MasterMessage(MasterMessageType type, Object payload) {
         this.type = type;
         this.payload = payload;
+        this.mapId = -1;
     }
 
-    public MasterMessageType getType() {
+    public MasterMessage(Object payload, int mapId) {
+        this.type = null;
+        this.payload = payload;
+        this.mapId = mapId;
+    }
+
+    public MasterMessageType getType(){
         return type;
     }
 
-    public void setType(MasterMessageType type) {
-        this.type = type;
-    }
-
-    public Object getPayload() {
+    public Object getPayload(){
         return payload;
     }
 
-    public void setPayload(Object payload) {
+    public void setPayload(Object payload){
         this.payload = payload;
+    }
+
+    public int getMapId(){
+        return mapId;
+    }
+
+    public void setMapId(int mapId){
+        this.mapId = mapId;
     }
 }
