@@ -51,7 +51,7 @@ public class Master{
                 if (line.startsWith("#") || line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(":");
-                Worker newWorker = new Worker(parts[0], Integer.parseInt(parts[1]));
+                Worker newWorker=new Worker(parts[0], Integer.parseInt(parts[1]));
                 workersList.add(newWorker);
                 new Thread(newWorker).start();
             }

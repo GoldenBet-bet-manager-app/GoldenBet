@@ -47,7 +47,10 @@ public class WorkerHandler extends Thread {
                 response = CalculateProfit ( bet );
                 break;
             case ADD_GAME:
-
+                Game game = (Game) message.getPayload ( );
+                myGames.put ( game.getGameName ( ), game );
+                response = "Το παιχνίδι '" + game.getGameName ( ) + "' αποθηκεύτηκε επιτυχώς!";
+                break;
             case RATE:
                 Rating rating = (Rating) message.getPayload ( );
                 response = averageRate ( rating );
@@ -61,8 +64,22 @@ public class WorkerHandler extends Thread {
             case STATS:
 
         }
-    }
 
+        try {
+            out.writeObject ( response );
+            out.flush ( );
+        } catch (IOException e) {
+            throw new RuntimeException ( e );
+        } finally {
+            try {
+                in.close ( );
+                out.close ( );
+            } catch (IOException ioException) {
+                ioException.printStackTrace ( );
+            }
+        }
+
+    }
     private int getSecuredRandomNumber (String gameName) {
         Socket requestSocket = null;
         ObjectOutputStream out = null;
@@ -148,23 +165,22 @@ public class WorkerHandler extends Thread {
         return matchedGames;
     }
 
-    private BigDecimal averageRate (Rating rating) {
-        BigDecimal averagerate = BigDecimal.ZERO;
+    private float averageRate (Rating rating) {
+        float averagerate = 0.0F;
         Game game = myGames.get ( rating.getGameName ( ) );
         if ( game != null ) {
-            int currentStars = game.getStars ( );
+            float currentStars = game.getStars ( );
             int currentVotes = game.getVotes ( );
-            int newStarRating = rating.getStars ( );
-            int totalstars = (currentStars * currentVotes) + newStarRating;
+            float newStarRating = rating.getStars ( );
+            float totalstars = (currentStars * currentVotes) + newStarRating;
             int newVotes = currentVotes + 1;
-            int average = totalstars / newVotes;
-            averagerate = new BigDecimal ( average );
-            game.setStars ( totalstars );
+            float average = totalstars / newVotes;
+            game.setStars ( average );
             game.setVotes ( newVotes );
             return averagerate;
         } else {
             System.err.println ( "Το παιχνίδι για βαθμολογία δεν βρέθηκε σε αυτόν τον Worker." );
-            return null;
+            return 0;
 
         }
 

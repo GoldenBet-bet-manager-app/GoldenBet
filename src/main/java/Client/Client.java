@@ -29,11 +29,7 @@ public class Client extends Thread {
 
             out.writeObject ( object );
             out.flush ( );
-            response = in.readObject();
-
-            if (response != null) {
-                System.out.println("\n[MASTER RESPONSE]: " + response.toString());
-            }
+            response = in.readObject ( );
 
         } catch (UnknownHostException unknownHost) {
             System.err.println ( "You are trying to connect to an unknown host!" );
@@ -41,7 +37,8 @@ public class Client extends Thread {
             System.err.println ( "Σφάλμα I/O στην επικοινωνία με την πόρτα " + port );
             e.printStackTrace ( );
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println ( "Η κλάση του αντικειμένου που διαβάστηκε δεν βρέθηκε!" );
+            e.printStackTrace ( );
         } finally {
             try {
                 in.close ( );

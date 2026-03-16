@@ -19,53 +19,55 @@ import static models.MasterMessageType.ADD_GAME;
 
 public class ManagerApp {
 
-    private static ArrayList<File> showGamesList(String folderPath, String operation){
-        File folder = new File(folderPath);
+    private static ArrayList<File> showGamesList (String folderPath, String operation) {
+        File folder = new File ( folderPath );
 
         // Filtering so that only json files are visible
-        File[] filesArray = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+        File[] filesArray = folder.listFiles ( (dir, name) -> name.toLowerCase ( ).endsWith ( ".json" ) );
 
-        ArrayList<File> files = new ArrayList<>(Arrays.asList(filesArray));
+        ArrayList<File> files = new ArrayList<> ( Arrays.asList ( filesArray ) );
 
-        System.out.println();
-        if (files.isEmpty()) {
-            System.out.println("No JSON files were found in folder " + folderPath);
+        System.out.println ( );
+        if ( files.isEmpty ( ) ) {
+            System.out.println ( "No JSON files were found in folder " + folderPath );
             return null;
         }
 
-        System.out.println("Available game files to :" + operation);
-        System.out.println("-----------------------------------------");
-        for (int i = 0; i < files.size(); i++) {
-            System.out.println((i + 1) + ". " + files.get(i).getName());
+        System.out.println ( "Available game files to :" + operation );
+        System.out.println ( "-----------------------------------------" );
+        for ( int i = 0; i < files.size ( ); i++ ) {
+            System.out.println ( (i + 1) + ". " + files.get ( i ).getName ( ) );
         }
-        System.out.println("-----------------------------------------");
+        System.out.println ( "-----------------------------------------" );
         return files;
     }
 
-    private static int gameJSONSelection(ArrayList<File> jsonFiles, Scanner scanner){
+    private static int gameJSONSelection (ArrayList<File> jsonFiles, Scanner scanner) {
         String gameChoiceStr;
 
-        System.out.print("Game number: ");
-        gameChoiceStr = scanner.nextLine();
+        System.out.print ( "Game number: " );
+        gameChoiceStr = scanner.nextLine ( );
         int index = -1;
         while (true) {
             // check whether gameChoiceStr is actually a number
-            if (gameChoiceStr.matches("\\d+")) {
-                int gameChoiceInt = Integer.parseInt(gameChoiceStr);
+            if ( gameChoiceStr.matches ( "\\d+" ) ) {
+                int gameChoiceInt = Integer.parseInt ( gameChoiceStr );
 
-                if (gameChoiceInt > 0 && gameChoiceInt <= jsonFiles.size()) {
+                if ( gameChoiceInt > 0 && gameChoiceInt <= jsonFiles.size ( ) ) {
                     index = gameChoiceInt - 1;
                     break;
                 } else {
-                    System.out.print("Wrong number! Please type from 1 to " + jsonFiles.size() + ": ");
-                    gameChoiceStr = scanner.nextLine();
+                    System.out.print ( "Wrong number! Please type from 1 to " + jsonFiles.size ( ) + ": " );
+                    gameChoiceStr = scanner.nextLine ( );
                 }
             } else {
-                System.out.print("Invalid! Type only a number (e.g. 1): ");
-                gameChoiceStr = scanner.nextLine();
+                System.out.print ( "Invalid! Type only a number (e.g. 1): " );
+                gameChoiceStr = scanner.nextLine ( );
             }
         }
+        return index;
     }
+
 
     public static void startConsoleMenu() {
         Scanner scanner = new Scanner(System.in);
@@ -122,7 +124,7 @@ public class ManagerApp {
 
                         MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
 
-                        Client client = new Client("127.0.0.1", 43210, message);
+                        Client client = new Client("127.0.0.1", 4321, message);
                         client.start();
 
                         // Wait for the client thread to finish before returning to manager's main menu

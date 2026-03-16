@@ -26,7 +26,6 @@ public class MasterHandler extends Thread{
         }
     }
 
-
     @Override
     public void run() {
         int numofworkers = workers.size();
@@ -75,8 +74,6 @@ public class MasterHandler extends Thread{
                     out.writeObject(response); // response returned to manager
                     out.flush();
                     break;
-
-                case ADD_BALANCE:
                 case STATS:
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
