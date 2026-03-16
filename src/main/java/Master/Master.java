@@ -21,7 +21,7 @@ public class Master{
         loadWorkersConfig("workers.conf");
 
         try {
-            providerSocket = new ServerSocket(43210, 10);
+            providerSocket = new ServerSocket(4321, 10);
 
             while (true) {
                 connection = providerSocket.accept();

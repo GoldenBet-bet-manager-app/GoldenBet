@@ -53,17 +53,7 @@ public class MasterHandler extends Thread{
                     break;
                 case REMOVE_GAME:
                 case SEARCH:
-                    ArrayList<Game> allMatchedGames = new ArrayList<> ();
-                    for(Worker w:workers) {
-                        response = sendRequestToWorker ( w, message );
-                        if ( response instanceof ArrayList<?> ) {
-                            allMatchedGames.addAll ( (ArrayList<Game>) response );
-                        }
-
-                    }
-                    out.writeObject(allMatchedGames); // response returned to manager
-                    out.flush();
-                    break;
+                   
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
                     gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numofworkes);
@@ -73,7 +63,6 @@ public class MasterHandler extends Thread{
                     out.flush();
                     break;
 
-                case ADD_BALANCE:
                 case STATS:
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
