@@ -7,15 +7,15 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Map;
 
-public class WorkerRequestHandler extends Thread{
+public class GeneratorHandler extends Thread{
 
 
     private Socket socket;
     private Map<String, RandomNumberGenerator> generators;
     private Map<String, String> secrets;
 
-    public WorkerRequestHandler(Socket socket, Map<String, RandomNumberGenerator> generators,
-                                    Map<String, String> secrets){
+    public GeneratorHandler(Socket socket, Map<String, RandomNumberGenerator> generators,
+                            Map<String, String> secrets){
 
         this.socket = socket;
         this.generators = generators;

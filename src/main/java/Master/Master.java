@@ -8,9 +8,9 @@ import Worker.Worker;
 public class Master{
 
     public static void main(String []args) {
+
         new Master().openServer();
     }
-
 
     ServerSocket providerSocket;
     Socket connection = null;
@@ -21,11 +21,11 @@ public class Master{
         loadWorkersConfig("workers.conf");
 
         try {
-            providerSocket = new ServerSocket(43210, 10);
+            providerSocket = new ServerSocket(4321, 10);
 
             while (true) {
-                connection = providerSocket.accept();
 
+                connection = providerSocket.accept();
                 Thread t = new MasterHandler(connection,workersList);
                 t.start();
 
@@ -43,15 +43,20 @@ public class Master{
 
 
     private void loadWorkersConfig(String fileName) {
+
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("#") || line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(":");
-                workersList.add(new Worker(parts[0], Integer.parseInt(parts[1])));
+                Worker newWorker = new Worker(parts[0], Integer.parseInt(parts[1]));
+                workersList.add(newWorker);
+                new Thread(newWorker).start();
             }
             System.out.println(workersList.size() + " Workers were initialized");
+
         } catch (IOException e) {
             System.err.println("Critical Error: Could not read config file!");
         }
