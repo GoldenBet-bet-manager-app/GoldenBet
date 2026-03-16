@@ -58,7 +58,7 @@ public class SRGServer {
 
                 Socket socket = serverSocket.accept();
 
-                WorkerRequestHandler handler = new WorkerRequestHandler(socket, generators, secrets);
+                GeneratorHandler handler = new GeneratorHandler(socket, generators, secrets);
                 System.out.println("i called generator " + i);
                 i+=1;
                 handler.start();
