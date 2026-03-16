@@ -83,7 +83,6 @@ public class MasterHandler extends Thread{
                     out.flush();
                     break;
 
-                case ADD_BALANCE:
                 case STATS:
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();

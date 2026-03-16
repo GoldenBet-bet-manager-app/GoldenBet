@@ -29,7 +29,7 @@ public class PlayerApp {
 
     public void search (String playerId, ArrayList<String> categories, int stars, String betLimit, String riskLevel) {//να βαλω exceptions edo
         SearchFilters filters = new SearchFilters ( playerId, categories, stars, betLimit, riskLevel );
-        SearchClient searchClient = new SearchClient ( "127.0.0.1", 4321, filters );
+        SearchClient searchClient = new SearchClient ( "127.0.0.1", 4321, new MasterMessage(MasterMessageType.SEARCH, filters) );
         searchClient.start ( );
         System.out.println ( "Αποστολή αιτήματος αναζήτησης στον Master... Παρακαλώ περιμένετε τα αποτελέσματα." );
     }
@@ -44,7 +44,7 @@ public class PlayerApp {
             throw new IllegalArgumentException ( "Σφάλμα: Δεν έχετε αρκετά tokens." );
         this.tokenBalance = this.tokenBalance.subtract ( amount );
         Bet bet = new Bet ( amount, currentPlayer.getName ( ), gameName );
-        PlayClient playClient = new PlayClient ( "127.0.0.1", 4321, bet );
+        PlayClient playClient = new PlayClient ( "127.0.0.1", 4321, new MasterMessage(MasterMessageType.PLAY, bet));
         playClient.start ( );
         System.out.println ( "Το ποντάρισμα για το παιχνίδι " + gameName + " στάλθηκε..." );
     }
@@ -64,7 +64,7 @@ public class PlayerApp {
 
         System.out.println ( "Αποστολή βαθμολογίας (" + stars + " αστέρια) για το " + gameName + "..." );
         Rating rating = new Rating ( currentPlayer.getPlayerId ( ), gameName, stars );
-        RatingClient ratingClient = new RatingClient ( "127.0.0.1", 4321, rating );
+        RatingClient ratingClient = new RatingClient ( "127.0.0.1", 4321, new MasterMessage(MasterMessageType.RATE, rating) );
         ratingClient.start ( );
     }
 
@@ -164,7 +164,7 @@ public class PlayerApp {
                         System.out.println ( "Αναζήτηση στα παιχνίδια του GoldenBet..." );
                         // currentplayer.search(myPlayer.getPlayerId(), searchCategories, searchStars, searchBetLimit, searchRiskLevel);
                         // Μικρή παύση για να έρθει η απάντηση από τον Server
-                        Thread.sleep ( 1500 );
+                        Thread.sleep ( 2500 );
                         break;
 
                     case "3":
@@ -188,6 +188,7 @@ public class PlayerApp {
                         int starsRating = Integer.parseInt ( sc.nextLine ( ) );
 
                         currentplayer.rate ( gameToRate, starsRating );
+                        Thread.sleep ( 1500 );
                         break;
 
                     case "5":

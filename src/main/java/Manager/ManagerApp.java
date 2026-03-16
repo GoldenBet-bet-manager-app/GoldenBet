@@ -7,8 +7,12 @@ import java.util.Scanner;
 import java.nio.file.Files;
 
 import models.Game;
+import models.MasterMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
+import Client.Client;
+
+import static models.MasterMessageType.ADD_GAME;
 
 
 public class ManagerApp {
@@ -103,12 +107,20 @@ public class ManagerApp {
                                 jsonObject.getString("HashKey")
                                 );
 
-                        System.out.println(selectedGame);
 
+                        MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
+
+                        Client client = new Client("127.0.0.1", 4321, message);
+                        client.start();
+
+                        // Wait for the client thread to finish before returning to manager's main menu
+                        client.join();
                     } catch (IOException e) {
-                        System.out.println("Σφάλμα κατά την ανάγνωση του αρχείου: " + e.getMessage());
+                        System.err.println("Σφάλμα κατά την ανάγνωση του αρχείου: " + e.getMessage());
                     } catch (JSONException e) {
-                        System.out.println("Σφάλμα στη δομή του JSON: " + e.getMessage());
+                        System.err.println("Σφάλμα στη δομή του JSON: " + e.getMessage());
+                    } catch (InterruptedException e) {
+                        System.err.println("Thread interrupted at client.join() logic: " + e.getMessage());
                     }
 
                     break;

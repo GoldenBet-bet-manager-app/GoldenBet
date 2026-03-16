@@ -11,64 +11,52 @@ import java.util.HashMap;
 import java.util.Random;
 
 
-public class Worker {
+public class Worker implements Runnable {
     private String ip;
     private int port;
     private final int workerid;
-    private int counter = 0;
     private HashMap<String, BigDecimal> profits = new HashMap<> ( );
     private HashMap<String, Game> myGames = new HashMap<> ( );
+    private static int counter = 0;
 
-    public Worker(String ip, int port) {
+    public Worker (String ip, int port) {
         this.ip = ip;
         this.port = port;
         this.workerid = counter++;
     }
 
-    public String getIp() { return ip; }
-    public int getPort() { return port; }
-
-
-
-    public static void main(String [] args) {
-
-        if (args.length < 1) {
-            System.out.println("Error: Please provide a port number.");
-            System.out.println("Usage: java Worker.Worker <port>");
-            return;
-        }
-
-        int port = Integer.parseInt(args[0]);
-        String ip = "127.0.0.1";
-
-        Worker w = new Worker(ip, port);
-        w.openServer();
+    public String getIp ( ) {
+        return ip;
     }
 
+    public int getPort ( ) {
+        return port;
+    }
 
 
     ServerSocket providerSocket;
     Socket connection = null;
 
-    void openServer() {
+    @Override
+    public void run ( ) {
         try {
-            providerSocket = new ServerSocket(this.port, 10);
+            providerSocket = new ServerSocket ( this.port, 10 );
+            System.out.println ( "Ο Worker " + workerid + " άνοιξε και ακούει στην πόρτα: " + this.port );
 
             while (true) {
-                connection = providerSocket.accept();
-                Thread workerHandler = new WorkerHandler(connection, myGames, profits);
-                workerHandler.start();
+                connection = providerSocket.accept ( );
+                Thread workerHandler = new WorkerHandler ( connection, myGames, profits );
+                workerHandler.start ( );
 
             }
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ioException.printStackTrace ( );
         } finally {
             try {
-                providerSocket.close();
+                providerSocket.close ( );
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                ioException.printStackTrace ( );
             }
         }
     }
-
 }
