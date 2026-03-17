@@ -121,10 +121,20 @@ public class ManagerApp {
                                 jsonObject.getString("HashKey")
                                 );
 
+                      // ΕΔΩ ΘΑ ΜΠΑΙΝΕΙ Η ΚΑΤΗΓΟΡΙΑ ΤΩΝ ΠΑΙΧΝΙΔΙΩΝ ΠΟΥ ΧΡΕΙΑΖΕΤΑΙ ΓΙΑ ΤΑ ΦΙΛΤΡΑ
+                        String name = selectedGame.getGameName();
+                        if (name.contains("Poker"))
+                            selectedGame.setCategory("Table Games");
+                         else if (name.contains("Fiesta") || name.contains("Lair") || name.contains("Dynasty"))
+                            selectedGame.setCategory("Slots");
+                         else
+                            selectedGame.setCategory("Classic");
+
+
 
                         MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
 
-                        Client client = new Client("127.0.0.1", 4321, message);
+                        Client client = new Client("127.0.0.1", 43210, message);
                         client.start();
 
                         // Wait for the client thread to finish before returning to manager's main menu

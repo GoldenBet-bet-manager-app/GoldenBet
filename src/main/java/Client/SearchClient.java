@@ -25,7 +25,10 @@ public class SearchClient extends Client {
             }
             for ( Game g : foundgames ) {
                 i++;
-                System.out.println ( i + ") " + g.getGameName ( ) + " | Αστέρια: " + g.getStars ( ) + " | Ποντάρισμα: " + g.getBetCategory ( ) );
+                System.out.println ( i + ") " + g.getGameName ( ) +" | Κατηγορία: "+g.getCategory () +
+                        " | Αστέρια: " + g.getStars ( ) +
+                        " | Ποντάρισμα από " + g.getMinBet ()+" tokens εώς "+g.getMaxBet ()+" tokens"+
+                        " | Επίπεδο Ρίσκου: "+g.getRiskLevel ());
             }
         } else {
             System.out.println("Σφάλμα: Δεν λάβαμε απάντηση από τον Master.");

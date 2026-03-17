@@ -1,21 +1,20 @@
 package models;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class SearchFilters implements Serializable {
     private String playerId;
     private ArrayList<String> categories;
     private int stars;
-    private String betLimit;  // "$", "$$", "$$$"
+    private String betCategory;  // "$", "$$", "$$$"
     private String riskLevel;
 
-    public SearchFilters (String playerId, ArrayList<String> categories, int stars, String betLimit, String riskLevel) {
+    public SearchFilters (String playerId, ArrayList<String> categories, int stars, String betCategory, String riskLevel) {
         this.playerId = playerId;
         this.categories = categories;
         this.stars = stars;
-        this.betLimit = betLimit;
+        this.betCategory = betCategory;
         this.riskLevel = riskLevel;
     }
 
@@ -23,16 +22,9 @@ public class SearchFilters implements Serializable {
         return playerId;
     }
 
-    public void setPlayerId (String playerId) {
-        this.playerId = playerId;
-    }
 
     public ArrayList<String> getCategories ( ) {
         return categories;
-    }
-
-    public void setCategories (ArrayList<String> categories) {
-        this.categories = categories;
     }
 
     public int getStars ( ) {
@@ -43,19 +35,13 @@ public class SearchFilters implements Serializable {
         this.stars = stars;
     }
 
-    public String getBetLimit ( ) {
-        return betLimit;
+    public String getBetCategory ( ) {
+        return betCategory;
     }
 
-    public void setBetLimit (String betLimit) {
-        this.betLimit = betLimit;
-    }
 
     public String getRiskLevel ( ) {
         return riskLevel;
     }
 
-    public void setRiskLevel (String riskLevel) {
-        this.riskLevel = riskLevel;
-    }
 }

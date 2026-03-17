@@ -13,10 +13,11 @@ public class RatingClient extends Client {
     public void run ( ) {
         super.run ( );
         Object response = getResponse ( );
-        if ( response != null ) {
+        if ( response instanceof Float )
             System.out.println ( "Επιτυχία! Ο νέος μέσος όρος του παιχνιδιού είναι: " + response + " αστέρια!" );
-        } else {
+        else if ( response instanceof String )
+            System.out.println ( response );
+        else
             System.out.println ( "Σφάλμα: Δεν λάβαμε απάντηση από τον Master." );
-        }
     }
 }

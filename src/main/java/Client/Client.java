@@ -50,6 +50,10 @@ public class Client extends Thread {
         }
     }
 
+    public Object getObject ( ) {
+        return object;
+    }
+
     public Object getResponse ( ) {
         return response;
     }
