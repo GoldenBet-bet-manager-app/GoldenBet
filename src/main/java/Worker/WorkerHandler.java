@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WorkerHandler extends Thread {
+
+
     ObjectInputStream in;
     ObjectOutputStream out;
     private HashMap<String, Game> myGames = new HashMap<> ( );
@@ -18,6 +20,7 @@ public class WorkerHandler extends Thread {
     private HashMap<String, BigDecimal> playerProfits = new HashMap<> ( );
 
     public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits) {
+
         try {
             out = new ObjectOutputStream ( connection.getOutputStream ( ) );
             in = new ObjectInputStream ( connection.getInputStream ( ) );
@@ -31,60 +34,94 @@ public class WorkerHandler extends Thread {
 
     @Override
     public void run ( ) {
-        MasterMessage message = null;
-        try {
-            message = (MasterMessage) in.readObject ( );
-        } catch (IOException e) {
-            throw new RuntimeException ( e );
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException ( e );
-        }
+
+
         Object response = null;
+        try{
 
-        switch (message.getType ( )) {
-            case PLAY:
-                Bet bet = (Bet) message.getPayload ( );
-                response = CalculateProfit ( bet );
-                break;
-            case ADD_GAME:
-                Game game = (Game) message.getPayload ( );
-                myGames.put ( game.getGameName ( ), game );
-                response = "Το παιχνίδι '" + game.getGameName ( ) + "' αποθηκεύτηκε επιτυχώς!";
-                break;
-            case RATE:
-                Rating rating = (Rating) message.getPayload ( );
-                response = averageRate ( rating );
-                break;
-            case REMOVE_GAME:
+            MasterMessage message = (MasterMessage) in.readObject();
+            MasterMessageType type = message.getType();
 
-            case SEARCH:
-                SearchFilters filters = (SearchFilters) message.getPayload ( );
-                response = searchgames ( filters );
-                break;
-            case STATS:
+            switch(type){
+                case PLAY:
 
-        }
+                    Bet bet = (Bet) message.getPayload ( );
+                    response = CalculateProfit ( bet );
+                    break;
 
-        try {
-            out.writeObject ( response );
-            out.flush ( );
-        } catch (IOException e) {
-            throw new RuntimeException ( e );
+                case ADD_GAME:
+
+                    Game game = (Game) message.getPayload ( );
+                    myGames.put ( game.getGameName ( ), game );
+                    response = "Το παιχνίδι '" + game.getGameName ( ) + "' αποθηκεύτηκε επιτυχώς!";
+                    break;
+
+                case RATE:
+
+                    Rating rating = (Rating) message.getPayload ( );
+                    response = averageRate ( rating );
+                    break;
+
+                case REMOVE_GAME:
+
+                    break;
+
+                case SEARCH:
+
+                    SearchFilters filters = (SearchFilters) message.getPayload();
+                    ArrayList<Game> matchedGames = searchgames(filters);
+
+                    try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
+                         ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
+
+                        MasterMessage msgToReducer = new MasterMessage(MasterMessageType.SEARCH, matchedGames);
+
+                        msgToReducer.setMapId(message.getMapId());
+
+                        reducerOut.writeObject(msgToReducer);
+                        reducerOut.flush();
+                        System.out.println("Worker έστειλε αποτελέσματα στον Reducer για MapId: " + message.getMapId());
+
+                    } catch (IOException e) {
+                        System.err.println("Σφάλμα επικοινωνίας με Reducer: " + e.getMessage());
+                    }
+
+                    response = null;
+                    break;
+
+                case STATS:
+
+                    break;
+
+
+            }
+
+            if (response != null) {
+                out.writeObject(response);
+                out.flush();
+            }
+
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Σφάλμα επικοινωνίας στον WorkerHandler: " + e.getMessage());
         } finally {
             try {
-                in.close ( );
-                out.close ( );
+                if (in != null) in.close();
+                if (out != null) out.close();
             } catch (IOException ioException) {
-                ioException.printStackTrace ( );
+                ioException.printStackTrace();
             }
         }
-
     }
-    private int getSecuredRandomNumber (String gameName) {
+
+
+    private int getSecuredRandomNumber(String gameName){
+
         Socket requestSocket = null;
         ObjectOutputStream out = null;
         ObjectInputStream in = null;
         int randomNumber = 0;
+
         try {
             requestSocket = new Socket ( "127.0.0.1", 5000 );
             out = new ObjectOutputStream ( requestSocket.getOutputStream ( ) );
@@ -96,41 +133,43 @@ public class WorkerHandler extends Thread {
             randomNumber = in.readInt ( );
             String hash = (String) in.readObject ( );
 
-            if ( randomNumber == 0 )
-                System.out.println ( "ο SRG δεν βρήκε το παιχνίδι!!!" );
+            if(randomNumber == 0) System.out.println ( "ο SRG δεν βρήκε το παιχνίδι!!!" );
 
         } catch (UnknownHostException e) {
-            throw new RuntimeException ( e );
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException ( e );
+            throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException ( e );
+            throw new RuntimeException(e);
         } finally {
             try {
-                in.close ( );
-                out.close ( );
-                requestSocket.close ( );
+                if (in != null) in.close();
+                if (out != null) out.close();
+                if (requestSocket != null) requestSocket.close();
             } catch (IOException ioException) {
-                ioException.printStackTrace ( );
+                ioException.printStackTrace();
             }
         }
         return randomNumber;
     }
 
-    private BigDecimal CalculateProfit (Bet bet) {
+    private BigDecimal CalculateProfit(Bet bet){
+
         BigDecimal playerProfit, systemProfitFromThisBet, playerPayout = BigDecimal.ZERO;
         int index;
         BigDecimal[] gamemultiplies;
-        Game game = myGames.get ( bet.getGamename ( ) );
-        int random = getSecuredRandomNumber ( game.getGameName ( ) );
+        Game game = myGames.get(bet.getGamename());
+        int random = getSecuredRandomNumber(game.getGameName());
+
         try {
             if ( random % 100 == 0 )
-                playerPayout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
+                playerPayout = bet.getAmount().multiply(game.getJackpot());
             else {
                 index = random % 10;
                 gamemultiplies = game.getMultipliers ( );
                 playerPayout = bet.getAmount ( ).multiply ( gamemultiplies[ index ] );
             }
+
             systemProfitFromThisBet = bet.getAmount ( ).subtract ( playerPayout );
             playerProfit = playerPayout.subtract ( bet.getAmount ( ) );
 
@@ -138,36 +177,40 @@ public class WorkerHandler extends Thread {
                 BigDecimal currentProfit = profits.getOrDefault ( game.getGameName ( ), BigDecimal.ZERO );
                 profits.put ( game.getGameName ( ), currentProfit.add ( systemProfitFromThisBet ) );
             }
+
         } catch (Exception e) {
             System.err.println ( "Σφάλμα κατά τον υπολογισμό κέρδους: " + e.getMessage ( ) );
         }
         return playerPayout;
     }
 
-    private ArrayList<Game> searchgames (SearchFilters filters) {
-        ArrayList<Game> matchedGames = new ArrayList<> ( );
+    private ArrayList<Game> searchgames(SearchFilters filters){
 
-        for ( Game game : myGames.values ( ) ) {
+        ArrayList<Game> matchedGames = new ArrayList<>();
+        for(Game game : myGames.values()){
+
             boolean matching = true;
 
-            if ( game.getStars ( ) < filters.getStars ( ) )
+            if (game.getStars() < filters.getStars())
                 matching = false;
-            if ( !game.getRiskLevel ( ).equalsIgnoreCase ( filters.getRiskLevel ( ) ) )
+            if (!filters.getRiskLevel().isEmpty() && !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel()))
                 matching = false;
-            if ( !game.getBetCategory ( ).equals ( filters.getBetLimit ( ) ) )
+            if (!filters.getBetLimit().isEmpty() && !game.getBetCategory().equals(filters.getBetLimit()))
                 matching = false;
-            if ( !filters.getCategories ( ).contains ( game.getCategory ( ) ) )
+            if (!filters.getCategories().isEmpty() && !filters.getCategories().contains(game.getCategory()))
                 matching = false;
 
-            if ( matching )
-                matchedGames.add ( game );
+            if (matching) matchedGames.add(game);
+
         }
         return matchedGames;
     }
 
-    private float averageRate (Rating rating) {
+    private float averageRate(Rating rating){
+
         float averagerate = 0.0F;
-        Game game = myGames.get ( rating.getGameName ( ) );
+        Game game = myGames.get(rating.getGameName());
+
         if ( game != null ) {
             float currentStars = game.getStars ( );
             int currentVotes = game.getVotes ( );
@@ -178,11 +221,12 @@ public class WorkerHandler extends Thread {
             game.setStars ( average );
             game.setVotes ( newVotes );
             return averagerate;
+
         } else {
             System.err.println ( "Το παιχνίδι για βαθμολογία δεν βρέθηκε σε αυτόν τον Worker." );
             return 0;
-
         }
-
     }
+
+
 }
