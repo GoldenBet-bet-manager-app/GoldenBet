@@ -29,6 +29,9 @@ public class ReducerHandler extends Thread{
     public void run(){
 
         int numberOfWorkers = 6;
+        int currentMapId = -1;
+        MasterMessage newMessage = null;
+
 
         try(ObjectInputStream in = new ObjectInputStream(connection.getInputStream())){
 
@@ -37,8 +40,7 @@ public class ReducerHandler extends Thread{
 
             switch (type){
                 case SEARCH:
-                    int currentMapId = message.getMapId();
-                    MasterMessage newMessage = null;
+                    currentMapId = message.getMapId();
 
                     synchronized (resultsBuffer){
                         if(resultsBuffer.containsKey(currentMapId)){
@@ -66,6 +68,65 @@ public class ReducerHandler extends Thread{
 
                     break;
 
+                case REMOVE_GAME:
+                    currentMapId = message.getMapId();
+
+
+                    synchronized (resultsBuffer){
+                        if(resultsBuffer.containsKey(currentMapId)){
+
+                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
+                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
+                            currentBox.addReceivedResponses();
+
+                        }else{
+                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
+                            resultsBuffer.put(currentMapId, newBox);
+                        }
+                        AggregationBox currentBox = resultsBuffer.get(currentMapId);
+                        if(currentBox.getReceivedResponses() == numberOfWorkers){
+
+                            ArrayList<Game> allGames = currentBox.getGamesFromWorkers();
+                            newMessage = new MasterMessage(allGames, currentMapId);
+
+                            resultsBuffer.remove(currentMapId);
+                        }
+                    }
+
+                    if(newMessage != null){
+                        sendGamesToMaster(newMessage);
+                    }
+
+                    break;
+                case GET_ACTIVE_GAMES:
+                    currentMapId = message.getMapId();
+
+
+                    synchronized (resultsBuffer){
+                        if(resultsBuffer.containsKey(currentMapId)){
+
+                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
+                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
+                            currentBox.addReceivedResponses();
+
+                        }else{
+                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
+                            resultsBuffer.put(currentMapId, newBox);
+                        }
+                        AggregationBox currentBox = resultsBuffer.get(currentMapId);
+                        if(currentBox.getReceivedResponses() == numberOfWorkers){
+
+                            ArrayList<Game> allGames = currentBox.getGamesFromWorkers();
+                            newMessage = new MasterMessage(allGames, currentMapId);
+
+                            resultsBuffer.remove(currentMapId);
+                        }
+                    }
+
+                    if(newMessage != null){
+                        sendGamesToMaster(newMessage);
+                    }
+                    break;
                 case STATS:
                     break;
             }

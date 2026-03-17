@@ -35,8 +35,10 @@ public class WorkerHandler extends Thread {
     @Override
     public void run ( ) {
 
-
+        ArrayList<Game> matchedGames = new ArrayList<>();
+        MasterMessage msgToReducer;
         Object response = null;
+
         try{
 
             MasterMessage message = (MasterMessage) in.readObject();
@@ -52,8 +54,22 @@ public class WorkerHandler extends Thread {
                 case ADD_GAME:
 
                     Game game = (Game) message.getPayload ( );
-                    myGames.put ( game.getGameName ( ), game );
-                    response = "Το παιχνίδι '" + game.getGameName ( ) + "' αποθηκεύτηκε επιτυχώς!";
+                    // When the game is first added into the app
+                    if (!myGames.containsKey(game.getGameName())) {
+                        myGames.put(game.getGameName(), game);
+                        response = "The game '" + game.getGameName() + "' has been added successfully!";
+                    }
+                    // When the game already exists in the app and becomes visible to the players again
+                    else if(!myGames.get(game.getGameName()).isActive()){
+                        response = "The game '" + game.getGameName() + "' is visible again for players!";
+                    }
+                    // When the game already exists in the app and is visible to the players
+                    // No action is needed, just an inforation response to the manager that
+                    // the game is already visible to the players
+                    else{
+                        response = "The game '" + game.getGameName() + "' is already visible to the players!";
+                    }
+
                     break;
 
                 case RATE:
@@ -66,15 +82,41 @@ public class WorkerHandler extends Thread {
 
                     break;
 
-                case SEARCH:
+                case GET_ACTIVE_GAMES:
 
-                    SearchFilters filters = (SearchFilters) message.getPayload();
-                    ArrayList<Game> matchedGames = searchgames(filters);
+                    ArrayList<Game> activeGames = new ArrayList<>();
+                    for (String gameName : myGames.keySet()){
+                        Game curGame = myGames.get(gameName);
+                        if(curGame.isActive())
+                            activeGames.add(curGame);
+                    }
+
 
                     try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
                          ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
 
-                        MasterMessage msgToReducer = new MasterMessage(MasterMessageType.SEARCH, matchedGames);
+                        msgToReducer = new MasterMessage(MasterMessageType.GET_ACTIVE_GAMES, activeGames);
+
+                        msgToReducer.setMapId(message.getMapId());
+
+                        reducerOut.writeObject(msgToReducer);
+                        reducerOut.flush();
+                        System.out.println("Worker sent its results to reducer for MapId: " + message.getMapId());
+
+                    } catch (IOException e) {
+                        System.err.println("Communication error with reducer: " + e.getMessage());
+                    }
+                    break;
+
+                case SEARCH:
+
+                    SearchFilters filters = (SearchFilters) message.getPayload();
+                    matchedGames = searchgames(filters);
+
+                    try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
+                         ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
+
+                        msgToReducer = new MasterMessage(MasterMessageType.SEARCH, matchedGames);
 
                         msgToReducer.setMapId(message.getMapId());
 
@@ -195,9 +237,12 @@ public class WorkerHandler extends Thread {
                 matching = false;
             if (!filters.getRiskLevel().isEmpty() && !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel()))
                 matching = false;
-            if (!filters.getBetLimit().isEmpty() && !game.getBetCategory().equals(filters.getBetLimit()))
+            if (!filters.getBetCategory().isEmpty() && !game.getBetCategory().equals(filters.getBetCategory()))
                 matching = false;
             if (!filters.getCategories().isEmpty() && !filters.getCategories().contains(game.getCategory()))
+                matching = false;
+
+            if(!game.isActive())
                 matching = false;
 
             if (matching) matchedGames.add(game);

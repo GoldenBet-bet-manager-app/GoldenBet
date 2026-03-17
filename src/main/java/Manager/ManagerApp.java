@@ -8,13 +8,14 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.nio.file.Files;
 
+import Master.MasterHandler;
 import models.Game;
 import models.MasterMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 import Client.Client;
 
-import static models.MasterMessageType.ADD_GAME;
+import static models.MasterMessageType.*;
 
 
 public class ManagerApp {
@@ -137,7 +138,7 @@ public class ManagerApp {
                         Client client = new Client("127.0.0.1", 43210, message);
                         client.start();
 
-                        // Wait for the client thread to finish before returning to manager's main menu
+                        // Wait for the client thread to finish add game before returning to manager's main menu
                         client.join();
                     } catch (IOException e) {
                         System.err.println("Σφάλμα κατά την ανάγνωση του αρχείου: " + e.getMessage());
@@ -150,14 +151,26 @@ public class ManagerApp {
                     break;
                 //****************REMOVE GAME****************
                 case "2":
-                    jsonFiles = showGamesList("games","Remove");
+                    MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
 
-                    // When there are no json files in games folder
-                    if(jsonFiles == null) break;
+                    Client client = new Client("127.0.0.1",43210,message);
+
+                    client.start();
+
+                    // Wait for the client thread to finish remove game before returning to manager's main menu
+                    try {
+                        client.join();
+
+                        Object response = client.getResponse();
+                        ArrayList<Game> activeGames = (ArrayList<Game>) response;
+                        System.out.println(activeGames.size());
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
 
 
 
-                break;
+                    break;
                 //****************MODIFY GAME****************
                 case "3":
 

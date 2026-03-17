@@ -40,6 +40,10 @@ public class MasterHandler extends Thread{
         int gameWorkerIndex;
         Worker target;
         Object response;
+        int currentMapId;
+        ResultBox myBox;
+        MasterMessage finalResultMsg;
+        ArrayList<Game> finalGames;
 
         try {
 
@@ -53,25 +57,63 @@ public class MasterHandler extends Thread{
                     gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorkers);
                     target = workers.get(gameWorkerIndex);
 
-                    System.out.println("Master is adding game: "+addedGame.getGameName());
+                    System.out.println("Master is trying to add game: "+addedGame.getGameName()+ "...");
                     response = sendRequestToWorker(target, message); // response returned to master
 
                     if (response == null) {
+                        System.out.println("Error: Could not communicate with Worker.");
                         out.writeObject("Error: Could not communicate with Worker.");
                     }else{
+                        System.out.println(response);
                         out.writeObject(response); // response returned to manager
-                        out.flush();
                     }
+                    out.flush();
                     break;
 
                 case REMOVE_GAME:
-                    break;
-                case SEARCH:
 
-                    int currentMapId = Math.abs(randomUUID().hashCode());
+
+
+                    break;
+                case GET_ACTIVE_GAMES:
+                    currentMapId = Math.abs(randomUUID().hashCode());
                     message.setMapId(currentMapId);
 
-                    ResultBox myBox = new ResultBox();
+                    myBox = new ResultBox();
+
+                    synchronized(sharedResults){
+                        sharedResults.put(currentMapId, myBox);
+                    }
+
+                    for(Worker w : workers){
+                        new Thread(() -> {
+                            sendMapRequestToWorker(w, message);
+                        }).start();
+                    }
+
+                    synchronized (myBox){
+                        while(myBox.getFinalMessage() == null) {
+                            try {
+                                myBox.wait(); // MasterHandler sleeps until the arrival of the final results
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    finalResultMsg = myBox.getFinalMessage();
+                    finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
+
+                    out.writeObject(finalGames);
+                    out.flush();
+                    break;
+
+                case SEARCH:
+
+                    currentMapId = Math.abs(randomUUID().hashCode());
+                    message.setMapId(currentMapId);
+
+                    myBox = new ResultBox();
 
                     synchronized(sharedResults){
                         sharedResults.put(currentMapId, myBox);
@@ -86,15 +128,15 @@ public class MasterHandler extends Thread{
                     synchronized (myBox){
                         while(myBox.getFinalMessage() == null) {
                             try {
-                                myBox.wait();
+                                myBox.wait(); // MasterHandler sleeps until the arrival of the final results
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
                     }
 
-                    MasterMessage finalResultMsg = myBox.getFinalMessage();
-                    ArrayList<Game> finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
+                    finalResultMsg = myBox.getFinalMessage();
+                    finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
 
                     out.writeObject(finalGames);
                     out.flush();
