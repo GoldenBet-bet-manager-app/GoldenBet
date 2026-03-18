@@ -20,6 +20,9 @@ import static models.MasterMessageType.*;
 
 public class ManagerApp {
 
+    private static Scanner scanner;
+
+
     private static ArrayList<File> showGamesList (String folderPath, String operation) {
         File folder = new File ( folderPath );
 
@@ -30,7 +33,7 @@ public class ManagerApp {
 
         System.out.println ( );
         if ( files.isEmpty ( ) ) {
-            System.out.println ( "No JSON files were found in folder " + folderPath );
+            System.out.println ( "There are no json files of game to be loaded in folder " + folderPath );
             return null;
         }
 
@@ -43,36 +46,13 @@ public class ManagerApp {
         return files;
     }
 
-    private static int gameJSONSelection (ArrayList<File> jsonFiles, Scanner scanner) {
-        String gameChoiceStr;
-
-        System.out.print ( "Game number: " );
-        gameChoiceStr = scanner.nextLine ( );
-        int index = -1;
-        while (true) {
-            // check whether gameChoiceStr is actually a number
-            if ( gameChoiceStr.matches ( "\\d+" ) ) {
-                int gameChoiceInt = Integer.parseInt ( gameChoiceStr );
-
-                if ( gameChoiceInt > 0 && gameChoiceInt <= jsonFiles.size ( ) ) {
-                    index = gameChoiceInt - 1;
-                    break;
-                } else {
-                    System.out.print ( "Wrong number! Please type from 1 to " + jsonFiles.size ( ) + ": " );
-                    gameChoiceStr = scanner.nextLine ( );
-                }
-            } else {
-                System.out.print ( "Invalid! Type only a number (e.g. 1): " );
-                gameChoiceStr = scanner.nextLine ( );
-            }
-        }
-        return index;
-    }
 
 
     public static void startConsoleMenu() {
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = ManagerApp.scanner;
         boolean running = true;
+        Client client;
+        MasterMessage message;
 
         while (running) {
             System.out.println ( "\n=========== ΜΕΝΟΥ ΔΙΑΧΕΙΡΙΣΗΣ ===========" );
@@ -94,82 +74,11 @@ public class ManagerApp {
                     break;
                 //************ADD GAME*************
                 case "1":
-                    jsonFiles = showGamesList("games","Add");
-
-                    // When there are no json files in games folder
-                    if(jsonFiles == null) break;
-
-                    int index = gameJSONSelection(jsonFiles,scanner);
-                    // The selected game
-                    File selectedGameFile = jsonFiles.get(index);
-
-                    // ----------------Parsing file and creating Game object-----------------
-                    try {
-                        byte[] bytes = Files.readAllBytes(selectedGameFile.toPath());
-                        String fileContent = new String(bytes);
-
-                        JSONObject jsonObject = new org.json.JSONObject(fileContent);
-
-                        Game selectedGame = new Game(
-                                jsonObject.getString("GameName"),
-                                jsonObject.getString("ProviderName"),
-                                jsonObject.getInt("Stars"),
-                                jsonObject.getInt("NoOfVotes"),
-                                jsonObject.getString("GameLogo"),
-                                jsonObject.getBigDecimal("MinBet"),
-                                jsonObject.getBigDecimal("MaxBet"),
-                                jsonObject.getString("RiskLevel"),
-                                jsonObject.getString("HashKey")
-                                );
-
-                      // ΕΔΩ ΘΑ ΜΠΑΙΝΕΙ Η ΚΑΤΗΓΟΡΙΑ ΤΩΝ ΠΑΙΧΝΙΔΙΩΝ ΠΟΥ ΧΡΕΙΑΖΕΤΑΙ ΓΙΑ ΤΑ ΦΙΛΤΡΑ
-                        String name = selectedGame.getGameName();
-                        if (name.contains("Poker"))
-                            selectedGame.setCategory("Table Games");
-                         else if (name.contains("Fiesta") || name.contains("Lair") || name.contains("Dynasty"))
-                            selectedGame.setCategory("Slots");
-                         else
-                            selectedGame.setCategory("Classic");
-
-
-
-                        MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
-
-                        Client client = new Client("127.0.0.1", 43210, message);
-                        client.start();
-
-                        // Wait for the client thread to finish add game before returning to manager's main menu
-                        client.join();
-                    } catch (IOException e) {
-                        System.err.println("Σφάλμα κατά την ανάγνωση του αρχείου: " + e.getMessage());
-                    } catch (JSONException e) {
-                        System.err.println("Σφάλμα στη δομή του JSON: " + e.getMessage());
-                    } catch (InterruptedException e) {
-                        System.err.println("Thread interrupted at client.join() logic: " + e.getMessage());
-                    }
-
+                    addGame();
                     break;
                 //****************REMOVE GAME****************
                 case "2":
-                    MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
-
-                    Client client = new Client("127.0.0.1",43210,message);
-
-                    client.start();
-
-                    // Wait for the client thread to finish remove game before returning to manager's main menu
-                    try {
-                        client.join();
-
-                        Object response = client.getResponse();
-                        ArrayList<Game> activeGames = (ArrayList<Game>) response;
-                        System.out.println(activeGames.size());
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-
-
-
+                    removeGame();
                     break;
                 //****************MODIFY GAME****************
                 case "3":
@@ -187,7 +96,151 @@ public class ManagerApp {
         }
         scanner.close();
     }
+
+    public static void addGame() {
+        ArrayList<File> jsonFiles = showGamesList("games", "Add");
+
+        // When there are no json files in games folder
+        if (jsonFiles == null){return;}
+        int index = validateGameSelectionInput(jsonFiles);
+        // The selected game
+        File selectedGameFile = jsonFiles.get(index);
+        Game selectedGame = null;
+
+        // ----------------Parsing file and creating Game object-----------------
+        try {
+            byte[] bytes = Files.readAllBytes(selectedGameFile.toPath());
+            String fileContent = new String(bytes);
+
+            JSONObject jsonObject = new org.json.JSONObject(fileContent);
+
+            selectedGame = new Game(
+                    jsonObject.getString("GameName"),
+                    jsonObject.getString("ProviderName"),
+                    jsonObject.getInt("Stars"),
+                    jsonObject.getInt("NoOfVotes"),
+                    jsonObject.getString("GameLogo"),
+                    jsonObject.getBigDecimal("MinBet"),
+                    jsonObject.getBigDecimal("MaxBet"),
+                    jsonObject.getString("RiskLevel"),
+                    jsonObject.getString("HashKey")
+            );
+            } catch (IOException e) {
+                System.err.println("Σφάλμα κατά την ανάγνωση του αρχείου: " + e.getMessage());
+            } catch (JSONException e) {
+                System.err.println("Σφάλμα στη δομή του JSON: " + e.getMessage());
+            }
+
+
+            // ΕΔΩ ΘΑ ΜΠΑΙΝΕΙ Η ΚΑΤΗΓΟΡΙΑ ΤΩΝ ΠΑΙΧΝΙΔΙΩΝ ΠΟΥ ΧΡΕΙΑΖΕΤΑΙ ΓΙΑ ΤΑ ΦΙΛΤΡΑ
+            String name = selectedGame.getGameName();
+            if (name.contains("Poker"))
+                selectedGame.setCategory("Table Games");
+            else if (name.contains("Fiesta") || name.contains("Lair") || name.contains("Dynasty"))
+                selectedGame.setCategory("Slots");
+            else
+                selectedGame.setCategory("Classic");
+
+
+        if(selectedGame != null) {
+            try {
+                MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
+
+                Client client = new Client("127.0.0.1", 43210, message);
+                client.start();
+
+                // Wait for the client thread to finish add game before returning to manager's main menu
+                client.join();
+                String responseToGameAddition = (String) client.getResponse();
+                System.out.println(responseToGameAddition);
+
+            }catch(InterruptedException e){
+                    System.err.println("Thread interrupted at client.join() logic: " + e.getMessage());
+            }
+        }
+    }
+
+    public static void removeGame() {
+        MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
+
+        Client client = new Client("127.0.0.1",43210,message);
+
+        client.start();
+
+        Object responseActiveGames = null;
+        // Wait for the client thread to finish remove game before returning to manager's main menu
+        try {
+            client.join();
+
+            responseActiveGames = client.getResponse();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Game> activeGames = (ArrayList<Game>) responseActiveGames;
+
+        if (activeGames != null && !activeGames.isEmpty()) {
+            System.out.println("\t\t ACTIVE GAMES");
+            System.out.println("Number " + "| " + "Name " +"| " + " ProviderName");
+            for(int i=0;i<activeGames.size();i++){
+                Game curGame = activeGames.get(i);
+                System.out.println((i+1) + "|  " + curGame.getGameName() + "|  " + curGame.getProviderName());
+            }
+        }
+        else {
+            System.out.println("There are no active games to delete");
+            return;
+        }
+
+        int index = validateGameSelectionInput(activeGames);
+
+        Game gameToDelete = activeGames.get(index);
+
+
+        message = new MasterMessage(REMOVE_GAME, gameToDelete);
+
+        client = new Client("127.0.0.1", 43210, message);
+        client.start();
+
+        try {
+            client.join();
+            String responseToGameRemoval = (String) client.getResponse();
+            System.out.println(responseToGameRemoval);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static int validateGameSelectionInput(ArrayList<?> list){
+        System.out.printf("\n Please select one of the above games (from 1 to %d): ",list.size());
+        String gameChoiceStr = scanner.nextLine();
+        int index;
+
+        while (true) {
+            // check whether gameChoiceStr is actually a number
+            if ( gameChoiceStr.matches ( "\\d+" ) ) {
+                int gameChoiceInt = Integer.parseInt ( gameChoiceStr );
+
+                if ( gameChoiceInt > 0 && gameChoiceInt <= list.size() ) {
+                    index = gameChoiceInt - 1;
+                    break;
+                } else {
+                    System.out.print ( "Wrong number! Please type from 1 to " + list.size ( ) + ": " );
+                    gameChoiceStr = scanner.nextLine ( );
+                }
+            } else {
+                System.out.print ( "Invalid! Type only a NUMBER (e.g. 1): " );
+                gameChoiceStr = scanner.nextLine ( );
+            }
+        }
+
+       return index;
+    }
+
     public static void main(String[] args) {
+        ManagerApp.scanner = new Scanner(System.in);
         startConsoleMenu ();
     }
 

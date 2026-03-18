@@ -1,5 +1,6 @@
 package Player;
 
+import Client.Client;
 import Client.PlayClient;
 import Client.SearchClient;
 import models.*;
@@ -13,7 +14,13 @@ import Client.RatingClient;
 public class PlayerApp {
     private Player currentPlayer;
     private BigDecimal tokenBalance;
+    private  Boolean projectisactive;
     private HashMap<String, Boolean> gamePlayedStatus =new HashMap<>();// true an exeis paikei esto kai mia fora ena paixnidi paixnidi
+
+    public synchronized  Boolean getProjectisactive ( ) {
+        return projectisactive;
+    }
+
     public PlayerApp(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
         this.tokenBalance = BigDecimal.ZERO;
@@ -30,9 +37,8 @@ public class PlayerApp {
 
     public void search(String playerId, ArrayList<String> categories, int stars, String betLimit, String riskLevel) {
         SearchFilters filters = new SearchFilters(playerId, categories, stars, betLimit, riskLevel);
-        SearchClient searchClient = new SearchClient("127.0.0.1", 43210, new MasterMessage(MasterMessageType.SEARCH, filters));
+        SearchClient searchClient = new SearchClient("127.0.0.1", 43210, new MasterMessage(MasterMessageType.SEARCH, filters),this);
         searchClient.start();
-        System.out.println("Αποστολή αιτήματος αναζήτησης στον Master... Παρακαλώ περιμένετε τα αποτελέσματα.");
     }
 
 
@@ -47,7 +53,6 @@ public class PlayerApp {
         Bet bet = new Bet(amount, currentPlayer.getName(), gameName);
         PlayClient playClient = new PlayClient("127.0.0.1", 43210, new MasterMessage(MasterMessageType.PLAY, bet),this);
         playClient.start();
-        System.out.println("Το ποντάρισμα για το παιχνίδι " + gameName + " στάλθηκε...");
     }
 
     public void addBalance(BigDecimal amount) {
@@ -61,6 +66,7 @@ public class PlayerApp {
             throw new IllegalArgumentException("Σφάλμα: Το πλήθος των tokens δεν μπορεί να είναι αρνητικό ή μηδέν");
         this.tokenBalance = this.tokenBalance.subtract (amount);
     }
+
     public void changeGamePlayedStatus(String gameName){
         this.gamePlayedStatus.put ( gameName,true );
     }
@@ -71,7 +77,6 @@ public class PlayerApp {
         if ( stars < 1 || stars > 5 )
             throw new IllegalArgumentException ( "Σφάλμα: Η βαθμολογία του κάθε παιχνιδιού πρέπει να είναι από 1 έως 5 αστέρια." );
         if ( gamePlayedStatus.getOrDefault ( gameName ,false) ) {
-            System.out.println ( "Αποστολή βαθμολογίας (" + stars + " αστέρια) για το " + gameName + "..." );
             Rating rating = new Rating ( currentPlayer.getPlayerId ( ), gameName, stars );
             RatingClient ratingClient = new RatingClient ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.RATE, rating ) );
             ratingClient.start ( );
@@ -80,17 +85,18 @@ public class PlayerApp {
         }
     }
 
+
     // =========================================================================================
     // STATIC METHODS ΓΙΑ ΤΟ ΜΕΝΟΥ
     // =========================================================================================
 
-    private static void handleDeposit(Scanner sc, PlayerApp currentplayer) {
+    private  void handleDeposit(Scanner sc, PlayerApp currentplayer) {
         System.out.print("Πληκτρολογήστε ποσό κατάθεσης: ");
         String depositAmount = sc.nextLine();
         currentplayer.addBalance(new BigDecimal(Integer.parseInt(depositAmount)));
     }
 
-    private static void handlePlay(Scanner sc, PlayerApp currentplayer) {
+    private  void handlePlay(Scanner sc, PlayerApp currentplayer) {
         System.out.print("Πληκτρολογήστε το όνομα του παιχνιδιού: ");
         String gameToPlay = sc.nextLine();
         System.out.print("Πληκτρολογήστε το ποσό του πονταρίσματος: ");
@@ -98,7 +104,7 @@ public class PlayerApp {
         currentplayer.play(gameToPlay, new BigDecimal(Integer.parseInt(betAmount)));
     }
 
-    private static void handleRate(Scanner sc, PlayerApp currentplayer) {
+    private  void handleRate(Scanner sc, PlayerApp currentplayer) {
         System.out.print("Πληκτρολογήστε το όνομα του παιχνιδιού που θέλετε να βαθμολογήσετε: ");
         String gameToRate = sc.nextLine();
         System.out.print("Δώστε βαθμολογία (1 έως 5 αστέρια): ");
@@ -106,7 +112,8 @@ public class PlayerApp {
         currentplayer.rate(gameToRate, starsRating);
     }
 
-    private static void addsearchfilters(Scanner sc, PlayerApp currentplayer, Player myPlayer) {
+    private  void addsearchfilters(Scanner sc, PlayerApp currentplayer, Player myPlayer) {
+        projectisactive=false;
         System.out.println("\n--- Κριτήρια Αναζήτησης ---");
         System.out.print("Εισάγετε κατηγορίες (π.χ. Cards,Slots) ή πατήστε Enter για να μην βάλετε φίλτρο: ");
         String catInput = sc.nextLine();
@@ -137,15 +144,18 @@ public class PlayerApp {
         System.out.print("Επίπεδο Ρίσκου (low, medium, high) ή πατήστε Enter για κανένα φίλτρο: ");
         String searchRiskLevel = sc.nextLine().trim();
 
-        System.out.println("Αναζήτηση στα παιχνίδια του GoldenBet...");
         currentplayer.search(myPlayer.getPlayerId(), searchCategories, searchStars, searchBetLimit, searchRiskLevel);
+    }
+    private  void projectavailablegames (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
+        projectisactive=true;
+        currentplayer.search ( myPlayer.getPlayerId (),new ArrayList<String> (),0,"","" );
     }
 
     // =========================================================================================
     // MAIN
     // =========================================================================================
 
-    public static void main(String[] args) {
+    public static void main (String[] args) {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("============ Εγγραφή / Είσοδος Παίκτη ========");
@@ -170,9 +180,10 @@ public class PlayerApp {
             System.out.println("Υπόλοιπο: " + currentplayer.getTokenBalance() + " FUN");
             System.out.println("1. Προσθήκη Υπολοίπου (Κατάθεση)");
             System.out.println("2. Αναζήτηση Παιχνιδιών (Βάσει Κριτηρίων)");
-            System.out.println("3. Παίξε Παιχνίδι");
-            System.out.println("4. Βαθμολόγησε Παιχνίδι");
-            System.out.println("5. Αποσύνδεση");
+            System.out.println("3. Προβολή διαθέσιμων Παιχνιδιών");
+            System.out.println("4. Παίξε Παιχνίδι");
+            System.out.println("5. Βαθμολόγησε Παιχνίδι");
+            System.out.println("6. Αποσύνδεση");
             System.out.print("Επιλέξτε ενέργεια (1-5): ");
 
             String choice = sc.nextLine();
@@ -180,25 +191,28 @@ public class PlayerApp {
             try {
                 switch (choice) {
                     case "1":
-                        handleDeposit(sc, currentplayer);
+                        currentplayer.handleDeposit(sc, currentplayer);
                         break;
 
                     case "2":
-                        addsearchfilters(sc, currentplayer, myPlayer);
+                        currentplayer.addsearchfilters(sc, currentplayer, myPlayer);
                         Thread.sleep(1500);
                         break;
-
                     case "3":
-                        handlePlay(sc, currentplayer);
+                        currentplayer.projectavailablegames ( sc,currentplayer,myPlayer );
                         Thread.sleep(1500);
                         break;
-
                     case "4":
-                        handleRate(sc, currentplayer);
+                        currentplayer.handlePlay(sc, currentplayer);
                         Thread.sleep(1500);
                         break;
 
                     case "5":
+                        currentplayer.handleRate(sc, currentplayer);
+                        Thread.sleep(1500);
+                        break;
+
+                    case "6":
                         System.out.println("Αποσύνδεση παίκτη... Ευχαριστούμε που παίξατε!");
                         running = false;
                         break;
@@ -213,4 +227,6 @@ public class PlayerApp {
             }
         }
     }
+
+
 }

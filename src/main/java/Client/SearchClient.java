@@ -1,22 +1,27 @@
 package Client;
 
+import Player.PlayerApp;
 import models.Game;
 
 import java.util.ArrayList;
 
 public class SearchClient extends Client {
-
-    public SearchClient (String ip, int port, Object object) {
-
+    private PlayerApp playerApp;
+    public SearchClient (String ip, int port, Object object, PlayerApp playerApp) {
         super ( ip, port, object );
+        this.playerApp=playerApp;
+
     }
 
     @Override
     public void run ( ) {
         super.run ( );
         Object response = getResponse ( );
+        if(!playerApp.getProjectisactive ())
+            System.out.println ( "\n===== Αποτελέσματα Αναζήτησης ======" );
+        else
+            System.out.println ( "\n===== Προβολή διαθέσιμων Παιχνίδιών ======" );
 
-        System.out.println ( "\n===== Αποτελέσματα Αναζήτησης από Master ======" );
         if ( response != null ) {
             ArrayList<Game> foundgames = (ArrayList<Game>) response;
             int i = 0;

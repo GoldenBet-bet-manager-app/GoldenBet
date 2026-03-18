@@ -52,12 +52,11 @@ public class MasterHandler extends Thread{
 
             switch (type){
                 case ADD_GAME:
-                    Game addedGame = (Game) message.getPayload();
-                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorkers);
-                    gameWorkerIndex = hashGameToWorker(addedGame.getGameName(),numOfWorkers);
+                    Game gameToAdd = (Game) message.getPayload();
+                    gameWorkerIndex = hashGameToWorker(gameToAdd.getGameName(),numOfWorkers);
                     target = workers.get(gameWorkerIndex);
 
-                    System.out.println("Master is trying to add game: "+addedGame.getGameName()+ "...");
+                    System.out.println("Master is trying to add game: " + gameToAdd.getGameName() + "...");
                     response = sendRequestToWorker(target, message); // response returned to master
 
                     if (response == null) {
@@ -71,10 +70,23 @@ public class MasterHandler extends Thread{
                     break;
 
                 case REMOVE_GAME:
+                    Game gameToDelete = (Game) message.getPayload();
+                    gameWorkerIndex = hashGameToWorker(gameToDelete.getGameName(),numOfWorkers);
+                    target = workers.get(gameWorkerIndex);
 
+                    System.out.println("Master is trying to add game: " + gameToDelete.getGameName() + "...");
+                    response = sendRequestToWorker(target, message); // response returned to master
 
-
+                    if (response == null) {
+                        System.out.println("Error: Could not communicate with Worker.");
+                        out.writeObject("Error: Could not communicate with Worker.");
+                    }else{
+                        System.out.println(response);
+                        out.writeObject(response); // response returned to manager
+                    }
+                    out.flush();
                     break;
+
                 case GET_ACTIVE_GAMES:
                     currentMapId = Math.abs(randomUUID().hashCode());
                     message.setMapId(currentMapId);
@@ -183,16 +195,29 @@ public class MasterHandler extends Thread{
             ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
             ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
 
+
+            // We wait for acknowledgement message before proceeding to send the real one
+            // To ensure that the connection has been established
+            Object ack = inWorker.readObject();
+
+            if ("ACK".equals(ack)) {
+                outWorker.writeObject(message);
+                outWorker.flush();
+            }
+
+
             outWorker.writeObject(message);
             outWorker.flush();
 
-            return inWorker.readObject();
-
+            return "The requested activity has been successfully completed";
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.err.println("Worker Connection Error: " + e.getMessage());
             e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         return null;
@@ -200,13 +225,26 @@ public class MasterHandler extends Thread{
 
     private void sendMapRequestToWorker(Worker w, MasterMessage message){
         try(Socket requestSocket = new Socket(w.getIp(), w.getPort());
-            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());){
+            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
+            ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());){
+
+            // We wait for acknowledgement message before proceeding to send the real one
+            // To ensure that the connection has been established
+            Object ack = inWorker.readObject();
+
+            if ("ACK".equals(ack)) {
+                outWorker.writeObject(message);
+                outWorker.flush();
+            }
+
 
             outWorker.writeObject(message);
             outWorker.flush();
 
         }catch (IOException e) {
             System.err.println("Worker Map Phase Connection Error: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
