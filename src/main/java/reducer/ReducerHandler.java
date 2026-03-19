@@ -28,7 +28,7 @@ public class ReducerHandler extends Thread{
     @Override
     public void run(){
 
-        int numberOfWorkers = 6;
+        int numberOfWorkers = 3;
         int currentMapId = -1;
         MasterMessage newMessage = null;
 

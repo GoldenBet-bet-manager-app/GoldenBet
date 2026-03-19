@@ -8,18 +8,21 @@ import java.net.Socket;
 import java.util.HashMap;
 
 
-public class Worker implements Runnable {
+public class Worker extends Thread {
     private String ip;
     private int port;
     private final int workerid;
     private HashMap<String, BigDecimal> profits = new HashMap<> ( );
     private HashMap<String, Game> myGames = new HashMap<> ( );
-    private static int counter = 0;
 
-    public Worker (String ip, int port) {
+    public int getWorkerid ( ) {
+        return workerid;
+    }
+
+    public Worker (String ip, int port,int workerid) {
         this.ip = ip;
         this.port = port;
-        this.workerid = counter++;
+        this.workerid =workerid;
     }
 
     public String getIp ( ) {
@@ -55,5 +58,22 @@ public class Worker implements Runnable {
                 ioException.printStackTrace ( );
             }
         }
+    }
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Σφάλμα: Πρέπει να δώσετε IP και Port ως ορίσματα.");
+            return;
+        }
+        String ip = args[0];
+        int port,workerid;
+        try {
+            port = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("Σφάλμα: Η πόρτα πρέπει να είναι ακέραιος αριθμός.");
+            return;
+        }
+        Worker worker = new Worker(ip, port,Integer.parseInt ( args[ 2 ] ));
+        worker.start();
+
     }
 }

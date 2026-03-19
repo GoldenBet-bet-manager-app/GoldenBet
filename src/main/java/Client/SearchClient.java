@@ -7,17 +7,17 @@ import java.util.ArrayList;
 
 public class SearchClient extends Client {
     private PlayerApp playerApp;
+
     public SearchClient (String ip, int port, Object object, PlayerApp playerApp) {
         super ( ip, port, object );
-        this.playerApp=playerApp;
-
+        this.playerApp = playerApp;
     }
 
     @Override
     public void run ( ) {
         super.run ( );
         Object response = getResponse ( );
-        if(!playerApp.getProjectisactive ())
+        if ( !playerApp.getProjectisactive ( ) )
             System.out.println ( "\n===== Αποτελέσματα Αναζήτησης ======" );
         else
             System.out.println ( "\n===== Προβολή διαθέσιμων Παιχνίδιών ======" );
@@ -30,13 +30,13 @@ public class SearchClient extends Client {
             }
             for ( Game g : foundgames ) {
                 i++;
-                System.out.println ( i + ") " + g.getGameName ( ) +" | Κατηγορία: "+g.getCategory () +
+                System.out.println ( i + ") " + g.getGameName ( ) + " | Κατηγορία: " + g.getCategory ( ) +
                         " | Αστέρια: " + g.getStars ( ) +
-                        " | Ποντάρισμα από " + g.getMinBet ()+" tokens εώς "+g.getMaxBet ()+" tokens"+
-                        " | Επίπεδο Ρίσκου: "+g.getRiskLevel ());
+                        " | Ποντάρισμα από " + g.getMinBet ( ) + " FUN εώς " + g.getMaxBet ( ) + " FUN" +
+                        " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) );
             }
-        } else {
-            System.out.println("Σφάλμα: Δεν λάβαμε απάντηση από τον Master.");
-        }
+        } else
+            System.out.println ( "Σφάλμα: Δεν λάβαμε απάντηση από τον Master." );
+
     }
 }

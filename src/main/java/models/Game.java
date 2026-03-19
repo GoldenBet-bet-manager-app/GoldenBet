@@ -130,6 +130,7 @@ public class Game implements Serializable {
 
     public void setMinBet (BigDecimal minBet) {
         this.minBet = minBet;
+        calculateBetCategory();
     }
 
     public BigDecimal getMaxBet ( ) {
@@ -146,6 +147,7 @@ public class Game implements Serializable {
 
     public void setRiskLevel (String riskLevel) {
         this.riskLevel = riskLevel;
+        setJackpotAndMultipliers();
     }
 
     public String getHashKey ( ) {

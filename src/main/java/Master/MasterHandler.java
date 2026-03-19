@@ -74,7 +74,7 @@ public class MasterHandler extends Thread{
                     gameWorkerIndex = hashGameToWorker(gameToDelete.getGameName(),numOfWorkers);
                     target = workers.get(gameWorkerIndex);
 
-                    System.out.println("Master is trying to add game: " + gameToDelete.getGameName() + "...");
+                    System.out.println("Master is trying to remove game: " + gameToDelete.getGameName() + "...");
                     response = sendRequestToWorker(target, message); // response returned to master
 
                     if (response == null) {
@@ -87,6 +87,24 @@ public class MasterHandler extends Thread{
                     out.flush();
                     break;
 
+                case MODIFY_GAME:
+                    Game gameToModify = (Game) message.getPayload();
+                    gameWorkerIndex = hashGameToWorker(gameToModify.getGameName(),numOfWorkers);
+                    target = workers.get(gameWorkerIndex);
+
+                    System.out.println("Master is trying to modify game: " + gameToModify.getGameName() + "...");
+                    response = sendRequestToWorker(target, message); // response returned to master
+
+
+                    if (response == null) {
+                        System.out.println("Error: Could not communicate with Worker.");
+                        out.writeObject("Error: Could not communicate with Worker.");
+                    }else{
+                        System.out.println(response);
+                        out.writeObject(response); // response returned to manager
+                    }
+                    out.flush();
+                    break;
                 case GET_ACTIVE_GAMES:
                     currentMapId = Math.abs(randomUUID().hashCode());
                     message.setMapId(currentMapId);
@@ -206,10 +224,9 @@ public class MasterHandler extends Thread{
             }
 
 
-            outWorker.writeObject(message);
-            outWorker.flush();
+            // returns a message of success/failure of the requested operation
+            return inWorker.readObject();
 
-            return "The requested activity has been successfully completed";
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException e) {
@@ -238,8 +255,6 @@ public class MasterHandler extends Thread{
             }
 
 
-            outWorker.writeObject(message);
-            outWorker.flush();
 
         }catch (IOException e) {
             System.err.println("Worker Map Phase Connection Error: " + e.getMessage());

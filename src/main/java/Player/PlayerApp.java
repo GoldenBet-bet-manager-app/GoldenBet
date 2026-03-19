@@ -35,8 +35,8 @@ public class PlayerApp {
     }
 
 
-    public void search(String playerId, ArrayList<String> categories, int stars, String betLimit, String riskLevel) {
-        SearchFilters filters = new SearchFilters(playerId, categories, stars, betLimit, riskLevel);
+    public void search(String playerId, int stars, String betLimit, String riskLevel) {
+        SearchFilters filters = new SearchFilters(playerId, stars, betLimit, riskLevel);
         SearchClient searchClient = new SearchClient("127.0.0.1", 43210, new MasterMessage(MasterMessageType.SEARCH, filters),this);
         searchClient.start();
     }
@@ -59,7 +59,7 @@ public class PlayerApp {
         if (amount.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Σφάλμα: Το πλήθος των tokens δεν μπορεί να είναι αρνητικό ή μηδέν");
         this.tokenBalance = this.tokenBalance.add(amount);
-        System.out.println("Επιτυχής κατάθεση!\nΝέο διαθέσιμο υπόλοιπο: " + this.tokenBalance + " tokens.");
+        System.out.println("Επιτυχής κατάθεση!\nΝέο διαθέσιμο υπόλοιπο: " + this.tokenBalance + " FUN.");
     }
     public void subBalance(BigDecimal amount){
         if (amount.compareTo(BigDecimal.ZERO) <= 0)
@@ -115,17 +115,6 @@ public class PlayerApp {
     private  void addsearchfilters(Scanner sc, PlayerApp currentplayer, Player myPlayer) {
         projectisactive=false;
         System.out.println("\n--- Κριτήρια Αναζήτησης ---");
-        System.out.print("Εισάγετε κατηγορίες (π.χ. Cards,Slots) ή πατήστε Enter για να μην βάλετε φίλτρο: ");
-        String catInput = sc.nextLine();
-        ArrayList<String> searchCategories = new ArrayList<>();
-
-        if (!catInput.trim().isEmpty()) {
-            String[] cats = catInput.split(",");
-            for (String c : cats) {
-                searchCategories.add(c.trim());
-            }
-        }
-
         System.out.print("Ελάχιστα αστέρια (1-5) ή πατήστε 0 για κανένα φίλτρο: ");
         int searchStars = 0;
         try {
@@ -144,11 +133,11 @@ public class PlayerApp {
         System.out.print("Επίπεδο Ρίσκου (low, medium, high) ή πατήστε Enter για κανένα φίλτρο: ");
         String searchRiskLevel = sc.nextLine().trim();
 
-        currentplayer.search(myPlayer.getPlayerId(), searchCategories, searchStars, searchBetLimit, searchRiskLevel);
+        currentplayer.search(myPlayer.getPlayerId(), searchStars, searchBetLimit, searchRiskLevel);
     }
     private  void projectavailablegames (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
         projectisactive=true;
-        currentplayer.search ( myPlayer.getPlayerId (),new ArrayList<String> (),0,"","" );
+        currentplayer.search ( myPlayer.getPlayerId (),0,"","" );
     }
 
     // =========================================================================================

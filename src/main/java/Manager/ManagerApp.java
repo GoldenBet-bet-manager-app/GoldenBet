@@ -82,16 +82,23 @@ public class ManagerApp {
                     break;
                 //****************MODIFY GAME****************
                 case "3":
-
+                    modifyGame();
+                    break;
                 //****************PROFITS/LOSS PER GAME****************
                 case "4":
 
+                    break;
                 //****************PROFITS/LOSS PER PLAYER****************
                 case "5":
 
+                    break;
                 //****************PROFITS/LOSS PER PROVIDER****************
                 case "6":
 
+                    break;
+                default:
+                    System.out.println("Λανθασμένη επιλογή, δώστε τον αριθμό λειτουργίας (0-6)");
+                    break;
             }
         }
         scanner.close();
@@ -158,55 +165,121 @@ public class ManagerApp {
                     System.err.println("Thread interrupted at client.join() logic: " + e.getMessage());
             }
         }
+
     }
 
     public static void removeGame() {
-        MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
 
-        Client client = new Client("127.0.0.1",43210,message);
+        // Query for the active games of all workers
+        ArrayList<Game> activeGames = getAndDisplayActiveGames();
 
-        client.start();
-
-        Object responseActiveGames = null;
-        // Wait for the client thread to finish remove game before returning to manager's main menu
-        try {
-            client.join();
-
-            responseActiveGames = client.getResponse();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<Game> activeGames = (ArrayList<Game>) responseActiveGames;
-
-        if (activeGames != null && !activeGames.isEmpty()) {
-            System.out.println("\t\t ACTIVE GAMES");
-            System.out.println("Number " + "| " + "Name " +"| " + " ProviderName");
-            for(int i=0;i<activeGames.size();i++){
-                Game curGame = activeGames.get(i);
-                System.out.println((i+1) + "|  " + curGame.getGameName() + "|  " + curGame.getProviderName());
-            }
-        }
-        else {
-            System.out.println("There are no active games to delete");
-            return;
-        }
-
+        if(activeGames == null) return;
         int index = validateGameSelectionInput(activeGames);
 
         Game gameToDelete = activeGames.get(index);
 
+       MasterMessage removalMessage = new MasterMessage(REMOVE_GAME, gameToDelete);
 
-        message = new MasterMessage(REMOVE_GAME, gameToDelete);
-
-        client = new Client("127.0.0.1", 43210, message);
-        client.start();
+       Client client = new Client("127.0.0.1", 43210, removalMessage);
+       client.start();
 
         try {
             client.join();
             String responseToGameRemoval = (String) client.getResponse();
             System.out.println(responseToGameRemoval);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void modifyGame(){
+        ArrayList<Game> activeGames = getAndDisplayActiveGames();
+
+        if(activeGames == null) return;
+        int index = validateGameSelectionInput(activeGames);
+
+        Game gameToModify = activeGames.get(index);
+        boolean endModify = false;
+
+        while(!endModify) {
+            System.out.println("\n--- Τροποποίηση Παιχνιδιού: " + gameToModify.getGameName() + " ---");
+            System.out.println("1. Όνομα Παρόχου (Τρέχον: " + gameToModify.getProviderName() + ")");
+            System.out.println("2. Επίπεδο Ρίσκου (Τρέχον: " + gameToModify.getRiskLevel() + ")");
+            System.out.println("3. Ελάχιστο Ποντάρισμα (Τρέχον: " + gameToModify.getMinBet() + ")");
+            System.out.println("4. Μέγιστο Ποντάρισμα (Τρέχον: " + gameToModify.getMaxBet() + ")");
+            System.out.println("5. Path Λογοτύπου (Τρέχον: " + gameToModify.getGameLogo() + ")");
+            System.out.println("6. Αποθήκευση αλλαγών και επιστροφή στο Μενού");
+            System.out.println("0. Ακύρωση αλλαγών και επιστροφή στο Μενού");
+            System.out.print("Επιλέξτε πεδίο προς αλλαγή: ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    System.out.print("Νέο όνομα παρόχου: ");
+                    gameToModify.setProviderName(scanner.nextLine());
+                    break;
+
+                case "2":
+                    System.out.print("Νέο επίπεδο ρίσκου (low, medium, high): ");
+                    String newRisk = scanner.nextLine().toLowerCase();
+                    if (newRisk.equals("low") || newRisk.equals("medium") || newRisk.equals("high")) {
+                        gameToModify.setRiskLevel(newRisk);
+                    } else {
+                        System.out.println("Άκυρη τιμή ρίσκου.");
+                        return;
+                    }
+                    break;
+
+                case "3":
+                    System.out.print("Νέο ελάχιστο ποντάρισμα (π.χ. 0.1, 1, 5): ");
+                    try {
+                        java.math.BigDecimal min = new java.math.BigDecimal(scanner.nextLine());
+                        gameToModify.setMinBet(min);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Μη έγκυρος αριθμός.");
+                        return;
+                    }
+                    break;
+
+                case "4":
+                    System.out.print("Νέο μέγιστο ποντάρισμα: ");
+                    try {
+                        gameToModify.setMaxBet(new java.math.BigDecimal(scanner.nextLine()));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Μη έγκυρος αριθμός.");
+                        return;
+                    }
+                    break;
+
+                case "5":
+                    System.out.print("Νέο path λογοτύπου: ");
+                    gameToModify.setGameLogo(scanner.nextLine());
+                    break;
+                case "6":
+                    endModify = true;
+                    break;
+                case "0":
+                    System.out.println("Οι αλλαγές ακυρώθηκαν.");
+                    return;
+
+                default:
+                    System.out.println("Λανθασμένη επιλογή.");
+                    return;
+            }
+        }
+
+        MasterMessage modificationMessage = new MasterMessage(MODIFY_GAME, gameToModify);
+
+
+        Client client = new Client("127.0.0.1", 43210, modificationMessage);
+        client.start();
+
+        try {
+            client.join();
+            String responseToGameModification = (String) client.getResponse();
+            System.out.println(responseToGameModification);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -239,10 +312,46 @@ public class ManagerApp {
        return index;
     }
 
+
+    private static ArrayList<Game> getAndDisplayActiveGames(){
+        MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
+
+        Client client = new Client("127.0.0.1",43210,message);
+
+        client.start();
+
+        Object responseActiveGames = null;
+        // Wait for the client thread to finish remove game before returning to manager's main menu
+        try {
+            client.join();
+
+            responseActiveGames = client.getResponse();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Game> activeGames = (ArrayList<Game>) responseActiveGames;
+
+        if (activeGames != null && !activeGames.isEmpty()) {
+            System.out.println("\t\t ACTIVE GAMES");
+            System.out.println("Number " + "| " + "Name " +"| " + " ProviderName");
+            for(int i=0;i<activeGames.size();i++){
+                Game curGame = activeGames.get(i);
+                System.out.println((i+1) + "|  " + curGame.getGameName() + "|  " + curGame.getProviderName());
+            }
+        }
+        else {
+            System.out.println("There are no active games to modify");
+            return null;
+        }
+
+        return activeGames;
+    }
+
     public static void main(String[] args) {
         ManagerApp.scanner = new Scanner(System.in);
         startConsoleMenu ();
     }
-
 
 }

@@ -17,7 +17,7 @@ public class WorkerHandler extends Thread {
 
     ObjectInputStream in;
     ObjectOutputStream out;
-    private HashMap<String, Game> myGames = new HashMap<>();
+    private final HashMap<String, Game> myGames;
     private HashMap<String, BigDecimal> profits = new HashMap<>();
     private HashMap<String, BigDecimal> playerProfits = new HashMap<>();
 
@@ -62,20 +62,22 @@ public class WorkerHandler extends Thread {
                     Game gameToAdd = (Game) message.getPayload ( );
 
                     // When the game is first added into the app
-                    if (!myGames.containsKey(gameToAdd.getGameName())) {
-                        myGames.put(gameToAdd.getGameName(), gameToAdd);
-                        response = "The game '" + gameToAdd.getGameName() + "' has been added successfully!";
-                    }
-                    // When the game already exists in the app and becomes visible to the players again
-                    else if(!myGames.get(gameToAdd.getGameName()).isActive()){
-                        myGames.get(gameToAdd.getGameName()).setActive(true);
-                        response = "The game '" + gameToAdd.getGameName() + "' is visible again for players!";
-                    }
-                    // When the game already exists in the app and is visible to the players
-                    // No action is needed, just an information response to the manager that
-                    // the game is already visible to the players
-                    else{
-                        response = "The game '" + gameToAdd.getGameName() + "' is already visible to the players!";
+                    synchronized (myGames){
+                        if (!myGames.containsKey(gameToAdd.getGameName())) {
+                            myGames.put(gameToAdd.getGameName(), gameToAdd);
+                            response = "The game '" + gameToAdd.getGameName() + "' has been added successfully!";
+                        }
+                        // When the game already exists in the app and becomes visible to the players again
+                        else if(!myGames.get(gameToAdd.getGameName()).isActive()){
+                            myGames.get(gameToAdd.getGameName()).setActive(true);
+                            response = "The game '" + gameToAdd.getGameName() + "' is visible again for players!";
+                        }
+                        // When the game already exists in the app and is visible to the players
+                        // No action is needed, just an information response to the manager that
+                        // the game is already visible to the players
+                        else{
+                            response = "The game '" + gameToAdd.getGameName() + "' is already visible to the players!";
+                        }
                     }
                     break;
 
@@ -93,21 +95,47 @@ public class WorkerHandler extends Thread {
 
                     // No check for the existence or the activity state of the game needs to be done
                     // as they have been checked automatically when the manager submitted the query
-                    myGames.get(gameToDelete.getGameName()).setActive(false);
+                    synchronized (myGames) {
+                        myGames.get(gameToDelete.getGameName()).setActive(false);
+                    }
 
                     response = "The game '" + gameToDelete.getGameName() + "' has been removed successfully!";
 
                     break;
 
+                case MODIFY_GAME:
+                    Game gameUpdate = (Game) message.getPayload();
+                    synchronized (myGames) { // Αποκλειστική χρήση synchronized [cite: 108]
+                        Game existingGame = myGames.get(gameUpdate.getGameName());
+                        if (existingGame != null) {
+                            // Ενημέρωση απλών πεδίων
+                            existingGame.setProviderName(gameUpdate.getProviderName());
+                            existingGame.setGameLogo(gameUpdate.getGameLogo());
+                            existingGame.setMaxBet(gameUpdate.getMaxBet());
+
+                            /* * Οι παρακάτω setters πυροδοτούν αυτόματα τους υπολογισμούς
+                             * για Jackpot, Πίνακες και Κατηγορία βάσει εκφώνησης [cite: 54-59, 74-77]
+                             */
+                            existingGame.setRiskLevel(gameUpdate.getRiskLevel());
+                            existingGame.setMinBet(gameUpdate.getMinBet());
+
+                            response = "The game '" + existingGame.getGameName() + "' was modified successfully!";
+                        } else {
+                            response = "Error: Game not found on this worker.";
+                        }
+                    }
+
+                    break;
                 case GET_ACTIVE_GAMES:
 
                     ArrayList<Game> activeGames = new ArrayList<>();
-                    for (String gameName : myGames.keySet()){
-                        Game curGame = myGames.get(gameName);
-                        if(curGame.isActive())
-                            activeGames.add(curGame);
+                    synchronized (myGames) {
+                        for (String gameName : myGames.keySet()) {
+                            Game curGame = myGames.get(gameName);
+                            if (curGame.isActive())
+                                activeGames.add(curGame);
+                        }
                     }
-
 
                     try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
                          ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
@@ -271,28 +299,24 @@ public class WorkerHandler extends Thread {
 
     private ArrayList<Game> searchgames(SearchFilters filters) {
         if (filters == null) throw new IllegalArgumentException("Τα φίλτρα αναζήτησης δεν μπορεί να είναι null.");
-
         ArrayList<Game> matchedGames = new ArrayList<>();
         for (Game game : myGames.values()) {
-            boolean matching = true;
+            boolean condition1,condition2,condition3;
+            if ( game.isActive ( ) ) {
+                condition1=game.getStars ( ) < filters.getStars ( );
 
-            if (game.getStars() < filters.getStars()) {
-                matching = false;
-            }
-            if (filters.getRiskLevel() != null && !filters.getRiskLevel().trim().isEmpty() &&
-                    !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel())) {
-                matching = false;
-            }
-            if (filters.getBetCategory() != null && !filters.getBetCategory().trim().isEmpty() &&
-                    !game.getBetCategory().equals(filters.getBetCategory())) {
-                matching = false;
-            }
-            if (filters.getCategories() != null && !filters.getCategories().isEmpty() &&
-                    !filters.getCategories().contains(game.getCategory())) {
-                matching = false;
-            }
+                condition2=filters.getRiskLevel ( ) != null && !filters.getRiskLevel ( ).trim ( ).isEmpty ( ) &&
+                        !game.getRiskLevel ( ).equalsIgnoreCase ( filters.getRiskLevel ( ) );
 
-            if (matching) matchedGames.add(game);
+                condition3=filters.getBetCategory ( ) != null && !filters.getBetCategory ( ).trim ( ).isEmpty ( ) &&
+                        !game.getBetCategory ( ).equals ( filters.getBetCategory ( ) );
+
+
+
+                if(!(condition1 || condition2 || condition3)){
+                    matchedGames.add ( game );
+                }
+            }
         }
         return matchedGames;
     }
