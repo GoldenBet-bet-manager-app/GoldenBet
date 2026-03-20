@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import models.SHA256Generator;
 
 import static models.SHA256Generator.computeSHA256;
 
@@ -18,10 +17,11 @@ public class WorkerHandler extends Thread {
     ObjectInputStream in;
     ObjectOutputStream out;
     private final HashMap<String, Game> myGames;
-    private HashMap<String, BigDecimal> profits = new HashMap<>();
+    private final int workerid;
+    private HashMap<String, BigDecimal> gamesprofits = new HashMap<>();
     private HashMap<String, BigDecimal> playerProfits = new HashMap<>();
 
-    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits) {
+    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, int workerid) {
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
@@ -35,7 +35,8 @@ public class WorkerHandler extends Thread {
             e.printStackTrace();
         }
         this.myGames = myGames;
-        this.profits = profits;
+        this.gamesprofits = profits;
+        this.workerid=workerid;
     }
 
 
@@ -66,11 +67,14 @@ public class WorkerHandler extends Thread {
                         if (!myGames.containsKey(gameToAdd.getGameName())) {
                             myGames.put(gameToAdd.getGameName(), gameToAdd);
                             response = "The game '" + gameToAdd.getGameName() + "' has been added successfully!";
+                            System.out.println ( "The game "+gameToAdd.getGameName()+" was added to worker "+workerid);
                         }
                         // When the game already exists in the app and becomes visible to the players again
                         else if(!myGames.get(gameToAdd.getGameName()).isActive()){
                             myGames.get(gameToAdd.getGameName()).setActive(true);
                             response = "The game '" + gameToAdd.getGameName() + "' is visible again for players!";
+                            System.out.println ( "The game "+gameToAdd.getGameName()+" is visible on worker "+workerid);
+
                         }
                         // When the game already exists in the app and is visible to the players
                         // No action is needed, just an information response to the manager that
@@ -100,6 +104,7 @@ public class WorkerHandler extends Thread {
                     }
 
                     response = "The game '" + gameToDelete.getGameName() + "' has been removed successfully!";
+                    System.out.println ( "The game "+gameToDelete.getGameName()+" was disabled on worker "+workerid);
 
                     break;
 
@@ -237,9 +242,9 @@ public class WorkerHandler extends Thread {
             systemProfitFromThisBet = bet.getAmount ( ).subtract ( playerPayout );
             playerProfit = playerPayout.subtract ( bet.getAmount ( ) );
 
-            synchronized (profits) {
-                BigDecimal currentProfit = profits.getOrDefault ( game.getGameName ( ), BigDecimal.ZERO );
-                profits.put ( game.getGameName ( ), currentProfit.add ( systemProfitFromThisBet ) );
+            synchronized (gamesprofits) {
+                BigDecimal currentProfit = gamesprofits.getOrDefault ( game.getGameName ( ), BigDecimal.ZERO );
+                gamesprofits.put ( game.getGameName ( ), currentProfit.add ( systemProfitFromThisBet ) );
             }
 
         } catch (Exception e) {

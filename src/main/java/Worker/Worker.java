@@ -8,11 +8,11 @@ import java.net.Socket;
 import java.util.HashMap;
 
 
-public class Worker extends Thread {
+public class Worker  {
     private String ip;
     private int port;
     private final int workerid;
-    private HashMap<String, BigDecimal> profits = new HashMap<> ( );
+    private HashMap<String, BigDecimal> gamesprofits = new HashMap<> ( );
     private HashMap<String, Game> myGames = new HashMap<> ( );
 
     public int getWorkerid ( ) {
@@ -37,15 +37,15 @@ public class Worker extends Thread {
     ServerSocket providerSocket;
     Socket connection = null;
 
-    @Override
-    public void run ( ) {
+
+    public void openServer ( ) {
         try {
             providerSocket = new ServerSocket ( this.port, 10 );
             System.out.println ( "Ο Worker " + workerid + " άνοιξε και ακούει στην πόρτα: " + this.port );
 
             while (true) {
                 connection = providerSocket.accept ( );
-                Thread workerHandler = new WorkerHandler ( connection, myGames, profits );
+                Thread workerHandler = new WorkerHandler ( connection, myGames, gamesprofits,workerid );
                 workerHandler.start ( );
 
             }
@@ -60,8 +60,8 @@ public class Worker extends Thread {
         }
     }
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Σφάλμα: Πρέπει να δώσετε IP και Port ως ορίσματα.");
+        if (args.length < 3) {
+            System.out.println("Σφάλμα: Πρέπει να δώσετε IP και Port και id ως ορίσματα.");
             return;
         }
         String ip = args[0];
@@ -73,7 +73,7 @@ public class Worker extends Thread {
             return;
         }
         Worker worker = new Worker(ip, port,Integer.parseInt ( args[ 2 ] ));
-        worker.start();
+        worker.openServer();
 
     }
 }

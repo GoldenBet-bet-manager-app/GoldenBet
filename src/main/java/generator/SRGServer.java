@@ -6,25 +6,27 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class SRGServer {
 
     public static void main(String [] args){
 
+        new SRGServer().openServer();
+    }
+
+    private void openServer(){
+
         Map<String, RandomNumberGenerator> generators = new HashMap<>();
         Map<String, String> secrets = new HashMap<>();
 
+        Scanner scanner = new Scanner(System.in);
+
         try {
 
-            File folder = new File("games");
-            File[] files = folder.listFiles();
 
-            if(files == null) {
-                System.out.println("Games folder not found.");
-                return;
-            }
-
-            for(File f : files) {
+            /*
+            while(true) {
 
                 if(!f.getName().endsWith(".json"))
                     continue;
@@ -48,6 +50,7 @@ public class SRGServer {
 
                 System.out.println("Loaded game: " + gameName);
             }
+            */
 
             ServerSocket serverSocket = new ServerSocket(5000);
 
@@ -67,5 +70,8 @@ public class SRGServer {
         }catch(Exception e){
             System.err.println("Server Error: " + e.getMessage());
         }
+
     }
+
+
 }
