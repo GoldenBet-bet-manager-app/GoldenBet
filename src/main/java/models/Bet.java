@@ -18,16 +18,8 @@ public class Bet implements Serializable {
         return amount;
     }
 
-    public void setAmount (BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getPlayername() {
+    public String getPlayerid ( ) {
         return playerid;
-    }
-
-    public void setPlayername (String playername) {
-        this.playerid = playername;
     }
 
     public String getGamename(){
