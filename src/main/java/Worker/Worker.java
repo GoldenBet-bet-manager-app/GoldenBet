@@ -13,7 +13,9 @@ public class Worker  {
     private int port;
     private final int workerid;
     private HashMap<String, BigDecimal> gamesprofits = new HashMap<> ( );
+    private HashMap<String,BigDecimal>  providersprofits=new HashMap<> ();
     private HashMap<String, Game> myGames = new HashMap<> ( );
+    private HashMap<String,BigDecimal>  playesrprofits=new HashMap<> ();
 
     public int getWorkerid ( ) {
         return workerid;
@@ -45,7 +47,7 @@ public class Worker  {
 
             while (true) {
                 connection = providerSocket.accept ( );
-                Thread workerHandler = new WorkerHandler ( connection, myGames, gamesprofits,workerid );
+                Thread workerHandler = new WorkerHandler ( connection, myGames, gamesprofits,playesrprofits,providersprofits,workerid );
                 workerHandler.start ( );
 
             }

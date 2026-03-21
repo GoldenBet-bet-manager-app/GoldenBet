@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import static models.SHA256Generator.computeSHA256;
 
 public class WorkerHandler extends Thread {
@@ -18,14 +17,12 @@ public class WorkerHandler extends Thread {
     ObjectOutputStream out;
     private final HashMap<String, Game> myGames;
     private final int workerid;
-    private HashMap<String, BigDecimal> gamesprofits = new HashMap<>();
-    private HashMap<String, BigDecimal> playerProfits = new HashMap<>();
+    private HashMap<String, BigDecimal> gamesprofits,playersProfits,providersprofits;
 
-    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, int workerid) {
+    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersprofits, HashMap<String, BigDecimal> providersprofits, int workerid) {
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
-
             // Sending acknowledgement that the stream between master and this worker
             // has been successfully established
             out.writeObject("ACK");
@@ -37,14 +34,14 @@ public class WorkerHandler extends Thread {
         this.myGames = myGames;
         this.gamesprofits = profits;
         this.workerid=workerid;
+        this.playersProfits=playersprofits;
+        this.providersprofits=providersprofits;
     }
-
 
     @Override
     public void run() {
         Object response = null;
         MasterMessage msgToReducer;
-
 
         try {
             MasterMessage message = (MasterMessage) in.readObject ( );
@@ -225,32 +222,42 @@ public class WorkerHandler extends Thread {
                     + game.getMinBet ( ) + " και " + game.getMaxBet ( ) + " tokens." );
         }
 
-        BigDecimal playerProfit, systemProfitFromThisBet, playerPayout = BigDecimal.ZERO;
+        BigDecimal playerProfit,gameprofit,providerprofit,payout=BigDecimal.ZERO;
         int index;
         BigDecimal[] gamemultiplies;
         int random = getSecuredRandomNumber ( game.getGameName ( ) );
         if ( random == -1 )
             throw new IllegalStateException ( "Τεχνικό Πρόβλημα: Ακυρώθηκε το ποντάρισμα λόγω αδυναμίας παραγωγής ασφαλούς τυχαίου αριθμού." );        try {
             if ( random % 100 == 0 ) {
-                playerPayout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
+                payout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
             } else {
                 index = random % 10;
                 gamemultiplies = game.getMultipliers ( );
-                playerPayout = bet.getAmount ( ).multiply ( gamemultiplies[ index ] );
+                payout = bet.getAmount ( ).multiply ( gamemultiplies[ index ] );
             }
-
-            systemProfitFromThisBet = bet.getAmount ( ).subtract ( playerPayout );
-            playerProfit = playerPayout.subtract ( bet.getAmount ( ) );
-
+            synchronized (playersProfits) {
+                playerProfit=playersProfits.getOrDefault ( bet.getPlayerid (),BigDecimal.ZERO );
+                playerProfit=playerProfit.subtract ( bet.getAmount ( ) );
+                playerProfit=playerProfit.add ( payout );
+                playersProfits.put ( bet.getPlayerid (), playerProfit);
+            }
             synchronized (gamesprofits) {
-                BigDecimal currentProfit = gamesprofits.getOrDefault ( game.getGameName ( ), BigDecimal.ZERO );
-                gamesprofits.put ( game.getGameName ( ), currentProfit.add ( systemProfitFromThisBet ) );
+                gameprofit=gamesprofits.getOrDefault ( game.getGameName (),BigDecimal.ZERO );
+                gameprofit=gameprofit.add ( bet.getAmount ( ) );
+                gameprofit=gameprofit.subtract ( payout );
+                gamesprofits.put ( game.getGameName (), gameprofit);
+            }
+            synchronized (providersprofits){
+                providerprofit=providersprofits.getOrDefault (game.getProviderName (),BigDecimal.ZERO  );
+                providerprofit=providerprofit.add ( bet.getAmount () );
+                providerprofit=providerprofit.subtract ( payout );
+                providersprofits.put ( game.getProviderName (),providerprofit );
             }
 
         } catch (Exception e) {
             System.err.println ( "Σφάλμα κατά τον υπολογισμό κέρδους: " + e.getMessage ( ) );
         }
-        return playerPayout;
+        return payout;
     }
 
 
@@ -263,8 +270,8 @@ public class WorkerHandler extends Thread {
         Socket requestSocket = null;
         ObjectOutputStream requestOut = null;
         ObjectInputStream requestIn = null;
-        int randomNumber = 0;
-        String hashnumber, receivedhash;
+        int randomNumber;
+        String  receivedhash;
 
         try {
             requestSocket = new Socket ( "127.0.0.1", 5000 );

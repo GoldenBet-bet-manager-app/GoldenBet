@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.nio.file.Files;
 
@@ -94,7 +95,7 @@ public class ManagerApp {
                     break;
                 //****************PROFITS/LOSS PER PROVIDER****************
                 case "6":
-
+                    profitsPerProvider();
                     break;
                 default:
                     System.out.println("Λανθασμένη επιλογή, δώστε τον αριθμό λειτουργίας (0-6)");
@@ -137,16 +138,6 @@ public class ManagerApp {
             } catch (JSONException e) {
                 System.err.println("Σφάλμα στη δομή του JSON: " + e.getMessage());
             }
-
-
-            // ΕΔΩ ΘΑ ΜΠΑΙΝΕΙ Η ΚΑΤΗΓΟΡΙΑ ΤΩΝ ΠΑΙΧΝΙΔΙΩΝ ΠΟΥ ΧΡΕΙΑΖΕΤΑΙ ΓΙΑ ΤΑ ΦΙΛΤΡΑ
-            String name = selectedGame.getGameName();
-            if (name.contains("Poker"))
-                selectedGame.setCategory("Table Games");
-            else if (name.contains("Fiesta") || name.contains("Lair") || name.contains("Dynasty"))
-                selectedGame.setCategory("Slots");
-            else
-                selectedGame.setCategory("Classic");
 
 
         if(selectedGame != null) {
@@ -276,17 +267,50 @@ public class ManagerApp {
         Client client = new Client("127.0.0.1", 43210, modificationMessage);
         client.start();
 
+        String responseToGameModification = null;
         try {
             client.join();
-            String responseToGameModification = (String) client.getResponse();
-            System.out.println(responseToGameModification);
+            responseToGameModification = (String) client.getResponse();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        System.out.println(responseToGameModification);
+
     }
 
-    public static int validateGameSelectionInput(ArrayList<?> list){
+    public static void profitsPerProvider(){
+        System.out.print("Please, type provider's name: ");
+        String providerName = ManagerApp.scanner.nextLine();
+
+        MasterMessage providerAggregationMessage = new MasterMessage(PROVIDER_PROFITS,providerName);
+        Client client = new Client("127.0.0.1", 43210, providerAggregationMessage);
+        client.start();
+
+        HashMap<String,Integer> providerGameProfits = null;
+
+        try {
+            client.join();
+            providerGameProfits = (HashMap<String, Integer>) client.getResponse() ;
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(providerGameProfits != null && !providerGameProfits.isEmpty()){
+            int i=0;
+            System.out.println("Number " + "| " + "Name " + "| " + " ProviderName");
+            for (String gameName : providerGameProfits.keySet()){
+                System.out.println(++i + "| "+ gameName + "| " + providerGameProfits.get(gameName));
+            }
+        }
+        else{
+            System.out.println("No games were found for provider's Name: " + providerName);
+        }
+
+    }
+
+    private static int validateGameSelectionInput(ArrayList<?> list){
         System.out.printf("\n Please select one of the above games (from 1 to %d): ",list.size());
         String gameChoiceStr = scanner.nextLine();
         int index;
@@ -335,7 +359,7 @@ public class ManagerApp {
 
         if (activeGames != null && !activeGames.isEmpty()) {
             System.out.println("\t\t ACTIVE GAMES");
-            System.out.println("Number " + "| " + "Name " +"| " + " ProviderName");
+            System.out.println("Number " + "| " + "Name " + "| " + " ProviderName");
             for(int i=0;i<activeGames.size();i++){
                 Game curGame = activeGames.get(i);
                 System.out.println((i+1) + "|  " + curGame.getGameName() + "|  " + curGame.getProviderName());

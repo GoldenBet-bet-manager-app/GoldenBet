@@ -16,7 +16,6 @@ public class Game implements Serializable {
     private String hashKey;
     private String betCategory;
     private BigDecimal jackpot;
-    private String category;
     private BigDecimal[] multipliers;
     private boolean active = true;
 
@@ -176,14 +175,6 @@ public class Game implements Serializable {
 
     public BigDecimal[] getMultipliers ( ) {
         return multipliers;
-    }
-
-    public String getCategory ( ) {
-        return category;
-    }
-
-    public void setCategory (String category) {
-        this.category = category;
     }
 
     public boolean isActive() { return active; }

@@ -30,7 +30,7 @@ public class SearchClient extends Client {
             }
             for ( Game g : foundgames ) {
                 i++;
-                System.out.println ( i + ") " + g.getGameName ( ) + " | Κατηγορία: " + g.getCategory ( ) +
+                System.out.println ( i + ") " + g.getGameName ( ) +
                         " | Αστέρια: " + g.getStars ( ) +
                         " | Ποντάρισμα από " + g.getMinBet ( ) + " FUN εώς " + g.getMaxBet ( ) + " FUN" +
                         " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) );
