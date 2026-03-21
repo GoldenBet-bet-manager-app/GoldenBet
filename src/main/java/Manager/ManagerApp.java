@@ -139,16 +139,6 @@ public class ManagerApp {
             }
 
 
-            // ΕΔΩ ΘΑ ΜΠΑΙΝΕΙ Η ΚΑΤΗΓΟΡΙΑ ΤΩΝ ΠΑΙΧΝΙΔΙΩΝ ΠΟΥ ΧΡΕΙΑΖΕΤΑΙ ΓΙΑ ΤΑ ΦΙΛΤΡΑ
-            String name = selectedGame.getGameName();
-            if (name.contains("Poker"))
-                selectedGame.setCategory("Table Games");
-            else if (name.contains("Fiesta") || name.contains("Lair") || name.contains("Dynasty"))
-                selectedGame.setCategory("Slots");
-            else
-                selectedGame.setCategory("Classic");
-
-
         if(selectedGame != null) {
             try {
                 MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
