@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 
-public class Worker extends Thread {
+public class Worker {
     private String ip;
     private int port;
     private final int workerid;
@@ -37,8 +37,8 @@ public class Worker extends Thread {
     ServerSocket providerSocket;
     Socket connection = null;
 
-    @Override
-    public void run ( ) {
+    
+    public void startWorker ( ) {
         try {
             providerSocket = new ServerSocket ( this.port, 10 );
             System.out.println ( "Ο Worker " + workerid + " άνοιξε και ακούει στην πόρτα: " + this.port );
@@ -73,7 +73,7 @@ public class Worker extends Thread {
             return;
         }
         Worker worker = new Worker(ip, port,Integer.parseInt ( args[ 2 ] ));
-        worker.start();
+        worker.startWorker();
 
     }
 }
