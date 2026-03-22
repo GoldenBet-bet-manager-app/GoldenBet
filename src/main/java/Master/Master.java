@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import Worker.Worker;
 import models.MasterMessage;
+import models.WorkerInfo;
 
 public class Master{
 
@@ -14,7 +15,7 @@ public class Master{
         new Master().openServer();
     }
 
-    final ArrayList<Worker> workersList = new ArrayList<>();
+    final ArrayList<WorkerInfo> workersList = new ArrayList<>();
     final HashMap<Integer, ResultBox> sharedResults = new HashMap<>();
 
     void openServer() {
@@ -47,31 +48,28 @@ public class Master{
                 while(true){
 
                     Socket reducerConnection = reducerSocket.accept();
-                    new Thread(() -> {
+                    try(ObjectInputStream in = new ObjectInputStream(reducerConnection.getInputStream()) ;){
 
-                        try(ObjectInputStream in = new ObjectInputStream(reducerConnection.getInputStream()) ;){
+                        MasterMessage incomingMessage = (MasterMessage) in.readObject();
+                        int mapId = incomingMessage.getMapId();
 
-                            MasterMessage incomingMessage = (MasterMessage) in.readObject();
-                            int mapId = incomingMessage.getMapId();
+                        ResultBox targetBox;
 
-                            ResultBox targetBox;
-
-                            synchronized (sharedResults){
-                                targetBox = sharedResults.remove(mapId);
-                            }
-
-                            if(targetBox != null){
-                                synchronized(targetBox){
-                                    targetBox.setFinalMessage(incomingMessage);
-                                    targetBox.notify();
-                                }
-                            }
-                            reducerConnection.close();
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        synchronized (sharedResults){
+                            targetBox = sharedResults.remove(mapId);
                         }
-                    }).start();
+
+                        if(targetBox != null){
+                            synchronized(targetBox){
+                                targetBox.setFinalMessage(incomingMessage);
+                                targetBox.notify();
+                            }
+                        }
+                        reducerConnection.close();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
             }catch (IOException e) {
@@ -87,12 +85,16 @@ public class Master{
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 
             String line;
+            int currentWorkerId = 0;
+
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("#") || line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(":");
-                Worker newWorker=new Worker(parts[0], Integer.parseInt(parts[1]),0);
-                workersList.add(newWorker);
+                String ip = parts[0];
+                int port = Integer.parseInt(parts[1]);
+                WorkerInfo info = new WorkerInfo(ip, port, currentWorkerId);
+                workersList.add(info);
             }
             System.out.println(workersList.size() + " Workers were initialized");
 

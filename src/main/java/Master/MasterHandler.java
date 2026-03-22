@@ -8,19 +8,20 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import Worker.Worker;
 import static java.util.UUID.randomUUID;
 
-
+/**
+ *  Χειρίζεται την επικοινωνία του Master με τους πελάτες (Παίκτες ή Managers).
+ */
 public class MasterHandler extends Thread{
 
 
     ObjectInputStream in;
     ObjectOutputStream out;
-    private ArrayList<Worker> workers;
-    private HashMap<Integer, ResultBox> sharedResults;
+    private final ArrayList<WorkerInfo> workers;
+    private final HashMap<Integer, ResultBox> sharedResults;
 
-    public MasterHandler(Socket connection,ArrayList<Worker> workers, HashMap<Integer, ResultBox> sharedResults ) {
+    public MasterHandler(Socket connection,ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults ){
 
         this.workers = workers;
         this.sharedResults = sharedResults;
@@ -36,195 +37,43 @@ public class MasterHandler extends Thread{
     @Override
     public void run(){
 
-        int numOfWorkers = workers.size();
-        int gameWorkerIndex;
-        Worker target;
-        Object response;
-        int currentMapId;
-        ResultBox myBox;
-        MasterMessage finalResultMsg;
-        ArrayList<Game> finalGames;
-
         try {
-
             MasterMessage message = (MasterMessage) in.readObject();
             MasterMessageType type = message.getType();
 
             switch (type){
                 case ADD_GAME:
                     Game gameToAdd = (Game) message.getPayload();
-                    gameWorkerIndex = hashGameToWorker(gameToAdd.getGameName(),numOfWorkers);
-                    target = workers.get(gameWorkerIndex);
-
-                    System.out.println("Master is trying to add game: " + gameToAdd.getGameName() + "...");
-                    response = sendRequestToWorker(target, message); // response returned to master
-
-                    if (response == null) {
-                        System.out.println("Error: Could not communicate with Worker.");
-                        out.writeObject("Error: Could not communicate with Worker.");
-                    }else{
-                        System.out.println(response);
-                        out.writeObject(response); // response returned to manager
-                    }
-                    out.flush();
+                    routeToSingleWorker(message, gameToAdd.getGameName(), "add");
                     break;
 
                 case REMOVE_GAME:
                     Game gameToDelete = (Game) message.getPayload();
-                    gameWorkerIndex = hashGameToWorker(gameToDelete.getGameName(),numOfWorkers);
-                    target = workers.get(gameWorkerIndex);
-
-                    System.out.println("Master is trying to remove game: " + gameToDelete.getGameName() + "...");
-                    response = sendRequestToWorker(target, message); // response returned to master
-
-                    if (response == null) {
-                        System.out.println("Error: Could not communicate with Worker.");
-                        out.writeObject("Error: Could not communicate with Worker.");
-                    }else{
-                        System.out.println(response);
-                        out.writeObject(response); // response returned to manager
-                    }
-                    out.flush();
+                    routeToSingleWorker(message, gameToDelete.getGameName(), "remove");
                     break;
 
                 case MODIFY_GAME:
                     Game gameToModify = (Game) message.getPayload();
-                    gameWorkerIndex = hashGameToWorker(gameToModify.getGameName(),numOfWorkers);
-                    target = workers.get(gameWorkerIndex);
-
-                    System.out.println("Master is trying to modify game: " + gameToModify.getGameName() + "...");
-                    response = sendRequestToWorker(target, message); // response returned to master
-
-
-                    if (response == null) {
-                        System.out.println("Error: Could not communicate with Worker.");
-                        out.writeObject("Error: Could not communicate with Worker.");
-                    }else{
-                        System.out.println(response);
-                        out.writeObject(response); // response returned to manager
-                    }
-                    out.flush();
-                    break;
-                case GET_ACTIVE_GAMES:
-                    currentMapId = Math.abs(randomUUID().hashCode());
-                    message.setMapId(currentMapId);
-
-                    myBox = new ResultBox();
-
-                    synchronized(sharedResults){
-                        sharedResults.put(currentMapId, myBox);
-                    }
-
-                    for(Worker w : workers){
-                        new Thread(() -> {
-                            sendMapRequestToWorker(w, message);
-                        }).start();
-                    }
-
-                    synchronized (myBox){
-                        while(myBox.getFinalMessage() == null) {
-                            try {
-                                myBox.wait(); // MasterHandler sleeps until the arrival of the final results
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    finalResultMsg = myBox.getFinalMessage();
-                    finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
-
-                    out.writeObject(finalGames);
-                    out.flush();
+                    routeToSingleWorker(message, gameToModify.getGameName(), "modify");
                     break;
 
-                case SEARCH:
-
-                    currentMapId = Math.abs(randomUUID().hashCode());
-                    message.setMapId(currentMapId);
-
-                    myBox = new ResultBox();
-
-                    synchronized(sharedResults){
-                        sharedResults.put(currentMapId, myBox);
-                    }
-
-                    for(Worker w: workers){
-                        new Thread(() -> {
-                            sendMapRequestToWorker(w, message);
-                        }).start();
-                    }
-
-                    synchronized (myBox){
-                        while(myBox.getFinalMessage() == null) {
-                            try {
-                                myBox.wait(); // MasterHandler sleeps until the arrival of the final results
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    finalResultMsg = myBox.getFinalMessage();
-                    finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
-
-                    out.writeObject(finalGames);
-                    out.flush();
+                case SEARCH, GET_ACTIVE_GAMES, PROVIDER_GAME_PROFITS:
+                    executeMapReducePhase(message);
                     break;
 
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker( bet.getGamename ( ),numOfWorkers);
-                    target = workers.get(gameWorkerIndex);
-                    response = sendRequestToWorker(target, message); // response returned to master
-                    out.writeObject(response); // response returned to manager
-                    out.flush();
-                    break;
-
-                case PROVIDER_GAME_PROFITS:
-                    currentMapId = Math.abs(randomUUID().hashCode());
-                    message.setMapId(currentMapId);
-
-                    myBox = new ResultBox();
-
-                    synchronized(sharedResults){
-                        sharedResults.put(currentMapId, myBox);
-                    }
-
-                    for(Worker w: workers){
-                        new Thread(() -> {
-                            sendMapRequestToWorker(w, message);
-                        }).start();
-                    }
-
-
-                    synchronized (myBox){
-                        while(myBox.getFinalMessage() == null) {
-                            try {
-                                myBox.wait(); // MasterHandler sleeps until the arrival of the final results
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
+                    routeToSingleWorker(message, bet.getGameName(), "play");
                     break;
 
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
-                    gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numOfWorkers);
-                    target = workers.get(gameWorkerIndex);
-                    response = sendRequestToWorker(target, message); // response returned to master
-                    out.writeObject(response); // response returned to manager
-                    out.flush();
+                    routeToSingleWorker(message, rating.getGameName(), "rate");
                     break;
             }
 
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException e){
+            System.err.println("Client Communication Error: " + e.getMessage());
         } finally {
             try {
                 in.close();
@@ -235,13 +84,81 @@ public class MasterHandler extends Thread{
         }
     }
 
+    /**
+     * Δρομολογεί ένα αίτημα σε έναν συγκεκριμένο Worker με βάση το όνομα του παιχνιδιού.
+     * Περιμένει την απάντηση και την επιστρέφει απευθείας στον πελάτη.
+     * @param message Το μήνυμα αναζήτησης
+     * @param gameName Το όνομα του παιχνιδιού για να βρεθεί ο σωστός Worker
+     * @param actionLog Περίπτωση ενέργειας
+     */
+    private void routeToSingleWorker(MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException{
 
-    private Object sendRequestToWorker(Worker target, MasterMessage message) {
+        int numOfWorkers = workers.size();
+        int gameWorkerIndex = hashGameToWorker(gameName, numOfWorkers);
+        WorkerInfo target = workers.get(gameWorkerIndex);
 
-        try(Socket requestSocket = new Socket(target.getIp(), target.getPort());
-            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
-            ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
+        System.out.println("Master is trying to " + actionLog + " game: " + gameName + "...");
+        Object response = sendRequestToWorker(target, message, true);
 
+        if (response == null) {
+            System.out.println("Error: Could not communicate with Worker.");
+            out.writeObject("Error: Could not communicate with Worker.");
+        } else {
+            System.out.println(response);
+            out.writeObject(response);
+        }
+        out.flush();
+    }
+
+    /**
+     * Εκτελεί τη διαδικασία MapReduce για αναζητήσεις, περιμένει μέχρι ο Reducer
+     * να φέρει το τελικό αποτέλεσμα στο ResultBox.
+     * @param message Το μήνυμα που εξυπηρετούμε
+     */
+    private void executeMapReducePhase(MasterMessage message) throws IOException, ClassNotFoundException {
+
+        int currentMapId = Math.abs(randomUUID().hashCode());
+        message.setMapId(currentMapId);
+
+        ResultBox myBox = new ResultBox();
+
+        synchronized(sharedResults){
+            sharedResults.put(currentMapId, myBox);
+        }
+
+        for(WorkerInfo w: workers){
+            sendRequestToWorker(w, message, false);
+        }
+
+        synchronized (myBox){
+            while(myBox.getFinalMessage() == null) {
+                try {
+                    myBox.wait(); // MasterHandler sleeps until the arrival of the final results
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        MasterMessage finalResultMsg = myBox.getFinalMessage();
+        ArrayList<Game> finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
+
+        out.writeObject(finalGames);
+        out.flush();
+    }
+
+    /**
+     * Ανοίγει σύνδεση με έναν Worker, περιμένει το ACK και του στέλνει το μήνυμα.
+     * @param target Ο Worker που θα λάβει το μήνυμα
+     * @param message Το μήνυμα που εξυπηρετούμε
+     * @param expectResponse Διαχείριση επιστροφής
+     * @return Την απάντηση του Worker ή null
+     */
+    private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse) throws IOException, ClassNotFoundException {
+
+        try (Socket requestSocket = new Socket(target.getWorkerIp(), target.getWorkerPort());
+             ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
+             ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
 
             // We wait for acknowledgement message before proceeding to send the real one
             // To ensure that the connection has been established
@@ -252,9 +169,11 @@ public class MasterHandler extends Thread{
                 outWorker.flush();
             }
 
-
             // returns a message of success/failure of the requested operation
-            return inWorker.readObject();
+            if (expectResponse) {
+                return inWorker.readObject();
+            }
+            return null;
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
@@ -269,33 +188,15 @@ public class MasterHandler extends Thread{
         return null;
     }
 
-    private void sendMapRequestToWorker(Worker w, MasterMessage message){
-        try(Socket requestSocket = new Socket(w.getIp(), w.getPort());
-            ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
-            ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());){
-
-            // We wait for acknowledgement message before proceeding to send the real one
-            // To ensure that the connection has been established
-            Object ack = inWorker.readObject();
-
-            if ("ACK".equals(ack)) {
-                outWorker.writeObject(message);
-                outWorker.flush();
-            }
-
-
-
-        }catch (IOException e) {
-            System.err.println("Worker Map Phase Connection Error: " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
+    /**
+     * Υπολογίζει σε ποιον Worker ανήκει ένα παιχνίδι κάνοντας hash το όνομά του.
+     * @param gameName Το όνομα του παιχνιδιού
+     * @param numbersOfWorkers Το συνολικό πλήθος των Workers
+     * @return Το index του υπεύθυνου Worker
+     */
     private int hashGameToWorker(String gameName,int numbersOfWorkers){
 
-        int hash = Math.abs ( gameName.hashCode () );
+        int hash = Math.abs(gameName.hashCode());
         return hash % numbersOfWorkers;
     }
 }
