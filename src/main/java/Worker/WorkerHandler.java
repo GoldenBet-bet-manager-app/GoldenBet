@@ -16,10 +16,11 @@ public class WorkerHandler extends Thread {
     ObjectInputStream in;
     ObjectOutputStream out;
     private final HashMap<String, Game> myGames;
-    private final int workerid;
-    private HashMap<String, BigDecimal> gamesprofits,playersProfits,providersprofits;
+    private final int workerId;
+    private final HashMap<String, BigDecimal> gamesProfits,playersProfits, providersProfits;
 
-    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersprofits, HashMap<String, BigDecimal> providersprofits, int workerid) {
+    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersProfits, HashMap<String, BigDecimal> providersProfits, int workerid) {
+
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
@@ -31,21 +32,24 @@ public class WorkerHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         this.myGames = myGames;
-        this.gamesprofits = profits;
-        this.workerid=workerid;
-        this.playersProfits=playersprofits;
-        this.providersprofits=providersprofits;
+        this.gamesProfits = profits;
+        this.workerId = workerid;
+        this.playersProfits = playersProfits;
+        this.providersProfits = providersProfits;
     }
 
     @Override
-    public void run() {
+    public void run(){
+
         Object response = null;
         MasterMessage msgToReducer;
 
         try {
             MasterMessage message = (MasterMessage) in.readObject ( );
             MasterMessageType type = message.getType ( );
+
             switch (type) {
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ( );
@@ -64,13 +68,13 @@ public class WorkerHandler extends Thread {
                         if (!myGames.containsKey(gameToAdd.getGameName())) {
                             myGames.put(gameToAdd.getGameName(), gameToAdd);
                             response = "The game '" + gameToAdd.getGameName() + "' has been added successfully!";
-                            System.out.println ( "The game "+gameToAdd.getGameName()+" was added to worker "+workerid);
+                            System.out.println ( "The game "+gameToAdd.getGameName()+" was added to worker "+ workerId);
                         }
                         // When the game already exists in the app and becomes visible to the players again
                         else if(!myGames.get(gameToAdd.getGameName()).isActive()){
                             myGames.get(gameToAdd.getGameName()).setActive(true);
                             response = "The game '" + gameToAdd.getGameName() + "' is visible again for players!";
-                            System.out.println ( "The game "+gameToAdd.getGameName()+" is visible on worker "+workerid);
+                            System.out.println ( "The game "+gameToAdd.getGameName()+" is visible on worker "+ workerId);
 
                         }
                         // When the game already exists in the app and is visible to the players
@@ -101,7 +105,7 @@ public class WorkerHandler extends Thread {
                     }
 
                     response = "The game '" + gameToDelete.getGameName() + "' has been removed successfully!";
-                    System.out.println ( "The game "+gameToDelete.getGameName()+" was disabled on worker "+workerid);
+                    System.out.println ( "The game "+gameToDelete.getGameName()+" was disabled on worker "+ workerId);
 
                     break;
 
@@ -160,7 +164,7 @@ public class WorkerHandler extends Thread {
                     SearchFilters filters = (SearchFilters) message.getPayload ( );
                     ArrayList<Game> matchedGames;
                     try {
-                        matchedGames = searchgames ( filters );
+                        matchedGames = searchGames( filters );
                     } catch (IllegalArgumentException e) {
                         System.err.println ( "Λάθος στα φίλτρα αναζήτησης: " + e.getMessage ( ) );
                         matchedGames = new ArrayList<> ( );
@@ -224,7 +228,7 @@ public class WorkerHandler extends Thread {
 
         BigDecimal playerProfit,gameprofit,providerprofit,payout=BigDecimal.ZERO;
         int index;
-        BigDecimal[] gamemultiplies;
+        BigDecimal[] gameMultiplies;
         int random = getSecuredRandomNumber ( game.getGameName ( ) );
         if ( random == -1 )
             throw new IllegalStateException ( "Τεχνικό Πρόβλημα: Ακυρώθηκε το ποντάρισμα λόγω αδυναμίας παραγωγής ασφαλούς τυχαίου αριθμού." );        try {
@@ -232,8 +236,8 @@ public class WorkerHandler extends Thread {
                 payout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
             } else {
                 index = random % 10;
-                gamemultiplies = game.getMultipliers ( );
-                payout = bet.getAmount ( ).multiply ( gamemultiplies[ index ] );
+                gameMultiplies = game.getMultipliers ( );
+                payout = bet.getAmount ( ).multiply ( gameMultiplies[ index ] );
             }
             synchronized (playersProfits) {
                 playerProfit=playersProfits.getOrDefault ( bet.getPlayerid (),BigDecimal.ZERO );
@@ -241,17 +245,17 @@ public class WorkerHandler extends Thread {
                 playerProfit=playerProfit.add ( payout );
                 playersProfits.put ( bet.getPlayerid (), playerProfit);
             }
-            synchronized (gamesprofits) {
-                gameprofit=gamesprofits.getOrDefault ( game.getGameName (),BigDecimal.ZERO );
+            synchronized (gamesProfits) {
+                gameprofit= gamesProfits.getOrDefault ( game.getGameName (),BigDecimal.ZERO );
                 gameprofit=gameprofit.add ( bet.getAmount ( ) );
                 gameprofit=gameprofit.subtract ( payout );
-                gamesprofits.put ( game.getGameName (), gameprofit);
+                gamesProfits.put ( game.getGameName (), gameprofit);
             }
-            synchronized (providersprofits){
-                providerprofit=providersprofits.getOrDefault (game.getProviderName (),BigDecimal.ZERO  );
+            synchronized (providersProfits){
+                providerprofit= providersProfits.getOrDefault (game.getProviderName (),BigDecimal.ZERO  );
                 providerprofit=providerprofit.add ( bet.getAmount () );
                 providerprofit=providerprofit.subtract ( payout );
-                providersprofits.put ( game.getProviderName (),providerprofit );
+                providersProfits.put ( game.getProviderName (),providerprofit );
             }
 
         } catch (Exception e) {
@@ -261,7 +265,8 @@ public class WorkerHandler extends Thread {
     }
 
 
-    private int getSecuredRandomNumber (String gameName) {
+    private int getSecuredRandomNumber(String gameName) {
+
         if ( gameName == null || gameName.trim ( ).isEmpty ( ) ) {
             throw new IllegalArgumentException ( "Το όνομα του παιχνιδιού για τον SRG δεν μπορεί να είναι κενό." );
         }
@@ -271,7 +276,7 @@ public class WorkerHandler extends Thread {
         ObjectOutputStream requestOut = null;
         ObjectInputStream requestIn = null;
         int randomNumber;
-        String  receivedhash;
+        String  receivedHash;
 
         try {
             requestSocket = new Socket ( "127.0.0.1", 5000 );
@@ -282,11 +287,11 @@ public class WorkerHandler extends Thread {
             requestOut.flush ( );
 
             randomNumber = requestIn.readInt ( );
-            receivedhash = (String) requestIn.readObject ( );
+            receivedHash = (String) requestIn.readObject ( );
             if ( randomNumber == -1 ) {
                 System.err.println ( "ΣΦΑΛΜΑ SRG: Ο SRGServer απάντησε ότι δεν βρήκε το παιχνίδι '" + gameName + "'." );                return -1;
             }
-            if ( !(computeSHA256 ( randomNumber + secret )).equals (receivedhash) ) {
+            if ( !(computeSHA256 ( randomNumber + secret )).equals (receivedHash) ) {
                 System.err.println ( "ΣΦΑΛΜΑ ΑΣΦΑΛΕΙΑΣ: Τα δύο hashes δεν είναι ίδια για το παιχνίδι " + gameName + ". Πιθανή παραβίαση SRG!" );
                 return -1;
             }
@@ -309,8 +314,10 @@ public class WorkerHandler extends Thread {
     }
 
 
-    private ArrayList<Game> searchgames(SearchFilters filters) {
+    private ArrayList<Game> searchGames(SearchFilters filters) {
+
         if (filters == null) throw new IllegalArgumentException("Τα φίλτρα αναζήτησης δεν μπορεί να είναι null.");
+
         ArrayList<Game> matchedGames = new ArrayList<>();
         for (Game game : myGames.values()) {
             boolean condition1,condition2,condition3;
@@ -323,8 +330,6 @@ public class WorkerHandler extends Thread {
                 condition3=filters.getBetCategory ( ) != null && !filters.getBetCategory ( ).trim ( ).isEmpty ( ) &&
                         !game.getBetCategory ( ).equals ( filters.getBetCategory ( ) );
 
-
-
                 if(!(condition1 || condition2 || condition3)){
                     matchedGames.add ( game );
                 }
@@ -334,6 +339,7 @@ public class WorkerHandler extends Thread {
     }
 
     private float averageRate(Rating rating) {
+
         if (rating == null) throw new IllegalArgumentException("Η αξιολόγηση  δεν μπορεί να είναι null.");
         if (rating.getGameName() == null || rating.getGameName().trim().isEmpty()) {
             throw new IllegalArgumentException("Το όνομα του παιχνιδιού δεν μπορεί να είναι κενό.");
@@ -349,9 +355,9 @@ public class WorkerHandler extends Thread {
             int currentVotes = game.getVotes();
             float newStarRating = rating.getStars();
 
-            float totalstars = (currentStars * currentVotes) + newStarRating;
+            float totalStars = (currentStars * currentVotes) + newStarRating;
             int newVotes = currentVotes + 1;
-            float average = totalstars / newVotes;
+            float average = totalStars / newVotes;
             game.setStars(average);
             game.setVotes(newVotes);
             return average;
