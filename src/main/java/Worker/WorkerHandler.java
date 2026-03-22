@@ -107,7 +107,7 @@ public class WorkerHandler extends Thread {
 
                 case MODIFY_GAME:
                     Game gameUpdate = (Game) message.getPayload();
-                    synchronized (myGames) { // Αποκλειστική χρήση synchronized [cite: 108]
+                    synchronized (myGames) {
                         Game existingGame = myGames.get(gameUpdate.getGameName());
                         if (existingGame != null) {
                             // Ενημέρωση απλών πεδίων
@@ -115,9 +115,7 @@ public class WorkerHandler extends Thread {
                             existingGame.setGameLogo(gameUpdate.getGameLogo());
                             existingGame.setMaxBet(gameUpdate.getMaxBet());
 
-                            /* * Οι παρακάτω setters πυροδοτούν αυτόματα τους υπολογισμούς
-                             * για Jackpot, Πίνακες και Κατηγορία βάσει εκφώνησης [cite: 54-59, 74-77]
-                             */
+
                             existingGame.setRiskLevel(gameUpdate.getRiskLevel());
                             existingGame.setMinBet(gameUpdate.getMinBet());
 
@@ -183,8 +181,29 @@ public class WorkerHandler extends Thread {
                     response = null;
                     break;
 
-                case STATS:
-                    // TODO: Υλοποίηση στατιστικών
+                case PROVIDER_GAME_PROFITS:
+                    String requestedProvider = (String) message.getPayload();
+                    BigDecimal localProviderProfit = BigDecimal.ZERO;
+
+                    synchronized (providersprofits) {
+                        // profits of the requested provider
+                        localProviderProfit = providersprofits.getOrDefault(requestedProvider, BigDecimal.ZERO);
+                    }
+
+                    try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
+                         ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
+
+
+                        msgToReducer = new MasterMessage(MasterMessageType.PROVIDER_GAME_PROFITS, localProviderProfit);
+                        msgToReducer.setMapId(message.getMapId());
+
+                        reducerOut.writeObject(msgToReducer);
+                        reducerOut.flush();
+                    } catch (IOException e) {
+                        System.err.println("Σφάλμα στην αποστολή stats στον Reducer: " + e.getMessage());
+                    }
+
+
                     break;
             }
 

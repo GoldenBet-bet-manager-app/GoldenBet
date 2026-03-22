@@ -127,7 +127,22 @@ public class ReducerHandler extends Thread{
                         sendGamesToMaster(newMessage);
                     }
                     break;
-                case STATS:
+                case PROVIDER_GAME_PROFITS:
+                    currentMapId = message.getMapId();
+
+//                    synchronized (resultsBuffer){
+//                        if(resultsBuffer.containsKey(currentMapId)){
+//
+//                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
+//                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
+//                            currentBox.addReceivedResponses();
+//
+//                        }else{
+//                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
+//                            resultsBuffer.put(currentMapId, newBox);
+//                        }
+//                    }
+
                     break;
             }
 

@@ -180,7 +180,36 @@ public class MasterHandler extends Thread{
                     out.writeObject(response); // response returned to manager
                     out.flush();
                     break;
-                case STATS:
+
+                case PROVIDER_GAME_PROFITS:
+                    currentMapId = Math.abs(randomUUID().hashCode());
+                    message.setMapId(currentMapId);
+
+                    myBox = new ResultBox();
+
+                    synchronized(sharedResults){
+                        sharedResults.put(currentMapId, myBox);
+                    }
+
+                    for(Worker w: workers){
+                        new Thread(() -> {
+                            sendMapRequestToWorker(w, message);
+                        }).start();
+                    }
+
+
+                    synchronized (myBox){
+                        while(myBox.getFinalMessage() == null) {
+                            try {
+                                myBox.wait(); // MasterHandler sleeps until the arrival of the final results
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    break;
+
                 case RATE:
                     Rating rating = (Rating) message.getPayload ();
                     gameWorkerIndex = hashGameToWorker(rating.getGameName ( ),numOfWorkers);

@@ -283,7 +283,7 @@ public class ManagerApp {
         System.out.print("Please, type provider's name: ");
         String providerName = ManagerApp.scanner.nextLine();
 
-        MasterMessage providerAggregationMessage = new MasterMessage(PROVIDER_PROFITS,providerName);
+        MasterMessage providerAggregationMessage = new MasterMessage(PROVIDER_GAME_PROFITS,providerName);
         Client client = new Client("127.0.0.1", 43210, providerAggregationMessage);
         client.start();
 

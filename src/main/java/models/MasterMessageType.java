@@ -8,6 +8,6 @@ public enum MasterMessageType {
     SEARCH,
     PLAY,
     STATS,
-    PROVIDER_PROFITS,
+    PROVIDER_GAME_PROFITS,
     RATE
 }
