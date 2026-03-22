@@ -11,13 +11,14 @@ import java.util.Scanner;
 import Client.RatingClient;
 
 public class PlayerApp {
+
     private Player currentPlayer;
     private BigDecimal tokenBalance;
-    private Boolean projectisactive;
+    private Boolean projectIsActive;
     private HashMap<String, Boolean> gamePlayedStatus = new HashMap<> ( );// true an exeis paikei esto kai mia fora ena paixnidi paixnidi
 
-    public synchronized Boolean getProjectisactive ( ) {
-        return projectisactive;
+    public synchronized Boolean getProjectIsActive( ) {
+        return projectIsActive;
     }
 
     public PlayerApp (Player currentPlayer) {
@@ -131,7 +132,7 @@ public class PlayerApp {
     }
 
     private void addsearchfilters (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
-        projectisactive = false;
+        projectIsActive = false;
         System.out.println ( "\n--- Κριτήρια Αναζήτησης ---" );
         System.out.print ( "Δώστε Αστέρια (π.χ. 4) ή Εύρος (π.χ. 3-4.5) ή Enter για κανένα φίλτρο: " );
         String searchStars = sc.nextLine ( ).trim ( );
@@ -154,6 +155,7 @@ public class PlayerApp {
                  maxSearchStars = 5.0f;
             }
         }
+
         System.out.println ( "\n--- Όρια Πονταρίσματος ---" );
         System.out.println ( "Ελάχιστο ποντάρισμα 0.1 FUN -> $" );
         System.out.println ( "Ελάχιστο ποντάρισμα 1 FUN -> $$" );
@@ -168,7 +170,7 @@ public class PlayerApp {
     }
 
     private void projectavailablegames (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
-        projectisactive = true;
+        projectIsActive = true;
         currentplayer.search ( myPlayer.getPlayerId ( ), 0.0f,0.0f, "","" );
     }
 

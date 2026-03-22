@@ -3,7 +3,6 @@ package Client;
 import Player.PlayerApp;
 import models.Bet;
 import models.MasterMessage;
-import models.Player;
 
 import java.math.BigDecimal;
 
@@ -27,7 +26,7 @@ public class PlayClient extends Client {
         if ( response instanceof String )
             System.out.println ( response );
         else if ( response instanceof BigDecimal ) {
-            playerapp.changeGamePlayedStatus ( bet.getGamename ( ) );
+            playerapp.changeGamePlayedStatus ( bet.getGameName( ) );
             BigDecimal payout = (BigDecimal) response;
             playerapp.subBalance ( bet.getAmount () );
             System.out.println ( "Αφαιρέθηκαν: " + bet.getAmount ( ) +" FUN" );
