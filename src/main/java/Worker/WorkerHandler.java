@@ -329,9 +329,10 @@ public class WorkerHandler extends Thread {
         if (filters == null) throw new IllegalArgumentException("Τα φίλτρα αναζήτησης δεν μπορεί να είναι null.");
 
         ArrayList<Game> matchedGames = new ArrayList<>();
-        for(Game game : myGames.values()) {
-            if (game.isActive()) {
-                boolean condition1=game.getStars() < filters.getStars();
+        for (Game game : myGames.values()) {
+
+            if ( game.isActive ( ) ) {
+                boolean condition1 = game.getStars() < filters.getMinstars() || game.getStars() > filters.getMaxstars();
 
                 boolean condition2=filters.getRiskLevel() != null && !filters.getRiskLevel().trim ().isEmpty() &&
                         !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel());
@@ -339,8 +340,10 @@ public class WorkerHandler extends Thread {
                 boolean condition3=filters.getBetCategory() != null && !filters.getBetCategory().trim().isEmpty() &&
                         !game.getBetCategory().equals(filters.getBetCategory());
 
-                if(!(condition1 || condition2 || condition3)){
-                    matchedGames.add(game);
+
+
+                if(!condition1 && !condition2 && !condition3){
+                    matchedGames.add ( game );
                 }
             }
         }

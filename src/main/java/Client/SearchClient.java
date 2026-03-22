@@ -26,12 +26,11 @@ public class SearchClient extends Client {
             ArrayList<Game> foundgames = (ArrayList<Game>) response;
             int i = 0;
             if ( foundgames.isEmpty ( ) ) {
-                System.out.println ( "Δεν βρέθηκαν παιχνίδια με αυτά τα κριτήρια." );
+                System.out.println ( "Δεν βρέθηκαν παιχνίδια!!!!!!" );
             }
             for ( Game g : foundgames ) {
                 i++;
-                System.out.println ( i + ") " + g.getGameName ( ) +
-                        " | Αστέρια: " + g.getStars ( ) +
+                System.out.println ( i + ") " + g.getGameName ( ) + " | Αστέρια: " + g.getStars ( ) +
                         " | Ποντάρισμα από " + g.getMinBet ( ) + " FUN εώς " + g.getMaxBet ( ) + " FUN" +
                         " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) );
             }

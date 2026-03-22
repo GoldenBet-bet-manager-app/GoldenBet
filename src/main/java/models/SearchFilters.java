@@ -5,13 +5,14 @@ import java.util.ArrayList;
 
 public class SearchFilters implements Serializable {
     private String playerId;
-    private int stars;
+    private float minstars,maxstars;
     private String betCategory;  // "$", "$$", "$$$"
     private String riskLevel;
 
-    public SearchFilters (String playerId, int stars, String betCategory, String riskLevel) {
+    public SearchFilters (String playerId, float minstars,float maxstars ,String betCategory, String riskLevel) {
         this.playerId = playerId;
-        this.stars = stars;
+        this.minstars = minstars;
+        this.maxstars=maxstars;
         this.betCategory = betCategory;
         this.riskLevel = riskLevel;
     }
@@ -20,19 +21,18 @@ public class SearchFilters implements Serializable {
         return playerId;
     }
 
-    public int getStars ( ) {
-        return stars;
+    public float getMinstars ( ) {
+        return minstars;
     }
 
-    public void setStars (int stars) {
-        this.stars = stars;
+    public float getMaxstars ( ) {
+        return maxstars;
     }
 
     public String getBetCategory ( ) {
         return betCategory;
     }
-
-
+    
     public String getRiskLevel ( ) {
         return riskLevel;
     }
