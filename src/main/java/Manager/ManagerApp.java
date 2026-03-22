@@ -3,6 +3,7 @@ package Manager;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -287,11 +288,11 @@ public class ManagerApp {
         Client client = new Client("127.0.0.1", 43210, providerAggregationMessage);
         client.start();
 
-        HashMap<String,Integer> providerGameProfits = null;
+        HashMap<String,BigDecimal> providerGameProfits = null;
 
         try {
             client.join();
-            providerGameProfits = (HashMap<String, Integer>) client.getResponse() ;
+            providerGameProfits = (HashMap<String, BigDecimal>) client.getResponse() ;
 
         } catch (InterruptedException e) {
             e.printStackTrace();

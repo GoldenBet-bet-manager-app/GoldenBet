@@ -7,8 +7,8 @@ import models.MasterMessageType;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -50,13 +50,14 @@ public class ReducerHandler extends Thread{
                             currentBox.addReceivedResponses();
 
                         }else{
-                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
+                            AggregationBox newBox = new GameListBox((ArrayList<Game>)message.getPayload());
                             resultsBuffer.put(currentMapId, newBox);
                         }
-                        AggregationBox currentBox = resultsBuffer.get(currentMapId);
+
+                        AggregationBox currentBox = (GameListBox) resultsBuffer.get(currentMapId);
                         if(currentBox.getReceivedResponses() == numberOfWorkers){
 
-                            ArrayList<Game> allGames = currentBox.getGamesFromWorkers();
+                            ArrayList<Game> allGames = ((GameListBox)currentBox).getGamesFromWorkers();
                             newMessage = new MasterMessage(allGames, currentMapId);
 
                             resultsBuffer.remove(currentMapId);
@@ -68,36 +69,6 @@ public class ReducerHandler extends Thread{
 
                     break;
 
-                case REMOVE_GAME:
-                    currentMapId = message.getMapId();
-
-
-                    synchronized (resultsBuffer){
-                        if(resultsBuffer.containsKey(currentMapId)){
-
-                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
-                            currentBox.addReceivedResponses();
-
-                        }else{
-                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
-                            resultsBuffer.put(currentMapId, newBox);
-                        }
-                        AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                        if(currentBox.getReceivedResponses() == numberOfWorkers){
-
-                            ArrayList<Game> allGames = currentBox.getGamesFromWorkers();
-                            newMessage = new MasterMessage(allGames, currentMapId);
-
-                            resultsBuffer.remove(currentMapId);
-                        }
-                    }
-
-                    if(newMessage != null){
-                        sendGamesToMaster(newMessage);
-                    }
-
-                    break;
                 case GET_ACTIVE_GAMES:
                     currentMapId = message.getMapId();
 
@@ -110,13 +81,13 @@ public class ReducerHandler extends Thread{
                             currentBox.addReceivedResponses();
 
                         }else{
-                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
+                            AggregationBox newBox = new GameListBox((ArrayList<Game>)message.getPayload());
                             resultsBuffer.put(currentMapId, newBox);
                         }
                         AggregationBox currentBox = resultsBuffer.get(currentMapId);
                         if(currentBox.getReceivedResponses() == numberOfWorkers){
 
-                            ArrayList<Game> allGames = currentBox.getGamesFromWorkers();
+                            ArrayList<Game> allGames = ((GameListBox) currentBox).getGamesFromWorkers();
                             newMessage = new MasterMessage(allGames, currentMapId);
 
                             resultsBuffer.remove(currentMapId);
@@ -130,19 +101,26 @@ public class ReducerHandler extends Thread{
                 case PROVIDER_GAME_PROFITS:
                     currentMapId = message.getMapId();
 
-//                    synchronized (resultsBuffer){
-//                        if(resultsBuffer.containsKey(currentMapId)){
-//
-//                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
-//                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
-//                            currentBox.addReceivedResponses();
-//
-//                        }else{
-//                            AggregationBox newBox = new AggregationBox((ArrayList<Game>)message.getPayload());
-//                            resultsBuffer.put(currentMapId, newBox);
-//                        }
-//                    }
+                    synchronized (resultsBuffer){
+                        if(resultsBuffer.containsKey(currentMapId)){
 
+                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
+                            currentBox.addGamesFromWorker((HashMap<String, BigDecimal>)message.getPayload());
+                            currentBox.addReceivedResponses();
+
+                        }else{
+                            AggregationBox newBox = new StatsMapBox((HashMap<String, BigDecimal>) message.getPayload());
+                            resultsBuffer.put(currentMapId, newBox);
+                        }
+                    }
+                    AggregationBox currentBox = resultsBuffer.get(currentMapId);
+                    if(currentBox.getReceivedResponses() == numberOfWorkers){
+
+                        HashMap<String,BigDecimal> allGames = ((StatsMapBox) currentBox).getGamesFromWorkers();
+                        newMessage = new MasterMessage(allGames, currentMapId);
+
+                        resultsBuffer.remove(currentMapId);
+                    }
                     break;
             }
 

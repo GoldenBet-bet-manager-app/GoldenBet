@@ -201,10 +201,24 @@ public class WorkerHandler extends Thread {
     }
 
     private void executeProviderGamesProfits(MasterMessage message){
+        HashMap<String,BigDecimal> providerGamesProfits = new HashMap<>();
+        String providerName = (String) message.getPayload();
 
+        synchronized (myGames) {
+            for (String gameName : myGames.keySet()) {
+                Game curGame = myGames.get(gameName);
+                BigDecimal curGameProfit = gamesProfits.get(gameName);
+
+                if (curGame.getProviderName().equalsIgnoreCase(providerName)) {
+                    providerGamesProfits.put(gameName, curGameProfit);
+                }
+            }
+        }
+
+        sendToReducer(message.getType(),providerGamesProfits,message.getMapId());
     }
 
-    private void sendToReducer(MasterMessageType type, ArrayList<Game> payload, int mapId) throws IOException {
+    private <T> void sendToReducer(MasterMessageType type, T payload, int mapId)  {
 
         try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
              ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
@@ -216,7 +230,11 @@ public class WorkerHandler extends Thread {
             reducerOut.flush();
             System.out.println("Worker " + workerId + " sent results to reducer for MapId: " + mapId);
         }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
 
 
