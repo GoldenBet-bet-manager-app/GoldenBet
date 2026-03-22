@@ -41,7 +41,6 @@ public class Reducer {
 
 
 
-
     private void setupConfiguration(){
 
         Scanner scanner = new Scanner(System.in);
@@ -122,6 +121,7 @@ public class Reducer {
             }
         }
 
-        System.out.println("Configuration saved successfully");    }
+        System.out.println("Configuration saved successfully");
+    }
 
 }

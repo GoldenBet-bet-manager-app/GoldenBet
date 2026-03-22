@@ -1,24 +1,23 @@
 package Player;
 
-import Client.Client;
 import Client.PlayClient;
 import Client.SearchClient;
 import models.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import Client.RatingClient;
 
 public class PlayerApp {
+
     private Player currentPlayer;
     private BigDecimal tokenBalance;
-    private Boolean projectisactive;
+    private Boolean projectIsActive;
     private HashMap<String, Boolean> gamePlayedStatus = new HashMap<> ( );// true an exeis paikei esto kai mia fora ena paixnidi paixnidi
 
-    public synchronized Boolean getProjectisactive ( ) {
-        return projectisactive;
+    public synchronized Boolean getProjectIsActive( ) {
+        return projectIsActive;
     }
 
     public PlayerApp (Player currentPlayer) {
@@ -114,7 +113,7 @@ public class PlayerApp {
     }
 
     private void addsearchfilters (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
-        projectisactive = false;
+        projectIsActive = false;
         System.out.println ( "\n--- Κριτήρια Αναζήτησης ---" );
         System.out.print ( "Ελάχιστα αστέρια (1-5) ή πατήστε 0 για κανένα φίλτρο: " );
         int searchStars = 0;
@@ -138,7 +137,7 @@ public class PlayerApp {
     }
 
     private void projectavailablegames (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
-        projectisactive = true;
+        projectIsActive = true;
         currentplayer.search ( myPlayer.getPlayerId ( ), 0, "", "" );
     }
 

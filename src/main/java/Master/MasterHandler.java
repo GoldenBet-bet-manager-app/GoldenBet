@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import Worker.Worker;
 import static java.util.UUID.randomUUID;
 
 /**
@@ -19,10 +18,10 @@ public class MasterHandler extends Thread{
 
     ObjectInputStream in;
     ObjectOutputStream out;
-    private final ArrayList<Worker> workers;
+    private final ArrayList<WorkerInfo> workers;
     private final HashMap<Integer, ResultBox> sharedResults;
 
-    public MasterHandler(Socket connection,ArrayList<Worker> workers, HashMap<Integer, ResultBox> sharedResults ){
+    public MasterHandler(Socket connection,ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults ){
 
         this.workers = workers;
         this.sharedResults = sharedResults;
@@ -64,7 +63,7 @@ public class MasterHandler extends Thread{
 
                 case PLAY:
                     Bet bet = (Bet) message.getPayload ();
-                    routeToSingleWorker(message, bet.getGamename(), "play");
+                    routeToSingleWorker(message, bet.getGameName(), "play");
                     break;
 
                 case STATS:
@@ -99,7 +98,7 @@ public class MasterHandler extends Thread{
 
         int numOfWorkers = workers.size();
         int gameWorkerIndex = hashGameToWorker(gameName, numOfWorkers);
-        Worker target = workers.get(gameWorkerIndex);
+        WorkerInfo target = workers.get(gameWorkerIndex);
 
         System.out.println("Master is trying to " + actionLog + " game: " + gameName + "...");
         Object response = sendRequestToWorker(target, message, true);
@@ -130,7 +129,7 @@ public class MasterHandler extends Thread{
             sharedResults.put(currentMapId, myBox);
         }
 
-        for(Worker w: workers){
+        for(WorkerInfo w: workers){
             sendRequestToWorker(w, message, false);
         }
 
@@ -158,9 +157,9 @@ public class MasterHandler extends Thread{
      * @param expectResponse Διαχείριση επιστροφής
      * @return Την απάντηση του Worker ή null
      */
-    private Object sendRequestToWorker(Worker target, MasterMessage message, boolean expectResponse) throws IOException, ClassNotFoundException{
+    private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse) throws IOException, ClassNotFoundException{
 
-        try(Socket requestSocket = new Socket(target.getIp(), target.getPort());
+        try(Socket requestSocket = new Socket(target.getWorkerIp(), target.getWorkerPort());
             ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
             ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
 

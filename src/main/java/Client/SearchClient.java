@@ -17,7 +17,7 @@ public class SearchClient extends Client {
     public void run ( ) {
         super.run ( );
         Object response = getResponse ( );
-        if ( !playerApp.getProjectisactive ( ) )
+        if ( !playerApp.getProjectIsActive( ) )
             System.out.println ( "\n===== Αποτελέσματα Αναζήτησης ======" );
         else
             System.out.println ( "\n===== Προβολή διαθέσιμων Παιχνίδιών ======" );

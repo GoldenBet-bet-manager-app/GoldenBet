@@ -3,10 +3,7 @@ package generator;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.Map;
-
 import static models.SHA256Generator.*;
 
 public class GeneratorHandler extends Thread{
@@ -30,30 +27,41 @@ public class GeneratorHandler extends Thread{
         try(ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
+            byte command = in.readByte();
             String gameName = (String) in.readObject();
-            String hashKey = secrets.get(gameName);
 
-            if(hashKey == null){
+            if(command == 0){
 
-                out.writeInt(-1);
-                out.writeObject("The game was not found");
-                out.flush();
+                String hashKey = secrets.get(gameName);
+
+                if(hashKey == null){
+
+                    out.writeInt(-1);
+                    out.writeObject("The game was not found");
+                    out.flush();
+                }else{
+
+                    int randomNumber = generators.get(gameName).getNumberFromBuffer();
+                    String hash = computeSHA256(randomNumber + hashKey);
+
+                    out.writeInt(randomNumber);
+                    out.writeObject(hash);
+                    out.flush();
+                }
             }else{
 
-                int randomNumber = generators.get(gameName).getNumberFromBuffer();
-                String hash = computeSHA256(randomNumber + hashKey);
+                String hashKey = (String) in.readObject();
 
-                out.writeInt(randomNumber);
-                out.writeObject(hash);
-                out.flush();
+                RandomNumberGenerator gen = new RandomNumberGenerator(20);
+                gen.start();
+
+                generators.put(gameName, gen);
+                secrets.put(gameName, hashKey);
+                System.out.println("New game registered: " + gameName);
             }
 
         }catch (Exception e){
             System.err.println("Handler Error: " + e.getMessage());
         }
-
     }
-
-
-
 }
