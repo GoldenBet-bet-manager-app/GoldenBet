@@ -6,7 +6,6 @@ import Client.SearchClient;
 import models.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import Client.RatingClient;
@@ -30,13 +29,31 @@ public class PlayerApp {
         return tokenBalance;
     }
 
-    public void setTokenBalance (BigDecimal tokenBalance) {
-        this.tokenBalance = tokenBalance;
-    }
 
+    public void search (String playerId, float minStars, float maxStars, String betLimit, String riskLevel) {
+        if ( playerId == null || playerId.trim().isEmpty() ) {
+            throw new IllegalArgumentException("Σφάλμα: Το Player ID δεν μπορεί να είναι κενό.");
+        }
+        if ( minStars < 0.0f || minStars > 5.0f || maxStars < 0.0f || maxStars > 5.0f ) {
+            throw new IllegalArgumentException("Σφάλμα: Τα αστέρια πρέπει να είναι μεταξύ 0.0 και 5.0.");
+        }
+        if ( minStars > maxStars ) {
+            throw new IllegalArgumentException("Σφάλμα: Το ελάχιστο όριο αστεριών δεν μπορεί να είναι μεγαλύτερο από το μέγιστο.");
+        }
 
-    public void search (String playerId, int stars, String betLimit, String riskLevel) {
-        SearchFilters filters = new SearchFilters ( playerId, stars, betLimit, riskLevel );
+        if ( betLimit != null && !betLimit.trim().isEmpty() ) {
+            if ( !betLimit.equals("$") && !betLimit.equals("$$") && !betLimit.equals("$$$") ) {
+                throw new IllegalArgumentException("Σφάλμα: Το όριο πονταρίσματος πρέπει να είναι $, $$ ή $$$.");
+            }
+        }
+
+        if ( riskLevel != null && !riskLevel.trim().isEmpty() ) {
+            if ( !riskLevel.equalsIgnoreCase("low") && !riskLevel.equalsIgnoreCase("medium") && !riskLevel.equalsIgnoreCase("high") ) {
+                throw new IllegalArgumentException("Σφάλμα: Το επίπεδο ρίσκου πρέπει να είναι low, medium ή high.");
+            }
+        }
+
+        SearchFilters filters = new SearchFilters ( playerId, minStars, maxStars, betLimit, riskLevel );
         SearchClient searchClient = new SearchClient ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.SEARCH, filters ), this );
         searchClient.start ( );
     }
@@ -116,14 +133,27 @@ public class PlayerApp {
     private void addsearchfilters (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
         projectisactive = false;
         System.out.println ( "\n--- Κριτήρια Αναζήτησης ---" );
-        System.out.print ( "Ελάχιστα αστέρια (1-5) ή πατήστε 0 για κανένα φίλτρο: " );
-        int searchStars = 0;
-        try {
-            searchStars = Integer.parseInt ( sc.nextLine ( ) );
-        } catch (NumberFormatException e) {
-            System.out.println ( "Δεν δώσατε έγκυρο αριθμό. Το φίλτρο αστεριών δεν θα εφαρμοστεί." );
-        }
+        System.out.print ( "Δώστε Αστέρια (π.χ. 4) ή Εύρος (π.χ. 3-4.5) ή Enter για κανένα φίλτρο: " );
+        String searchStars = sc.nextLine ( ).trim ( );
+        float minSearchStars = 0.0f;
+        float maxSearchStars = 5.0f;
 
+        if ( !searchStars.isEmpty ( ) ) {
+            try {
+                if ( searchStars.contains ( "-" ) ) {
+                    String[] parts = searchStars.split ( "-" );
+                    minSearchStars = Float.parseFloat ( parts[ 0 ].trim () );
+                    maxSearchStars = Float.parseFloat ( parts[ 1 ].trim () );
+                } else {
+                    minSearchStars = Float.parseFloat ( searchStars );
+                    maxSearchStars = Float.parseFloat ( searchStars );
+                }
+            } catch (NumberFormatException e) {
+                System.out.println ( "Μη έγκυρη μορφή αστεριών. Το φίλτρο δεν θα εφαρμοστεί." );
+                 minSearchStars = 0.0f;
+                 maxSearchStars = 5.0f;
+            }
+        }
         System.out.println ( "\n--- Όρια Πονταρίσματος ---" );
         System.out.println ( "Ελάχιστο ποντάρισμα 0.1 FUN -> $" );
         System.out.println ( "Ελάχιστο ποντάρισμα 1 FUN -> $$" );
@@ -134,12 +164,12 @@ public class PlayerApp {
         System.out.print ( "Επίπεδο Ρίσκου (low, medium, high) ή πατήστε Enter για κανένα φίλτρο: " );
         String searchRiskLevel = sc.nextLine ( ).trim ( );
 
-        currentplayer.search ( myPlayer.getPlayerId ( ), searchStars, searchBetLimit, searchRiskLevel );
+        currentplayer.search ( myPlayer.getPlayerId ( ), minSearchStars, maxSearchStars, searchBetLimit, searchRiskLevel );
     }
 
     private void projectavailablegames (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
         projectisactive = true;
-        currentplayer.search ( myPlayer.getPlayerId ( ), 0, "", "" );
+        currentplayer.search ( myPlayer.getPlayerId ( ), 0.0f,0.0f, "","" );
     }
 
 

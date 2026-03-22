@@ -314,8 +314,9 @@ public class WorkerHandler extends Thread {
         ArrayList<Game> matchedGames = new ArrayList<>();
         for (Game game : myGames.values()) {
             boolean condition1,condition2,condition3;
+
             if ( game.isActive ( ) ) {
-                condition1=game.getStars ( ) < filters.getStars ( );
+                condition1 = game.getStars() < filters.getMinstars() || game.getStars() > filters.getMaxstars();
 
                 condition2=filters.getRiskLevel ( ) != null && !filters.getRiskLevel ( ).trim ( ).isEmpty ( ) &&
                         !game.getRiskLevel ( ).equalsIgnoreCase ( filters.getRiskLevel ( ) );
@@ -325,7 +326,7 @@ public class WorkerHandler extends Thread {
 
 
 
-                if(!(condition1 || condition2 || condition3)){
+                if(!condition1 && !condition2 && !condition3){
                     matchedGames.add ( game );
                 }
             }

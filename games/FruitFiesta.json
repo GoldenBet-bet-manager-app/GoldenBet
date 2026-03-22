@@ -5,7 +5,7 @@
   "NoOfVotes": 120,
   "GameLogo": "images/fruit_fiesta_logo.png",
   "MinBet": 0.1,
-  "MaxBet": 5,
+  "MaxBet": 60,
   "RiskLevel": "low",
   "HashKey": "Fruit_Fiesta_secret_11"
 }
