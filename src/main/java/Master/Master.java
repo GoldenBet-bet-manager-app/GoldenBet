@@ -93,8 +93,10 @@ public class Master{
                 String[] parts = line.split(":");
                 String ip = parts[0];
                 int port = Integer.parseInt(parts[1]);
+
                 WorkerInfo info = new WorkerInfo(ip, port, currentWorkerId);
                 workersList.add(info);
+                currentWorkerId += 1;
             }
             System.out.println(workersList.size() + " Workers were initialized");
 

@@ -14,115 +14,32 @@ import java.util.HashMap;
 
 public class ReducerHandler extends Thread{
 
-    private HashMap<Integer, AggregationBox> resultsBuffer;
-    private Socket connection;
+    private final HashMap<Integer, AggregationBox> resultsBuffer;
+    private final Socket connection;
+
+    private final int numberOfWorkers;
+    private final String masterIp;
+    private final int masterPort;
 
 
-    public ReducerHandler(Socket connection, HashMap<Integer, AggregationBox> resultsBuffer){
+    public ReducerHandler(Socket connection, HashMap<Integer, AggregationBox> resultsBuffer,
+                            int numberOfWorkers, String masterIp, int masterPort){
 
         this.resultsBuffer = resultsBuffer;
         this.connection = connection;
+        this.numberOfWorkers = numberOfWorkers;
+        this.masterIp = masterIp;
+        this.masterPort = masterPort;
     }
 
 
     @Override
     public void run(){
 
-        int numberOfWorkers = 3;
-        int currentMapId = -1;
-        MasterMessage newMessage = null;
-
-
         try(ObjectInputStream in = new ObjectInputStream(connection.getInputStream())){
 
             MasterMessage message = (MasterMessage) in.readObject();
-            MasterMessageType type = message.getType();
-
-            switch (type){
-                case SEARCH:
-                    currentMapId = message.getMapId();
-
-                    synchronized (resultsBuffer){
-                        if(resultsBuffer.containsKey(currentMapId)){
-
-                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
-                            currentBox.addReceivedResponses();
-
-                        }else{
-                            AggregationBox newBox = new GameListBox((ArrayList<Game>)message.getPayload());
-                            resultsBuffer.put(currentMapId, newBox);
-                        }
-
-                        AggregationBox currentBox = (GameListBox) resultsBuffer.get(currentMapId);
-                        if(currentBox.getReceivedResponses() == numberOfWorkers){
-
-                            ArrayList<Game> allGames = ((GameListBox)currentBox).getGamesFromWorkers();
-                            newMessage = new MasterMessage(allGames, currentMapId);
-
-                            resultsBuffer.remove(currentMapId);
-                        }
-                    }
-                    if(newMessage != null){
-                        sendGamesToMaster(newMessage);
-                    }
-
-                    break;
-
-                case GET_ACTIVE_GAMES:
-                    currentMapId = message.getMapId();
-
-
-                    synchronized (resultsBuffer){
-                        if(resultsBuffer.containsKey(currentMapId)){
-
-                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                            currentBox.addGamesFromWorker((ArrayList<Game>)message.getPayload());
-                            currentBox.addReceivedResponses();
-
-                        }else{
-                            AggregationBox newBox = new GameListBox((ArrayList<Game>)message.getPayload());
-                            resultsBuffer.put(currentMapId, newBox);
-                        }
-                        AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                        if(currentBox.getReceivedResponses() == numberOfWorkers){
-
-                            ArrayList<Game> allGames = ((GameListBox) currentBox).getGamesFromWorkers();
-                            newMessage = new MasterMessage(allGames, currentMapId);
-
-                            resultsBuffer.remove(currentMapId);
-                        }
-                    }
-
-                    if(newMessage != null){
-                        sendGamesToMaster(newMessage);
-                    }
-                    break;
-                case PROVIDER_GAME_PROFITS:
-                    currentMapId = message.getMapId();
-
-                    synchronized (resultsBuffer){
-                        if(resultsBuffer.containsKey(currentMapId)){
-
-                            AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                            currentBox.addGamesFromWorker((HashMap<String, BigDecimal>)message.getPayload());
-                            currentBox.addReceivedResponses();
-
-                        }else{
-                            AggregationBox newBox = new StatsMapBox((HashMap<String, BigDecimal>) message.getPayload());
-                            resultsBuffer.put(currentMapId, newBox);
-                        }
-                    }
-                    AggregationBox currentBox = resultsBuffer.get(currentMapId);
-                    if(currentBox.getReceivedResponses() == numberOfWorkers){
-
-                        HashMap<String,BigDecimal> allGames = ((StatsMapBox) currentBox).getGamesFromWorkers();
-                        newMessage = new MasterMessage(allGames, currentMapId);
-
-                        resultsBuffer.remove(currentMapId);
-                    }
-                    break;
-            }
+            processAggregation(message);
 
         }catch (Exception e) {
             System.err.println("Σφάλμα κατά την ανάγνωση από Worker: " + e.getMessage());
@@ -136,9 +53,48 @@ public class ReducerHandler extends Thread{
     }
 
 
+    private void processAggregation(MasterMessage message){
+
+        int currentMapId = message.getMapId();
+        MasterMessageType type = message.getType();
+        MasterMessage newMessage = null;
+
+        synchronized(resultsBuffer){
+            AggregationBox currentBox;
+
+            if (resultsBuffer.containsKey(currentMapId)) {
+
+                currentBox = resultsBuffer.get(currentMapId);
+                currentBox.addGamesFromWorker(message.getPayload());
+                currentBox.addReceivedResponses();
+            }else{
+
+                if (type == MasterMessageType.PROVIDER_GAME_PROFITS) {
+                    currentBox = new StatsMapBox((HashMap<String, BigDecimal>) message.getPayload());
+                } else {
+                    currentBox = new GameListBox((ArrayList<Game>) message.getPayload());
+                }
+                resultsBuffer.put(currentMapId, currentBox);
+            }
+
+            if (currentBox.getReceivedResponses() == numberOfWorkers) {
+
+                Object finalPayload = currentBox.getGamesFromWorkers();
+                newMessage = new MasterMessage(finalPayload, currentMapId);
+
+                resultsBuffer.remove(currentMapId);
+            }
+        }
+
+        if (newMessage != null) {
+            sendGamesToMaster(newMessage);
+        }
+    }
+
+
     private void sendGamesToMaster(MasterMessage message){
 
-        try(Socket s = new Socket("127.0.0.1", 43211);
+        try(Socket s = new Socket(masterIp, masterPort);
             ObjectOutputStream outMaster = new ObjectOutputStream(s.getOutputStream());){
 
             outMaster.writeObject(message);
@@ -146,7 +102,7 @@ public class ReducerHandler extends Thread{
             System.out.println("Sending final result back to Master completed successfully");
 
         }catch (Exception e){
-            e.printStackTrace();
+            System.err.println("Σφάλμα αποστολής στον Master: " + e.getMessage());
         }
     }
 

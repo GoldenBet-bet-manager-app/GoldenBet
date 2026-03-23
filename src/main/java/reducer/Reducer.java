@@ -22,7 +22,7 @@ public class Reducer {
     String MasterIp = null;
 
 
-
+    
     void openServer(){
 
         try(ServerSocket providerSocket = new ServerSocket(43500)){
@@ -31,7 +31,7 @@ public class Reducer {
             while(true){
 
                 Socket connection = providerSocket.accept();
-                Thread t = new ReducerHandler(connection, resultsBuffer);
+                Thread t = new ReducerHandler(connection, resultsBuffer, numberOfWorkers, MasterIp, MasterPort);
                 t.start();
             }
         } catch (IOException ioException) {
