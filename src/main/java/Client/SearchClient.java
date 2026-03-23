@@ -17,7 +17,7 @@ public class SearchClient extends Client {
     public void run ( ) {
         super.run ( );
         Object response = getResponse ( );
-        if ( !playerApp.getProjectIsActive( ) )
+        if ( !playerApp.getProjectIsActive ( ) )
             System.out.println ( "\n===== Αποτελέσματα Αναζήτησης ======" );
         else
             System.out.println ( "\n===== Προβολή διαθέσιμων Παιχνίδιών ======" );
@@ -25,17 +25,16 @@ public class SearchClient extends Client {
         if ( response != null ) {
             ArrayList<Game> foundgames = (ArrayList<Game>) response;
             int i = 0;
-            if ( foundgames.isEmpty ( ) ) {
-                System.out.println ( "Δεν βρέθηκαν παιχνίδια!!!!!!" );
-            }
-            for ( Game g : foundgames ) {
-                i++;
-                System.out.println ( i + ") " + g.getGameName ( ) + " | Αστέρια: " + g.getStars ( ) +
-                        " | Ποντάρισμα από " + g.getMinBet ( ) + " FUN εώς " + g.getMaxBet ( ) + " FUN" +
-                        " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) );
-            }
+            if ( !foundgames.isEmpty ( ) ) {
+                playerApp.setSearchedGames ( foundgames );
+                for ( Game g : foundgames ) {
+                    i++;
+                    System.out.println ( i + ") " + g.getGameName ( ) + " | Αστέρια: " + g.getStars ( ) +
+                            " | Ποντάρισμα από " + g.getMinBet ( ) + " FUN εώς " + g.getMaxBet ( ) + " FUN" +
+                            " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) );
+                }
+            } else System.out.println ( "Δεν βρέθηκαν παιχνίδια!!!!!!" );
         } else
             System.out.println ( "Σφάλμα: Δεν λάβαμε απάντηση από τον Master." );
-
     }
 }

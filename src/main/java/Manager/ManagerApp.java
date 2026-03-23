@@ -126,7 +126,7 @@ public class ManagerApp {
             selectedGame = new Game(
                     jsonObject.getString("GameName"),
                     jsonObject.getString("ProviderName"),
-                    jsonObject.getInt("Stars"),
+                    jsonObject.getFloat("Stars"),
                     jsonObject.getInt("NoOfVotes"),
                     jsonObject.getString("GameLogo"),
                     jsonObject.getBigDecimal("MinBet"),

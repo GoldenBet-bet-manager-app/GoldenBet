@@ -52,12 +52,7 @@ public class WorkerHandler extends Thread {
             try {
                 switch (type) {
                     case PLAY:
-                        Bet bet = (Bet) message.getPayload ( );
-                        try {
-                            response = CalculateProfit ( bet );
-                        } catch (IllegalArgumentException | IllegalStateException e) {
-                            response = "Error: " + e.getMessage();
-                        }
+                        response = CalculateProfit((Bet)message.getPayload());
                         break;
 
                     case ADD_GAME:
@@ -65,12 +60,7 @@ public class WorkerHandler extends Thread {
                         break;
 
                     case RATE:
-                        Rating rating = (Rating) message.getPayload();
-                        try {
-                            response = averageRate(rating);
-                        } catch (IllegalArgumentException e) {
-                            response = null;
-                        }
+                        response = averageRate((Rating) message.getPayload());
                         break;
 
                     case REMOVE_GAME:
@@ -366,10 +356,9 @@ public class WorkerHandler extends Thread {
             float currentStars = game.getStars();
             int currentVotes = game.getVotes();
             float newStarRating = rating.getStars();
-
             float totalStars = (currentStars * currentVotes) + newStarRating;
             int newVotes = currentVotes + 1;
-            float average = totalStars / newVotes;
+            float average = Math.round((totalStars / newVotes) * 2) / 2.0f;
             game.setStars(average);
             game.setVotes(newVotes);
             return average;
