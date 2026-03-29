@@ -7,7 +7,8 @@ public enum MasterMessageType {
     GET_ACTIVE_GAMES,
     SEARCH,
     PLAY,
-    STATS,
     PROVIDER_GAME_PROFITS,
+    GAMES_PROFITS,
+    PLAYERS_PROFITS,
     RATE
 }

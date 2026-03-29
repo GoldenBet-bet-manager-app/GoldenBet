@@ -70,7 +70,12 @@ public class WorkerHandler extends Thread {
                     case PROVIDER_GAME_PROFITS:
                         executeProviderGamesProfits(message);
                         break;
-
+                    case GAMES_PROFITS:
+                        executeGamesProfits(message);
+                        break;
+                    case PLAYERS_PROFITS:
+                        executePlayersProfits(message);
+                        break;
                     case MODIFY_GAME:
                         response = executeModifyGame((Game) message.getPayload());
                         break;
@@ -114,6 +119,8 @@ public class WorkerHandler extends Thread {
             if (!myGames.containsKey(gameToAdd.getGameName())){
 
                 myGames.put(gameToAdd.getGameName(), gameToAdd);
+                gamesProfits.put(gameToAdd.getGameName(),BigDecimal.ZERO);
+
                 try (Socket s = new Socket("127.0.0.1", 5000);
                      ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
                      ObjectInputStream in = new ObjectInputStream(s.getInputStream())){
@@ -197,7 +204,7 @@ public class WorkerHandler extends Thread {
         synchronized (myGames) {
             for (String gameName : myGames.keySet()) {
                 Game curGame = myGames.get(gameName);
-                BigDecimal curGameProfit = gamesProfits.get(gameName);
+                BigDecimal curGameProfit = gamesProfits.get(gameName)!=null?gamesProfits.get(gameName):BigDecimal.ZERO;
 
                 if (curGame.getProviderName().equalsIgnoreCase(providerName)) {
                     providerGamesProfits.put(gameName, curGameProfit);
@@ -206,6 +213,18 @@ public class WorkerHandler extends Thread {
         }
 
         sendToReducer(message.getType(),providerGamesProfits,message.getMapId());
+    }
+
+    private void executeGamesProfits(MasterMessage message){
+        synchronized (gamesProfits) {
+            sendToReducer(message.getType(), new HashMap<String, BigDecimal>(gamesProfits), message.getMapId());
+        }
+    }
+
+    private void executePlayersProfits(MasterMessage message){
+        synchronized (playersProfits) {
+            sendToReducer(message.getType(), new HashMap<String, BigDecimal>(playersProfits), message.getMapId());
+        }
     }
 
     private <T> void sendToReducer(MasterMessageType type, T payload, int mapId)  {

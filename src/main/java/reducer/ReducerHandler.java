@@ -69,11 +69,15 @@ public class ReducerHandler extends Thread{
                 currentBox.addReceivedResponses();
             }else{
 
-                if (type == MasterMessageType.PROVIDER_GAME_PROFITS) {
-                    currentBox = new StatsMapBox((HashMap<String, BigDecimal>) message.getPayload());
-                } else {
-                    currentBox = new GameListBox((ArrayList<Game>) message.getPayload());
+                switch (type){
+                    case PROVIDER_GAME_PROFITS,GAMES_PROFITS,PLAYERS_PROFITS:
+                        currentBox = new StatsMapBox((HashMap<String, BigDecimal>) message.getPayload());
+                        break;
+                    default:
+                        currentBox = new GameListBox((ArrayList<Game>) message.getPayload());
+                        break;
                 }
+
                 resultsBuffer.put(currentMapId, currentBox);
             }
 
