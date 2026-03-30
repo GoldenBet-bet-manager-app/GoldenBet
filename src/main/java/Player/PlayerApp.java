@@ -13,7 +13,7 @@ public class PlayerApp {
     private Player currentPlayer;
     private BigDecimal tokenBalance;
     private Boolean projectIsActive;
-    private HashMap<String, Boolean> gamePlayedStatus = new HashMap<> ( );// true an exeis paikei esto kai mia fora ena paixnidi paixnidi
+    private HashMap<String, Boolean> gamePlayedStatus = new HashMap<> ( );
     private ArrayList<Game> searchedGames=new ArrayList<> ();
 
     public void setSearchedGames (ArrayList<Game> searchedGames) {
@@ -75,7 +75,7 @@ public class PlayerApp {
         if ( amount.compareTo ( this.tokenBalance ) > 0 )
             throw new IllegalArgumentException ( "Σφάλμα: Δεν έχετε αρκετά tokens." );
 
-        Bet bet = new Bet ( amount, currentPlayer.getName ( ), gameName );
+        Bet bet = new Bet ( amount, currentPlayer.getPlayerId(), gameName );
         Client playClient = new Client ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.PLAY, bet ) );
         playClient.start ( );
         playClient.join ();

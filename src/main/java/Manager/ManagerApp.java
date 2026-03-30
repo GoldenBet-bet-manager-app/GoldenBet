@@ -58,12 +58,13 @@ public class ManagerApp {
 
         while (running) {
             System.out.println ( "\n=========== ΜΕΝΟΥ ΔΙΑΧΕΙΡΙΣΗΣ ===========" );
-            System.out.println ( "1. Προσθήκη Παιχνιδιών" );
-            System.out.println ( "2. Αφαίρεση Παιχνιδιού" );
-            System.out.println ( "3. Τροποποίηση Παιχνιδιού" );
-            System.out.println ( "4. Εμφάνιση κερδών/ζημιών ανά Παιχνίδι" );
-            System.out.println ( "5. Εμφάνιση κερδών/ζημιών ανά Παίκτη" );
-            System.out.println ( "6. Εμφάνιση κερδών/ζημιών ανά Πάροχο" );
+            System.out.println ( "1. Εμφάνιση παιχνιδιών" );
+            System.out.println ( "2. Προσθήκη Παιχνιδιού" );
+            System.out.println ( "3. Αφαίρεση Παιχνιδιού" );
+            System.out.println ( "4. Τροποποίηση Παιχνιδιού" );
+            System.out.println ( "5. Εμφάνιση κερδών/ζημιών ανά Παιχνίδι" );
+            System.out.println ( "6. Εμφάνιση κερδών/ζημιών ανά Παίκτη" );
+            System.out.println ( "7. Εμφάνιση κερδών/ζημιών ανά Πάροχο" );
             System.out.println ( "0. Έξοδος" );
             System.out.print ( "Επιλέξτε μια ενέργεια: " );
             String choice = scanner.nextLine();
@@ -74,28 +75,32 @@ public class ManagerApp {
                 case "0":
                     running=false;
                     break;
-                //************ADD GAME*************
+                //************DISPLAY GAMES*************
                 case "1":
+
+                    break;
+                //****************ADD GAME****************
+                case "2":
                     addGame();
                     break;
                 //****************REMOVE GAME****************
-                case "2":
+                case "3":
                     removeGame();
                     break;
                 //****************MODIFY GAME****************
-                case "3":
+                case "4":
                     modifyGame();
                     break;
                 //****************PROFITS/LOSS PER GAME****************
-                case "4":
-
+                case "5":
+                    profitsPerGame();
                     break;
                 //****************PROFITS/LOSS PER PLAYER****************
-                case "5":
-
+                case "6":
+                    profitsPerPlayer();
                     break;
                 //****************PROFITS/LOSS PER PROVIDER****************
-                case "6":
+                case "7":
                     profitsPerProvider();
                     break;
                 default:
@@ -165,7 +170,7 @@ public class ManagerApp {
         // Query for the active games of all workers
         ArrayList<Game> activeGames = getAndDisplayActiveGames();
 
-        if(activeGames == null) return;
+        if(activeGames == null || activeGames.isEmpty()) return;
         int index = validateGameSelectionInput(activeGames);
 
         Game gameToDelete = activeGames.get(index);
@@ -300,16 +305,76 @@ public class ManagerApp {
 
         if(providerGameProfits != null && !providerGameProfits.isEmpty()){
             int i=0;
-            System.out.println("Number " + "| " + "Name " + "| " + " ProviderName");
+            System.out.printf("*******************PROFITS OF PROVIDER \"%s\" *******************\n",providerName);
             for (String gameName : providerGameProfits.keySet()){
-                System.out.println(++i + "| "+ gameName + "| " + providerGameProfits.get(gameName));
+                System.out.println(++i + "| "+ gameName + "| " + providerGameProfits.get(gameName) + " FUN");
             }
         }
         else{
-            System.out.println("No games were found for provider's Name: " + providerName);
+            System.out.println("No games were found for provider's Name: \"" + providerName +"\"");
         }
 
     }
+
+
+    public static void profitsPerGame(){
+        MasterMessage gameAggregationMessage = new MasterMessage(GAMES_PROFITS,null);
+        Client client = new Client("127.0.0.1", 43210, gameAggregationMessage);
+        client.start();
+
+        HashMap<String,BigDecimal> gameProfits = null;
+
+        try {
+            client.join();
+            gameProfits = (HashMap<String, BigDecimal>) client.getResponse() ;
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(gameProfits != null && !gameProfits.isEmpty()){
+            int i=0;
+            System.out.println("*******************PROFITS PER GAME*******************");
+            for (String name : gameProfits.keySet()){
+                System.out.println(++i + "| "+ name + "| " + gameProfits.get(name) + " FUN");
+            }
+        }
+        else{
+            System.out.println("No games were found");
+        }
+
+
+    }
+
+    public static void profitsPerPlayer(){
+        MasterMessage playerAggregationMessage = new MasterMessage(PLAYERS_PROFITS,null);
+        Client client = new Client("127.0.0.1", 43210, playerAggregationMessage);
+        client.start();
+
+        HashMap<String,BigDecimal> playersProfits = null;
+
+        try {
+            client.join();
+            playersProfits = (HashMap<String, BigDecimal>) client.getResponse() ;
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(playersProfits != null && !playersProfits.isEmpty()){
+            int i=0;
+            System.out.println("*******************PROFITS PER PLAYER*******************");
+            for (String name : playersProfits.keySet()){
+                System.out.println(++i + "| "+ name + "| " + playersProfits.get(name) + " FUN");
+            }
+        }
+        else{
+            System.out.println("No players were found");
+        }
+
+
+    }
+
 
     private static int validateGameSelectionInput(ArrayList<?> list){
         System.out.printf("\n Please select one of the above games (from 1 to %d): ",list.size());
@@ -351,7 +416,6 @@ public class ManagerApp {
             client.join();
 
             responseActiveGames = client.getResponse();
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -367,9 +431,10 @@ public class ManagerApp {
             }
         }
         else {
-            System.out.println("There are no active games to modify");
+            System.out.println("There are no active games to modify/delete");
             return null;
         }
+
 
         return activeGames;
     }

@@ -25,7 +25,19 @@ public class StatsMapBox implements AggregationBox {
     @Override
     public synchronized HashMap<String, BigDecimal> getGamesFromWorkers() { return gamesProfits; }
 
-    public synchronized void addGamesFromWorker(Object curGameProfits) {
-        gamesProfits.putAll((HashMap<String, BigDecimal>) curGameProfits);
+    public synchronized void addGamesFromWorker(Object incomingMap) {
+
+        HashMap<String,BigDecimal> incomingProfitsMap = (HashMap<String, BigDecimal>) incomingMap;
+        for (String key : incomingProfitsMap.keySet()) {
+            BigDecimal newValue = incomingProfitsMap.get(key);
+
+            if (gamesProfits.containsKey(key)) {
+                BigDecimal oldValue = gamesProfits.get(key);
+                gamesProfits.put(key, oldValue.add(newValue));
+            } else {
+                gamesProfits.put(key, newValue);
+            }
+        }
     }
+
 }

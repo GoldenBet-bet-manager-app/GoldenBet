@@ -58,7 +58,7 @@ public class MasterHandler extends Thread{
                     routeToSingleWorker(message, gameToModify.getGameName(), "modify");
                     break;
 
-                case SEARCH, GET_ACTIVE_GAMES, PROVIDER_GAME_PROFITS:
+                case SEARCH, GET_ACTIVE_GAMES, PROVIDER_GAME_PROFITS,GAMES_PROFITS,PLAYERS_PROFITS:
                     executeMapReducePhase(message);
                     break;
 
@@ -155,7 +155,14 @@ public class MasterHandler extends Thread{
         }
 
         MasterMessage finalResultMsg = myBox.getFinalMessage();
-        ArrayList<Game> finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
+
+        Object finalGames = null;
+
+        if(finalResultMsg.getPayload() instanceof ArrayList<?>)
+            finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
+        else if (finalResultMsg.getPayload() instanceof HashMap<?,?>)
+            finalGames = (HashMap<String, BigDecimal>) finalResultMsg.getPayload();
+
 
         out.writeObject(finalGames);
         out.flush();
