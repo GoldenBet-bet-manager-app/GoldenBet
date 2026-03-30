@@ -19,13 +19,10 @@ public class Client extends Thread {
     }
 
     public void run ( ) {
-        ObjectOutputStream out = null;
-        ObjectInputStream in = null;
-        Socket socket = null;
-        try {
-            socket = new Socket ( ip, port );
-            out = new ObjectOutputStream ( socket.getOutputStream ( ) );
-            in = new ObjectInputStream ( socket.getInputStream ( ) );
+
+        try (Socket socket = new Socket(ip, port);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
             out.writeObject ( object );
             out.flush ( );
@@ -40,14 +37,6 @@ public class Client extends Thread {
         } catch (ClassNotFoundException e) {
             System.err.println ( "Η κλάση του αντικειμένου που διαβάστηκε δεν βρέθηκε!" );
             e.printStackTrace ( );
-        } finally {
-            try {
-                in.close ( );
-                out.close ( );
-                socket.close ( );
-            } catch (IOException ioException) {
-                ioException.printStackTrace ( );
-            }
         }
     }
 

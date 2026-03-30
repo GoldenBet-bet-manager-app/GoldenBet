@@ -103,21 +103,20 @@ public class MasterHandler extends Thread{
         System.out.println ( "Primary: Worker " + gameWorkerIndex + " | Backup: Worker " + backupIndex );
         Object response = sendRequestToWorker ( target, message, true );
 
-        if ( response == null ) {
-            System.out.println ( "Ο Primary Worker " + gameWorkerIndex + " έπεσε! " +
-                    "Δρομολόγηση στον Backup Worker " + backupIndex + "..." );
-            response = sendRequestToWorker ( backupTarget, message, true );
-
-        } else {
+        if ( response != null ) {
             if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
                 System.out.println ( "Συγχρονισμός δεδομένων με τον Backup Worker " + backupIndex + "..." );
                 sendRequestToWorker ( backupTarget, message, false );
             } else {
-                BigDecimal payout=(BigDecimal) response;
-                Bet originalBet=(Bet) message.getPayload ();
-                PlayBackUp playBackUp=new PlayBackUp ( payout ,originalBet);
-                sendRequestToWorker ( backupTarget,new MasterMessage ( MasterMessageType.PLAYBACKUP,playBackUp ),false );
+                BigDecimal payout = (BigDecimal) response;
+                Bet originalBet = (Bet) message.getPayload ( );
+                PlayBackUp playBackUp = new PlayBackUp ( payout, originalBet );
+                sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false );
             }
+        } else {
+            System.out.println ( "Ο Primary Worker με id: " + gameWorkerIndex + " έπεσε!!! " +
+                    "Δρομολόγηση στον Backup Worker με id: " + backupIndex );
+            response = sendRequestToWorker ( backupTarget, message, true );
         }
         out.writeObject ( response );
         out.flush ( );

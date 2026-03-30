@@ -16,9 +16,9 @@ public class WorkerHandler extends Thread {
     ObjectOutputStream out;
     private final HashMap<String, Game> myGames;
     private final int workerId;
-    private final HashMap<String, BigDecimal> gamesProfits,playersProfits, providersProfits;
+    private final HashMap<String, BigDecimal> gamesProfits,playersProfits;
 
-    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersProfits, HashMap<String, BigDecimal> providersProfits, int workerid) {
+    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersProfits , int workerid) {
 
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
@@ -36,7 +36,7 @@ public class WorkerHandler extends Thread {
         this.gamesProfits = profits;
         this.workerId = workerid;
         this.playersProfits = playersProfits;
-        this.providersProfits = providersProfits;
+
     }
 
     @Override
@@ -88,10 +88,8 @@ public class WorkerHandler extends Thread {
                 }
 
             }catch (IllegalArgumentException | IllegalStateException e) {
-                //------Σφάλματα λογικής (π.χ. λάθος ποντάρισμα, το παιχνίδι δεν υπάρχει)----
                 response =  e.getMessage();
             } catch (IOException | ClassNotFoundException e) {
-                //-----Σφάλματα δικτύου με τον SRG ή τον Reducer-----
                 response = "ΣΦΑΛΜΑ ΕΣΩΤΕΡΙΚΗΣ ΕΠΙΚΟΙΝΩΝΙΑΣ (SRG/Reducer): " + e.getMessage();
                 System.err.println("Worker " + workerId + " internal network error: " + e.getMessage());
             }
@@ -261,26 +259,26 @@ public class WorkerHandler extends Thread {
             throw new IllegalArgumentException ( "Ακυρώθηκε: Το ποντάρισμα πρέπει να είναι μεταξύ "
                     + game.getMinBet ( ) + " και " + game.getMaxBet ( ) + " tokens." );
         }
-            int index;
-            BigDecimal[] gameMultiplies;
-            int random = getSecuredRandomNumber ( game.getGameName ( ) );
-            if ( random == -1 )
-                throw new IllegalStateException ( "Τεχνικό Πρόβλημα: Ακυρώθηκε το ποντάρισμα λόγω αδυναμίας παραγωγής ασφαλούς τυχαίου αριθμού." );
+        int index;
+        BigDecimal[] gameMultiplies;
+        int random = getSecuredRandomNumber ( game.getGameName ( ) );
+        if ( random == -1 )
+            throw new IllegalStateException ( "Τεχνικό Πρόβλημα: Ακυρώθηκε το ποντάρισμα λόγω αδυναμίας παραγωγής ασφαλούς τυχαίου αριθμού." );
 
-            if ( random % 100 == 0 ) {
-                payout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
-            } else {
-                index = random % 10;
-                gameMultiplies = game.getMultipliers ( );
-                payout = bet.getAmount ( ).multiply ( gameMultiplies[ index ] );
-            }
-            updateProfits ( bet,payout );
+        if ( random % 100 == 0 ) {
+            payout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
+        } else {
+            index = random % 10;
+            gameMultiplies = game.getMultipliers ( );
+            payout = bet.getAmount ( ).multiply ( gameMultiplies[ index ] );
+        }
+        updateProfits ( bet, payout );
         return payout;
     }
 
 private void updateProfits(Bet bet,BigDecimal payout) {
     Game game = myGames.get ( bet.getGameName ( ) );
-    BigDecimal playerProfit, gameprofit, providerprofit = BigDecimal.ZERO;
+    BigDecimal playerProfit, gameprofit = BigDecimal.ZERO;
     try {
         synchronized (playersProfits) {
             playerProfit = playersProfits.getOrDefault ( bet.getPlayerId ( ), BigDecimal.ZERO );
@@ -295,12 +293,7 @@ private void updateProfits(Bet bet,BigDecimal payout) {
             gameprofit = gameprofit.subtract ( payout );
             gamesProfits.put ( game.getGameName ( ), gameprofit );
         }
-        synchronized (providersProfits) {
-            providerprofit = providersProfits.getOrDefault ( game.getProviderName ( ), BigDecimal.ZERO );
-            providerprofit = providerprofit.add ( bet.getAmount ( ) );
-            providerprofit = providerprofit.subtract ( payout );
-            providersProfits.put ( game.getProviderName ( ), providerprofit );
-        }
+
     } catch (Exception e) {
         System.err.println ( "Σφάλμα κατά την ενημέρωση των HashMaps κερδών: " + e.getMessage ( ) );
     }
