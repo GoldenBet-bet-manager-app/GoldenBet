@@ -4,6 +4,7 @@ import models.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -91,24 +92,37 @@ public class MasterHandler extends Thread{
      * @param gameName Το όνομα του παιχνιδιού για να βρεθεί ο σωστός Worker
      * @param actionLog Περίπτωση ενέργειας
      */
-    private void routeToSingleWorker(MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException{
+    private void routeToSingleWorker(MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
 
-        int numOfWorkers = workers.size();
-        int gameWorkerIndex = hashGameToWorker(gameName, numOfWorkers);
-        WorkerInfo target = workers.get(gameWorkerIndex);
+        int numOfWorkers = workers.size ( );
+        int gameWorkerIndex = hashGameToWorker ( gameName, numOfWorkers );
+        WorkerInfo target = workers.get ( gameWorkerIndex );
+        int backupIndex = (gameWorkerIndex + 1) % numOfWorkers;
+        WorkerInfo backupTarget = workers.get ( backupIndex );
+        System.out.println ( "Master is trying to " + actionLog + " game: " + gameName + "..." );
+        System.out.println ( "Primary: Worker " + gameWorkerIndex + " | Backup: Worker " + backupIndex );
+        Object response = sendRequestToWorker ( target, message, true );
 
-        System.out.println("Master is trying to " + actionLog + " game: " + gameName + "...");
-        Object response = sendRequestToWorker(target, message, true);
+        if ( response == null ) {
+            System.out.println ( "Ο Primary Worker " + gameWorkerIndex + " έπεσε! " +
+                    "Δρομολόγηση στον Backup Worker " + backupIndex + "..." );
+            response = sendRequestToWorker ( backupTarget, message, true );
 
-        if (response == null) {
-            System.out.println("Error: Could not communicate with Worker.");
-            out.writeObject("Error: Could not communicate with Worker.");
         } else {
-            System.out.println(response);
-            out.writeObject(response);
+            if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
+                System.out.println ( "Συγχρονισμός δεδομένων με τον Backup Worker " + backupIndex + "..." );
+                sendRequestToWorker ( backupTarget, message, false );
+            } else {
+                BigDecimal payout=(BigDecimal) response;
+                Bet originalBet=(Bet) message.getPayload ();
+                PlayBackUp playBackUp=new PlayBackUp ( payout ,originalBet);
+                sendRequestToWorker ( backupTarget,new MasterMessage ( MasterMessageType.PLAYBACKUP,playBackUp ),false );
+            }
         }
-        out.flush();
+        out.writeObject ( response );
+        out.flush ( );
     }
+
 
     /**
      * Εκτελεί τη διαδικασία MapReduce για αναζητήσεις, περιμένει μέχρι ο Reducer
@@ -173,13 +187,11 @@ public class MasterHandler extends Thread{
             if (expectResponse) {
                 return inWorker.readObject();
             }
-            return null;
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException e) {
             System.err.println("Worker Connection Error: " + e.getMessage());
-            e.printStackTrace();
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

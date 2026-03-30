@@ -9,5 +9,6 @@ public enum MasterMessageType {
     PLAY,
     STATS,
     PROVIDER_GAME_PROFITS,
-    RATE
+    RATE,
+    PLAYBACKUP
 }
