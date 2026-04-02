@@ -31,7 +31,8 @@ public class SearchClient extends Client {
                     i++;
                     System.out.println ( i + ") " + g.getGameName ( ) + " | Αστέρια: " + g.getStars ( ) +
                             " | Ποντάρισμα από " + g.getMinBet ( ) + " FUN εώς " + g.getMaxBet ( ) + " FUN" +
-                            " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) );
+                            " | Επίπεδο Ρίσκου: " + g.getRiskLevel ( ) +
+                            " | Όρια πονταρίσματος: "+g.getBetCategory ());
                 }
             } else System.out.println ( "Δεν βρέθηκαν παιχνίδια!!!!!!" );
         } else

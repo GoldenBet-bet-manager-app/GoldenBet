@@ -14,7 +14,7 @@ import static java.util.UUID.randomUUID;
 /**
  *  Χειρίζεται την επικοινωνία του Master με τους πελάτες (Παίκτες ή Managers).
  */
-public class MasterHandler extends Thread{
+public class MasterHandler extends Thread {
 
 
     ObjectInputStream in;
@@ -22,65 +22,65 @@ public class MasterHandler extends Thread{
     private final ArrayList<WorkerInfo> workers;
     private final HashMap<Integer, ResultBox> sharedResults;
 
-    public MasterHandler(Socket connection,ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults ){
+    public MasterHandler (Socket connection, ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults) {
 
         this.workers = workers;
         this.sharedResults = sharedResults;
         try {
-            out = new ObjectOutputStream(connection.getOutputStream());
-            in = new ObjectInputStream(connection.getInputStream());
+            out = new ObjectOutputStream ( connection.getOutputStream ( ) );
+            in = new ObjectInputStream ( connection.getInputStream ( ) );
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace ( );
         }
     }
 
 
     @Override
-    public void run(){
+    public void run ( ) {
 
         try {
-            MasterMessage message = (MasterMessage) in.readObject();
-            MasterMessageType type = message.getType();
+            MasterMessage message = (MasterMessage) in.readObject ( );
+            MasterMessageType type = message.getType ( );
 
-            switch (type){
+            switch (type) {
                 case ADD_GAME:
-                    Game gameToAdd = (Game) message.getPayload();
-                    routeToSingleWorker(message, gameToAdd.getGameName(), "add");
+                    Game gameToAdd = (Game) message.getPayload ( );
+                    routeToSingleWorker ( message, gameToAdd.getGameName ( ), "add" );
                     break;
 
                 case REMOVE_GAME:
-                    Game gameToDelete = (Game) message.getPayload();
-                    routeToSingleWorker(message, gameToDelete.getGameName(), "remove");
+                    Game gameToDelete = (Game) message.getPayload ( );
+                    routeToSingleWorker ( message, gameToDelete.getGameName ( ), "remove" );
                     break;
 
                 case MODIFY_GAME:
-                    Game gameToModify = (Game) message.getPayload();
-                    routeToSingleWorker(message, gameToModify.getGameName(), "modify");
+                    Game gameToModify = (Game) message.getPayload ( );
+                    routeToSingleWorker ( message, gameToModify.getGameName ( ), "modify" );
                     break;
 
-                case SEARCH, GET_ACTIVE_GAMES, PROVIDER_GAME_PROFITS,GAMES_PROFITS,PLAYERS_PROFITS:
-                    executeMapReducePhase(message);
+                case SEARCH, GET_ACTIVE_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
+                    executeMapReducePhase ( message );
                     break;
 
                 case PLAY:
-                    Bet bet = (Bet) message.getPayload ();
-                    routeToSingleWorker(message, bet.getGameName(), "play");
+                    Bet bet = (Bet) message.getPayload ( );
+                    routeToSingleWorker ( message, bet.getGameName ( ), "play" );
                     break;
 
                 case RATE:
-                    Rating rating = (Rating) message.getPayload ();
-                    routeToSingleWorker(message, rating.getGameName(), "rate");
+                    Rating rating = (Rating) message.getPayload ( );
+                    routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
                     break;
             }
 
-        } catch (IOException | ClassNotFoundException e){
-            System.err.println("Client Communication Error: " + e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println ( "Client Communication Error: " + e.getMessage ( ) );
         } finally {
             try {
-                in.close();
-                out.close();
+                in.close ( );
+                out.close ( );
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                ioException.printStackTrace ( );
             }
         }
     }
@@ -88,17 +88,18 @@ public class MasterHandler extends Thread{
     /**
      * Δρομολογεί ένα αίτημα σε έναν συγκεκριμένο Worker με βάση το όνομα του παιχνιδιού.
      * Περιμένει την απάντηση και την επιστρέφει απευθείας στον πελάτη.
-     * @param message Το μήνυμα αναζήτησης
-     * @param gameName Το όνομα του παιχνιδιού για να βρεθεί ο σωστός Worker
+     *
+     * @param message   Το μήνυμα αναζήτησης
+     * @param gameName  Το όνομα του παιχνιδιού για να βρεθεί ο σωστός Worker
      * @param actionLog Περίπτωση ενέργειας
      */
-    private void routeToSingleWorker(MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
+    private void routeToSingleWorker (MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
 
         int numOfWorkers = workers.size ( );
         int gameWorkerIndex = hashGameToWorker ( gameName, numOfWorkers );
         WorkerInfo target = workers.get ( gameWorkerIndex );
-        int backupIndex = (gameWorkerIndex + 1) % numOfWorkers;
-        WorkerInfo backupTarget = workers.get ( backupIndex );
+        WorkerInfo backupTarget=getBackupWorker ( gameWorkerIndex );
+        int backupIndex=backupTarget.getWorkerId ();
         System.out.println ( "Master is trying to " + actionLog + " game: " + gameName + "..." );
         System.out.println ( "Primary: Worker " + gameWorkerIndex + " | Backup: Worker " + backupIndex );
         Object response = sendRequestToWorker ( target, message, true );
@@ -126,21 +127,22 @@ public class MasterHandler extends Thread{
     /**
      * Εκτελεί τη διαδικασία MapReduce για αναζητήσεις, περιμένει μέχρι ο Reducer
      * να φέρει το τελικό αποτέλεσμα στο ResultBox.
+     *
      * @param message Το μήνυμα που εξυπηρετούμε
      */
-    private void executeMapReducePhase(MasterMessage message) throws IOException, ClassNotFoundException {
+    private void executeMapReducePhase (MasterMessage message) throws IOException, ClassNotFoundException {
 
-        int currentMapId = Math.abs(randomUUID().hashCode());
-        message.setMapId(currentMapId);
+        int currentMapId = Math.abs ( randomUUID ( ).hashCode ( ) );
+        message.setMapId ( currentMapId );
 
-        ResultBox myBox = new ResultBox();
+        ResultBox myBox = new ResultBox ( );
 
-        synchronized(sharedResults){
-            sharedResults.put(currentMapId, myBox);
+        synchronized (sharedResults) {
+            sharedResults.put ( currentMapId, myBox );
         }
 
-        for(WorkerInfo w: workers){
-            sendRequestToWorker(w, message, false);
+        for ( WorkerInfo w : workers ) {
+            sendRequestToWorker ( w, message, false );
         }
 
         synchronized (myBox){
@@ -154,7 +156,6 @@ public class MasterHandler extends Thread{
         }
 
         MasterMessage finalResultMsg = myBox.getFinalMessage();
-
         Object finalGames = null;
 
         if(finalResultMsg.getPayload() instanceof ArrayList<?>)
@@ -162,11 +163,9 @@ public class MasterHandler extends Thread{
         else if (finalResultMsg.getPayload() instanceof HashMap<?,?>)
             finalGames = (HashMap<String, BigDecimal>) finalResultMsg.getPayload();
 
-
         out.writeObject(finalGames);
         out.flush();
     }
-
     /**
      * Ανοίγει σύνδεση με έναν Worker, περιμένει το ACK και του στέλνει το μήνυμα.
      * @param target Ο Worker που θα λάβει το μήνυμα
@@ -216,5 +215,10 @@ public class MasterHandler extends Thread{
 
         int hash = Math.abs(gameName.hashCode());
         return hash % numbersOfWorkers;
+    }
+    private WorkerInfo getBackupWorker(int gameWorkerIndex){
+        int backupIndex = (gameWorkerIndex + 1) % workers.size ();
+        WorkerInfo backupTarget = workers.get ( backupIndex );
+        return backupTarget;
     }
 }

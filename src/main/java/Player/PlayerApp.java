@@ -20,10 +20,6 @@ public class PlayerApp {
         this.searchedGames = searchedGames;
     }
 
-    public ArrayList<Game> getSearchedGames ( ) {
-        return searchedGames;
-    }
-
     public synchronized Boolean getProjectIsActive( ) {
         return projectIsActive;
     }
@@ -40,24 +36,24 @@ public class PlayerApp {
 
     public void search (String playerId, float minStars, float maxStars, String betLimit, String riskLevel) {
         if ( playerId == null || playerId.trim().isEmpty() ) {
-            throw new IllegalArgumentException("Σφάλμα: Το Player ID δεν μπορεί να είναι κενό.");
+            throw new IllegalArgumentException("Προσοχή: Το Player ID δεν μπορεί να είναι κενό.");
         }
         if ( minStars < 1.0f || minStars > 5.0f || maxStars < 1.0f || maxStars > 5.0f ) {
-            throw new IllegalArgumentException("Σφάλμα: Τα αστέρια πρέπει να είναι μεταξύ 1.0 και 5.0.");
+            throw new IllegalArgumentException("Προσοχή: Τα αστέρια πρέπει να είναι μεταξύ 1.0 και 5.0.");
         }
         if ( minStars > maxStars ) {
-            throw new IllegalArgumentException("Σφάλμα: Το ελάχιστο όριο αστεριών δεν μπορεί να είναι μεγαλύτερο από το μέγιστο.");
+            throw new IllegalArgumentException("Προσοχή: Το ελάχιστο όριο αστεριών δεν μπορεί να είναι μεγαλύτερο από το μέγιστο.");
         }
 
         if ( betLimit != null && !betLimit.trim().isEmpty() ) {
             if ( !betLimit.equals("$") && !betLimit.equals("$$") && !betLimit.equals("$$$") ) {
-                throw new IllegalArgumentException("Σφάλμα: Το όριο πονταρίσματος πρέπει να είναι $, $$ ή $$$.");
+                throw new IllegalArgumentException("Προσοχή: Το όριο πονταρίσματος πρέπει να είναι $, $$ ή $$$.");
             }
         }
 
         if ( riskLevel != null && !riskLevel.trim().isEmpty() ) {
             if ( !riskLevel.equalsIgnoreCase("low") && !riskLevel.equalsIgnoreCase("medium") && !riskLevel.equalsIgnoreCase("high") ) {
-                throw new IllegalArgumentException("Σφάλμα: Το επίπεδο ρίσκου πρέπει να είναι low, medium ή high.");
+                throw new IllegalArgumentException("Προσοχή: Το επίπεδο ρίσκου πρέπει να είναι low, medium ή high.");
             }
         }
 
@@ -69,11 +65,11 @@ public class PlayerApp {
 
     public void play (String gameName, BigDecimal amount) throws InterruptedException {
         if ( gameName == null || gameName.trim ( ).isEmpty ( ) )
-            throw new IllegalArgumentException ( "Σφάλμα: Μη έγκυρο όνομα παιχνιδιού" );
+            throw new IllegalArgumentException ( "Προσοχή: Μη έγκυρο όνομα παιχνιδιού" );
         if ( amount.compareTo ( BigDecimal.ZERO ) <= 0 )
-            throw new IllegalArgumentException ( "Σφάλμα: Το ποντάρισμα δεν μπορεί να είναι αρνητικό ή μηδέν" );
+            throw new IllegalArgumentException ( "Προσοχή: Το ποντάρισμα δεν μπορεί να είναι αρνητικό ή μηδέν" );
         if ( amount.compareTo ( this.tokenBalance ) > 0 )
-            throw new IllegalArgumentException ( "Σφάλμα: Δεν έχετε αρκετά tokens." );
+            throw new IllegalArgumentException ( "Προσοχή: Δεν έχετε αρκετά FUN." );
 
         Bet bet = new Bet ( amount, currentPlayer.getPlayerId(), gameName );
         Client playClient = new Client ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.PLAY, bet ) );
@@ -81,7 +77,8 @@ public class PlayerApp {
         playClient.join ();
 
         Object response = playClient.getResponse ( );
-        System.out.println ( "\n======= Αποτέλεσμα Παιχνιδιού =======" );
+        System.out.println ( "\n============ Αποτέλεσμα Παιχνιδιού ==============" );
+
         if ( response instanceof String )
             System.out.println ( response );
         else if ( response instanceof BigDecimal ) {
@@ -94,14 +91,13 @@ public class PlayerApp {
                 addBalance ( payout );
             } else
                 System.out.println ( "Δυστυχώς δεν κερδίσατε αυτή τη φορά. Καλή τύχη στο επόμενο ποντάρισμα!" );
-        } else {
-            System.out.println ( "Σφάλμα: Δεν λάβαμε απάντηση από τον Master." );
-        }
+        } else
+            System.out.println ( "Προσοχή: Δεν λάβαμε απάντηση από τον Master." );
     }
 
     public void addBalance (BigDecimal amount) {
         if ( amount.compareTo ( BigDecimal.ZERO ) <= 0 )
-            throw new IllegalArgumentException ( "Σφάλμα: Το πλήθος των tokens δεν μπορεί να είναι αρνητικό ή μηδέν" );
+            throw new IllegalArgumentException ( "Προσοχή: Το πλήθος των FUN δεν μπορεί να είναι αρνητικό ή μηδέν" );
         this.tokenBalance = this.tokenBalance.add ( amount );
         System.out.println ( "Επιτυχής κατάθεση!\nΝέο διαθέσιμο υπόλοιπο: " + this.tokenBalance + " FUN." );
     }
@@ -115,9 +111,9 @@ public class PlayerApp {
 
     public void rate (String gameName, float stars) throws InterruptedException {
         if ( gameName == null || gameName.trim ( ).isEmpty ( ) )
-            throw new IllegalArgumentException ( "Σφάλμα: Μη έγκυρο όνομα παιχνιδιού" );
+            throw new IllegalArgumentException ( "Προσοχή: Μη έγκυρο όνομα παιχνιδιού" );
         if ( stars < 1.0f || stars > 5.0f )
-            throw new IllegalArgumentException ( "Σφάλμα: Η βαθμολογία του κάθε παιχνιδιού πρέπει να είναι από 1 έως 5 αστέρια." );
+            throw new IllegalArgumentException("Προσοχή: Η βαθμολογία πρέπει να είναι από 1.0 έως 5.0, με βήμα μισού αστεριού (π.χ. 1.0, 1.5, 2.0, 2.5...).");
         if ( gamePlayedStatus.getOrDefault ( gameName, false ) ) {
             Rating rating = new Rating ( currentPlayer.getPlayerId ( ), gameName, stars );
             Client ratingClient = new Client ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.RATE, rating ) );
@@ -130,9 +126,8 @@ public class PlayerApp {
                 System.out.println ( "Επιτυχής αξιολόγηση! Ο νέος μέσος όρος του παιχνιδιού είναι: " + response + " αστέρια!" );
             else
                 System.out.println ( "Σφάλμα: Δεν λάβαμε απάντηση από τον Master." );
-        }
-        else {
-            throw new IllegalArgumentException ( "Σφάλμα: Δεν μπορείτε να βαθμολογήσετε το παιχνίδι '" + gameName + "' γιατί δεν το έχετε παίξει ακόμα!" );
+        } else {
+            throw new IllegalArgumentException ( "Προσοχή: Δεν μπορείτε να βαθμολογήσετε το παιχνίδι '" + gameName + "' γιατί δεν το έχετε παίξει ακόμα!" );
         }
     }
 
@@ -145,7 +140,7 @@ public class PlayerApp {
             }
         }
         if (!contain )
-            throw new IllegalArgumentException ( "Δεν υπάρχει το παιχνίδι που επιλέξατε!!!" );
+            throw new IllegalArgumentException("Προσοχή: Το παιχνίδι που επιλέξατε δεν ανήκει στα αποτελέσματα της τρέχουσας αναζήτησης.");
         return contain;
     }
     // =========================================================================================
@@ -159,7 +154,7 @@ public class PlayerApp {
     }
 
     private void handlePlay (Scanner sc, PlayerApp currentplayer) throws InterruptedException {
-        ArrayList<Game> availableGames = getSearchedGames ( );
+        ArrayList<Game> availableGames = searchedGames;
         if ( availableGames == null || availableGames.isEmpty ( ) ) {
             throw new IllegalArgumentException ( "Δεν υπάρχουν διαθέσιμα παιχνίδια! Παρακαλώ κάντε πρώτα Αναζήτηση (Επιλογή 2) ή Προβολή (Επιλογή 3)." );
         }
@@ -174,11 +169,10 @@ public class PlayerApp {
 
 
     private void handleRate (Scanner sc, PlayerApp currentplayer) throws InterruptedException {
-        ArrayList<Game> availableGames = getSearchedGames ( );
+        ArrayList<Game> availableGames = searchedGames;
         System.out.print ( "Πληκτρολογήστε το όνομα του παιχνιδιού που θέλετε να βαθμολογήσετε: " );
         String gameToRate = sc.nextLine ( );
-        isavailableSelectedgame(gameToRate,availableGames);
-        System.out.print ( "Δώστε βαθμολογία (1.0 έως 5.0 αστέρια): " );
+        System.out.print ( "Δώστε βαθμολογία από 1.0 έως 5.0, με βήμα μισού αστεριού (π.χ. 1.0, 1.5, 2.0, 2.5...): ");
         float starsRating = Float.parseFloat ( sc.nextLine ( ) );
         currentplayer.rate ( gameToRate, starsRating );
     }
@@ -268,7 +262,6 @@ public class PlayerApp {
                         System.out.println ( "Αποσύνδεση παίκτη... Ευχαριστούμε που παίξατε!" );
                         running = false;
                         break;
-
                     default:
                         System.out.println ( "Μη έγκυρη επιλογή! Παρακαλώ εισάγετε έναν αριθμό από το 1 έως το 5." );
                 }
@@ -282,8 +275,7 @@ public class PlayerApp {
 
     public static void main (String[] args) {
         Scanner sc = new Scanner ( System.in );
-
-        System.out.println ( "============ Εγγραφή / Είσοδος Παίκτη ========" );
+        System.out.println ( "============== Εγγραφή / Είσοδος Παίκτη ==========" );
         System.out.print ( "Όνομα: " );
         String name = sc.nextLine ( );
         System.out.print ( "Επίθετο: " );
@@ -296,7 +288,7 @@ public class PlayerApp {
         String id = sc.nextLine ( );
         Player myPlayer = new Player ( name, surname, username, password, id );
         PlayerApp currentplayer = new PlayerApp ( myPlayer );
-        System.out.println ( "\nΕπιτυχής είσοδος! Καλωσήρθες,στο GoldenBet " + myPlayer.getUsername ( ) + " !!!" );
+        System.out.println ( "\nΕπιτυχής είσοδος! Καλωσήρθες, στο GoldenBet " + myPlayer.getUsername ( ) + "!!!" );
         startmenu ( myPlayer, currentplayer );
     }
 }
