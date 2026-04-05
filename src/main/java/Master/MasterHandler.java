@@ -102,23 +102,29 @@ public class MasterHandler extends Thread {
         int backupIndex=backupTarget.getWorkerId ();
         System.out.println ( "Master is trying to " + actionLog + " game: " + gameName + "..." );
         System.out.println ( "Primary: Worker " + gameWorkerIndex + " | Backup: Worker " + backupIndex );
-        Object response = sendRequestToWorker ( target, message, true );
+        Object response = sendRequestToWorker ( target, message, true, false);
+
 
         if ( response != null ) {
+            // Backup property of a game is set true when sent to the backup worker
+            if(message.getType() == MasterMessageType.ADD_GAME)
+                ((Game) message.getPayload()).setBackUp(true);
+
             if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
                 System.out.println ( "Συγχρονισμός δεδομένων με τον Backup Worker " + backupIndex + "..." );
-                sendRequestToWorker ( backupTarget, message, false );
+                sendRequestToWorker ( backupTarget, message, false, false);
             } else {
                 BigDecimal payout = (BigDecimal) response;
                 Bet originalBet = (Bet) message.getPayload ( );
                 PlayBackUp playBackUp = new PlayBackUp ( payout, originalBet );
-                sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false );
+                sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false, false);
             }
         } else {
             System.out.println ( "Ο Primary Worker με id: " + gameWorkerIndex + " έπεσε!!! " +
                     "Δρομολόγηση στον Backup Worker με id: " + backupIndex );
-            response = sendRequestToWorker ( backupTarget, message, true );
+            response = sendRequestToWorker ( backupTarget, message, true, true );
         }
+
         out.writeObject ( response );
         out.flush ( );
     }
@@ -142,7 +148,21 @@ public class MasterHandler extends Thread {
         }
 
         for ( WorkerInfo w : workers ) {
-            sendRequestToWorker ( w, message, false );
+
+            if(w.isActive()) {
+                boolean includeBackUps = false;
+
+                // Check if there is a dead worker and the current one keeps backup data of it
+                for (WorkerInfo potentialDeadWorker: workers){
+                    if(!potentialDeadWorker.isActive() && isBackupOf(w,potentialDeadWorker)){
+                        // Send message to the worker to use its backup data
+                        includeBackUps = true;
+                        break;
+                    }
+                }
+
+                sendRequestToWorker(w, message, false, includeBackUps);
+            }
         }
 
         synchronized (myBox){
@@ -173,33 +193,53 @@ public class MasterHandler extends Thread {
      * @param expectResponse Διαχείριση επιστροφής
      * @return Την απάντηση του Worker ή null
      */
-    private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse) throws IOException, ClassNotFoundException {
+    private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse, boolean includeBackUps) throws IOException, ClassNotFoundException {
+        int maxRetries = 3;
+        int attempt = 0;
 
-        try (Socket requestSocket = new Socket(target.getWorkerIp(), target.getWorkerPort());
-             ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
-             ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
+        while (attempt < maxRetries){
+            try (Socket requestSocket = new Socket(target.getWorkerIp(), target.getWorkerPort());
+                 ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
+                 ObjectInputStream inWorker = new ObjectInputStream(requestSocket.getInputStream());) {
 
-            // We wait for acknowledgement message before proceeding to send the real one
-            // To ensure that the connection has been established
-            Object ack = inWorker.readObject();
+                // We wait for acknowledgement message before proceeding to send the real one
+                // To ensure that the connection has been established
+                Object ack = inWorker.readObject();
 
-            if ("ACK".equals(ack)) {
-                outWorker.writeObject(message);
-                outWorker.flush();
+                if ("ACK".equals(ack)) {
+                    // If access to worker's backup data is needed
+                    outWorker.writeBoolean(includeBackUps);
+                    outWorker.flush();
+
+                    outWorker.writeObject(message);
+                    outWorker.flush();
+                }
+
+                // returns a message of success/failure of the requested operation
+                if (expectResponse) {
+                    return inWorker.readObject();
+                }
+                else{ break; }
+
+            } catch (IOException | ClassNotFoundException  e) {
+                attempt++;
+
+                if (attempt < maxRetries) {
+                    try {
+                        // Wait for 1 second before the next try
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        // Restore the interrupted status to ensure the thread can terminate properly.
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                } else {
+                    // If there are no more tries, target worker is marked as inactive
+                    target.setActive(false);
+                    System.err.println("Worker " + target.getWorkerId() + " marked as INACTIVE.");
+                }
             }
 
-            // returns a message of success/failure of the requested operation
-            if (expectResponse) {
-                return inWorker.readObject();
-            }
-
-        } catch (UnknownHostException unknownHost) {
-            System.err.println("You are trying to connect to an unknown host!");
-        } catch (IOException e) {
-            System.err.println("Worker Connection Error: " + e.getMessage());
-        }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
 
         return null;
@@ -220,5 +260,9 @@ public class MasterHandler extends Thread {
         int backupIndex = (gameWorkerIndex + 1) % workers.size ();
         WorkerInfo backupTarget = workers.get ( backupIndex );
         return backupTarget;
+    }
+
+    private boolean isBackupOf(WorkerInfo backup, WorkerInfo primary) {
+        return backup.getWorkerId() == (primary.getWorkerId() + 1) % workers.size();
     }
 }

@@ -18,6 +18,7 @@ public class Game implements Serializable {
     private BigDecimal jackpot;
     private BigDecimal[] multipliers;
     private boolean active = true;
+    private boolean backUp = false;
 
 
 
@@ -181,6 +182,13 @@ public class Game implements Serializable {
 
     public void setActive(boolean active) { this.active = active; }
 
+    public boolean isBackUp() {
+        return backUp;
+    }
+
+    public void setBackUp(boolean backUp) {
+        this.backUp = backUp;
+    }
 
     @Override
     public String toString() {

@@ -25,6 +25,7 @@ public class Worker {
 
     private int workerPort;
     private int workerId;
+    private static boolean includeBackUps;
 
 
     public void openServer(){
@@ -95,7 +96,14 @@ public class Worker {
     }
 
 
-    public int getWorkerId(){ return workerId; }
 
-    public int getWorkerPort(){ return workerPort; }
+    public synchronized static boolean includeBackUps() {
+        return includeBackUps;
+    }
+
+    public static void setIncludeBackUps(boolean includeBackUps) {
+        Worker.includeBackUps = includeBackUps;
+    }
+
 }
+

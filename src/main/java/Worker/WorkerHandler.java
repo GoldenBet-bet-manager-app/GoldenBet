@@ -28,6 +28,9 @@ public class WorkerHandler extends Thread {
             out.writeObject("ACK");
             out.flush();
 
+            // Whether to include backup data in MapReduce queries
+            Worker.setIncludeBackUps(in.readBoolean());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,26 +117,30 @@ public class WorkerHandler extends Thread {
 
     private String executeAddGame(Game gameToAdd) throws IOException{
 
+        String gameDataType = gameToAdd.isBackUp() ? "Back Up":"Primary";
+
         synchronized (myGames){
             //-------When the game is first added into the app------
             if (!myGames.containsKey(gameToAdd.getGameName())){
-
                 myGames.put(gameToAdd.getGameName(), gameToAdd);
                 gamesProfits.put(gameToAdd.getGameName(),BigDecimal.ZERO);
 
-                try (Socket s = new Socket("127.0.0.1", 5000);
-                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                     ObjectInputStream in = new ObjectInputStream(s.getInputStream())){
+                if(!gameToAdd.isBackUp()) {
+                    try (Socket s = new Socket("127.0.0.1", 5000);
+                         ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                         ObjectInputStream in = new ObjectInputStream(s.getInputStream())) {
 
-                    out.writeByte(1); //register new game case
-                    out.writeObject(gameToAdd.getGameName());
-                    out.writeObject(gameToAdd.getHashKey());
-                    out.flush();
+                        out.writeByte(1); //register new game case
+                        out.writeObject(gameToAdd.getGameName());
+                        out.writeObject(gameToAdd.getHashKey());
+                        out.flush();
 
-                } catch (IOException e) {
-                    System.err.println("SRG Registration Error: " + e.getMessage());
+                    } catch (IOException e) {
+                        System.err.println("SRG Registration Error: " + e.getMessage());
+                    }
                 }
-                System.out.println ( "The game "+gameToAdd.getGameName()+" was added to worker "+ workerId);
+
+                System.out.println ( "The ("+ gameDataType +") game "+gameToAdd.getGameName()+" was added to worker "+ workerId);
                 return "The game '" + gameToAdd.getGameName() + "' has been added successfully!";
 
             }
@@ -141,7 +148,7 @@ public class WorkerHandler extends Thread {
             else if(!myGames.get(gameToAdd.getGameName()).isActive()){
 
                 myGames.get(gameToAdd.getGameName()).setActive(true);
-                System.out.println ( "The game "+gameToAdd.getGameName()+" is visible on worker "+ workerId);
+                System.out.println ( "The ("+ gameDataType +") game "+gameToAdd.getGameName()+" is visible on worker "+ workerId);
                 return "The game '" + gameToAdd.getGameName() + "' is visible again for players!";
             }
             // When the game already exists in the app and is visible to the players
@@ -153,18 +160,24 @@ public class WorkerHandler extends Thread {
 
     private String executeRemoveGame(Game gameToDelete){
 
+        String gameDataType;
+
         synchronized (myGames) {
             myGames.get(gameToDelete.getGameName()).setActive(false);
+            gameDataType = myGames.get(gameToDelete.getGameName()).isBackUp()? "Back Up":"Primary";
         }
-        System.out.println ( "The game "+gameToDelete.getGameName()+" was disabled on worker "+ workerId);
+        System.out.println ( "The ("+ gameDataType +") game "+gameToDelete.getGameName()+" was disabled on worker "+ workerId);
         return "The game '" + gameToDelete.getGameName() + "' has been removed successfully!";
     }
 
     private String executeModifyGame(Game gameUpdate){
 
+        String gameDataType;
+
         synchronized (myGames){
 
             Game existingGame = myGames.get(gameUpdate.getGameName());
+
             if (existingGame != null) {
 
                 existingGame.setProviderName(gameUpdate.getProviderName());
@@ -181,7 +194,7 @@ public class WorkerHandler extends Thread {
         }
     }
 
-    private void executeMapReduceTask(MasterMessage message) throws IOException{
+    private void executeMapReduceTask(MasterMessage message) throws IOException {
 
         ArrayList<Game> activeGames = new ArrayList<>();
 
@@ -190,7 +203,8 @@ public class WorkerHandler extends Thread {
         } else {
             synchronized (myGames) {
                 for (Game g : myGames.values()) {
-                    if (g.isActive()) activeGames.add(g);
+                    if(!g.isBackUp() || (g.isBackUp() && Worker.includeBackUps()))
+                        if (g.isActive()) activeGames.add(g);
                 }
             }
         }
@@ -206,9 +220,16 @@ public class WorkerHandler extends Thread {
                 Game curGame = myGames.get(gameName);
                 BigDecimal curGameProfit = gamesProfits.get(gameName)!=null?gamesProfits.get(gameName):BigDecimal.ZERO;
 
-                if (curGame.getProviderName().equalsIgnoreCase(providerName)) {
-                    providerGamesProfits.put(gameName, curGameProfit);
+                // If the game is not backUp
+                // OR it is backup and the master wants this worker to include backup games
+                if (!curGame.isBackUp() || (curGame.isBackUp() && Worker.includeBackUps())) {
+
+                    // Provider check
+                    if (curGame.getProviderName().equalsIgnoreCase(providerName)) {
+                        providerGamesProfits.put(gameName, curGameProfit);
+                    }
                 }
+
             }
         }
 
@@ -216,9 +237,24 @@ public class WorkerHandler extends Thread {
     }
 
     private void executeGamesProfits(MasterMessage message){
-        synchronized (gamesProfits) {
-            sendToReducer(message.getType(), new HashMap<String, BigDecimal>(gamesProfits), message.getMapId());
+        HashMap<String, BigDecimal> filteredProfits = new HashMap<>();
+
+
+        synchronized (myGames) {
+            synchronized (gamesProfits) {
+                for (String gameName : gamesProfits.keySet()) {
+                    Game curGame = myGames.get(gameName);
+
+                    // If the game is not backUp
+                    // OR it is backup and the master wants this worker to include backup games
+                    if (!curGame.isBackUp() || (curGame.isBackUp() && Worker.includeBackUps())) {
+                        filteredProfits.put(gameName, gamesProfits.get(gameName));
+                    }
+                }
+            }
         }
+
+        sendToReducer(message.getType(), filteredProfits, message.getMapId());
     }
 
     private void executePlayersProfits(MasterMessage message){
@@ -336,21 +372,23 @@ private void updateProfits(Bet bet,BigDecimal payout) {
         ArrayList<Game> matchedGames = new ArrayList<>();
         for (Game game : myGames.values()) {
 
-            if ( game.isActive ( ) ) {
-                boolean condition1 = game.getStars() < filters.getMinstars() || game.getStars() > filters.getMaxstars();
+            if(!game.isBackUp() || (game.isBackUp() && Worker.includeBackUps())){
+                if ( game.isActive ( ) ) {
+                    boolean condition1 = game.getStars() < filters.getMinstars() || game.getStars() > filters.getMaxstars();
 
-                boolean condition2=filters.getRiskLevel() != null && !filters.getRiskLevel().trim ().isEmpty() &&
-                        !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel());
+                    boolean condition2=filters.getRiskLevel() != null && !filters.getRiskLevel().trim ().isEmpty() &&
+                            !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel());
 
-                boolean condition3=filters.getBetCategory() != null && !filters.getBetCategory().trim().isEmpty() &&
-                        !game.getBetCategory().equals(filters.getBetCategory());
+                    boolean condition3=filters.getBetCategory() != null && !filters.getBetCategory().trim().isEmpty() &&
+                            !game.getBetCategory().equals(filters.getBetCategory());
 
 
-
-                if(!condition1 && !condition2 && !condition3){
-                    matchedGames.add ( game );
+                    if(!condition1 && !condition2 && !condition3){
+                        matchedGames.add ( game );
+                    }
                 }
             }
+
         }
         return matchedGames;
     }

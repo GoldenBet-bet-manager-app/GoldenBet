@@ -39,4 +39,5 @@ public class MasterMessage implements Serializable {
     public void setMapId(int mapId){
         this.mapId = mapId;
     }
+
 }
