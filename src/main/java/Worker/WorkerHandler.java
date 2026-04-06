@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static Worker.Worker.backupPlayersProfits;
+import static Worker.Worker.primaryPlayersProfits;
 import static models.SHA256Generator.computeSHA256;
 
 public class WorkerHandler extends Thread {
@@ -16,10 +19,10 @@ public class WorkerHandler extends Thread {
     ObjectOutputStream out;
     private final HashMap<String, Game> myGames;
     private final int workerId;
-    private final HashMap<String, BigDecimal> gamesProfits,playersProfits;
+    private final HashMap<String, BigDecimal> gamesProfits;
 
 
-    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersProfits , int workerid) {
+    public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, int workerid) {
 
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
@@ -40,7 +43,6 @@ public class WorkerHandler extends Thread {
         this.myGames = myGames;
         this.gamesProfits = profits;
         this.workerId = workerid;
-        this.playersProfits = playersProfits;
 
     }
 
@@ -269,9 +271,25 @@ public class WorkerHandler extends Thread {
     }
 
     private void executePlayersProfits(MasterMessage message){
-        synchronized (playersProfits) {
-            sendToReducer(message.getType(), new HashMap<String, BigDecimal>(playersProfits), message.getMapId());
+        HashMap<String, BigDecimal> finalStatsToSend = new HashMap<>();
+
+        synchronized (primaryPlayersProfits) {
+            // Primary data are always sent
+            finalStatsToSend.putAll(primaryPlayersProfits);
         }
+
+        if (Worker.includeBackUps()) {
+            synchronized (backupPlayersProfits) {
+                // Backup data are sent if and only if the corresponding worker has failed
+                for (String playerId : backupPlayersProfits.keySet()) {
+                    BigDecimal backupVal = backupPlayersProfits.get(playerId);
+                    BigDecimal currentVal = finalStatsToSend.getOrDefault(playerId, BigDecimal.ZERO);
+                    finalStatsToSend.put(playerId, currentVal.add(backupVal));
+                }
+            }
+        }
+
+        sendToReducer(message.getType(), finalStatsToSend, message.getMapId());
     }
 
     private <T> void sendToReducer(MasterMessageType type, T payload, int mapId)  {
@@ -326,12 +344,17 @@ public class WorkerHandler extends Thread {
 private void updateProfits(Bet bet,BigDecimal payout) {
     Game game = myGames.get ( bet.getGameName ( ) );
     BigDecimal playerProfit, gameprofit = BigDecimal.ZERO;
+
+
     try {
-        synchronized (playersProfits) {
-            playerProfit = playersProfits.getOrDefault ( bet.getPlayerId ( ), BigDecimal.ZERO );
-            playerProfit = playerProfit.subtract ( bet.getAmount ( ) );
-            playerProfit = playerProfit.add ( payout );
-            playersProfits.put ( bet.getPlayerId ( ), playerProfit );
+        if (game.isBackUp()) {
+            synchronized (backupPlayersProfits) { // Κλειδώνεις απευθείας το πεδίο της κλάσης
+                updatePlayerProfitsMap(backupPlayersProfits, bet, payout);
+            }
+        } else {
+            synchronized (primaryPlayersProfits) { // Κλειδώνεις απευθείας το πεδίο της κλάσης
+                updatePlayerProfitsMap(primaryPlayersProfits, bet, payout);
+            }
         }
 
         synchronized (gamesProfits) {
@@ -345,6 +368,14 @@ private void updateProfits(Bet bet,BigDecimal payout) {
         System.err.println ( "Σφάλμα κατά την ενημέρωση των HashMaps κερδών: " + e.getMessage ( ) );
     }
 }
+
+    // auxiliary method to update player profits maps after play
+    private void updatePlayerProfitsMap(HashMap<String, BigDecimal> map, Bet bet, BigDecimal payout) {
+        BigDecimal playerProfit = map.getOrDefault(bet.getPlayerId(), BigDecimal.ZERO);
+        playerProfit = playerProfit.subtract(bet.getAmount()).add(payout);
+        map.put(bet.getPlayerId(), playerProfit);
+    }
+
 
     private int getSecuredRandomNumber(String gameName) throws IOException, ClassNotFoundException, IllegalArgumentException{
 
