@@ -12,22 +12,22 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static reducer.Reducer.numberOfWorkers;
+
 public class ReducerHandler extends Thread{
 
     private final HashMap<Integer, AggregationBox> resultsBuffer;
     private final Socket connection;
 
-    private final int numberOfWorkers;
     private final String masterIp;
     private final int masterPort;
 
 
     public ReducerHandler(Socket connection, HashMap<Integer, AggregationBox> resultsBuffer,
-                            int numberOfWorkers, String masterIp, int masterPort){
+                          String masterIp, int masterPort){
 
         this.resultsBuffer = resultsBuffer;
         this.connection = connection;
-        this.numberOfWorkers = numberOfWorkers;
         this.masterIp = masterIp;
         this.masterPort = masterPort;
     }
@@ -39,7 +39,19 @@ public class ReducerHandler extends Thread{
         try(ObjectInputStream in = new ObjectInputStream(connection.getInputStream())){
 
             MasterMessage message = (MasterMessage) in.readObject();
-            processAggregation(message);
+
+            if(message.getType() != MasterMessageType.WORKER_FAILURE)
+                processAggregation(message);
+            else{
+
+                synchronized (numberOfWorkers){
+                    numberOfWorkers--;
+                }
+                System.out.println("The number of workers decreased to " +  numberOfWorkers +
+                        " after the failure of worker " + (Integer) message.getPayload());
+
+            }
+
 
         }catch (Exception e) {
             System.err.println("Σφάλμα κατά την ανάγνωση από Worker: " + e.getMessage());
@@ -67,6 +79,7 @@ public class ReducerHandler extends Thread{
                 currentBox = resultsBuffer.get(currentMapId);
                 currentBox.addGamesFromWorker(message.getPayload());
                 currentBox.addReceivedResponses();
+
             }else{
 
                 switch (type){
@@ -81,12 +94,14 @@ public class ReducerHandler extends Thread{
                 resultsBuffer.put(currentMapId, currentBox);
             }
 
-            if (currentBox.getReceivedResponses() == numberOfWorkers) {
+            synchronized (numberOfWorkers) {
+                if (currentBox.getReceivedResponses() == numberOfWorkers) {
 
-                Object finalPayload = currentBox.getGamesFromWorkers();
-                newMessage = new MasterMessage(finalPayload, currentMapId);
+                    Object finalPayload = currentBox.getGamesFromWorkers();
+                    newMessage = new MasterMessage(finalPayload, currentMapId);
 
-                resultsBuffer.remove(currentMapId);
+                    resultsBuffer.remove(currentMapId);
+                }
             }
         }
 

@@ -18,11 +18,13 @@ public class WorkerHandler extends Thread {
     private final int workerId;
     private final HashMap<String, BigDecimal> gamesProfits,playersProfits;
 
+
     public WorkerHandler (Socket connection, HashMap<String, Game> myGames, HashMap<String, BigDecimal> profits, HashMap<String, BigDecimal> playersProfits , int workerid) {
 
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
+
             // Sending acknowledgement that the stream between master and this worker
             // has been successfully established
             out.writeObject("ACK");
@@ -88,6 +90,15 @@ public class WorkerHandler extends Thread {
                     case PLAYBACKUP:
                         PlayBackUp backUpPayout=(PlayBackUp) message.getPayload ();
                         updateProfits ( backUpPayout.getBet (),backUpPayout.getPayout () );
+                        break;
+                    case WORKER_FAILURE:
+                        Integer failedId =  (Integer) message.getPayload();
+                        System.out.println("Worker " + workerId + " received failure notice for Worker " + failedId);
+                        sendToReducer(message.getType(), failedId, message.getMapId());
+                        break;
+                    case PING:
+                        response = "The connection between Master and the worker with id " + workerId + " holds.";
+                        break;
                 }
 
             }catch (IllegalArgumentException | IllegalStateException e) {

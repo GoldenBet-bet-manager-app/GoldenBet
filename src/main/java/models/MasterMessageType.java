@@ -11,5 +11,7 @@ public enum MasterMessageType {
     GAMES_PROFITS,
     PLAYERS_PROFITS,
     RATE,
-    PLAYBACKUP
+    PLAYBACKUP,
+    WORKER_FAILURE,
+    PING
 }

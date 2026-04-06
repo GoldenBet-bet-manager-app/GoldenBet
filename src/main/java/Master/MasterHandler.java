@@ -1,5 +1,6 @@
 package Master;
 
+import Worker.Worker;
 import models.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -133,10 +134,18 @@ public class MasterHandler extends Thread {
     /**
      * Εκτελεί τη διαδικασία MapReduce για αναζητήσεις, περιμένει μέχρι ο Reducer
      * να φέρει το τελικό αποτέλεσμα στο ResultBox.
-     *
      * @param message Το μήνυμα που εξυπηρετούμε
      */
     private void executeMapReducePhase (MasterMessage message) throws IOException, ClassNotFoundException {
+
+
+        // Workers Health check before map reduce query
+        for (WorkerInfo w : workers) {
+            if (w.isActive()) {
+                // If ping fails, isActive of the corresponding worker will become false
+                pingWorker(w);
+            }
+        }
 
         int currentMapId = Math.abs ( randomUUID ( ).hashCode ( ) );
         message.setMapId ( currentMapId );
@@ -160,7 +169,6 @@ public class MasterHandler extends Thread {
                         break;
                     }
                 }
-
                 sendRequestToWorker(w, message, false, includeBackUps);
             }
         }
@@ -186,17 +194,28 @@ public class MasterHandler extends Thread {
         out.writeObject(finalGames);
         out.flush();
     }
+
     /**
      * Ανοίγει σύνδεση με έναν Worker, περιμένει το ACK και του στέλνει το μήνυμα.
      * @param target Ο Worker που θα λάβει το μήνυμα
      * @param message Το μήνυμα που εξυπηρετούμε
      * @param expectResponse Διαχείριση επιστροφής
-     * @return Την απάντηση του Worker ή null
+     * @return Την απάντηση του Worker ή null αν δε συνδεθεί με τον Worker μετά από έναν συγκεκριμένο αριθμό προσπαθειών
      */
     private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse, boolean includeBackUps) throws IOException, ClassNotFoundException {
+
+        // In case worker is already failed
+        // not to exhaust all maxRetries and occur delays
+        if(!target.isActive()){
+            System.out.println("The worker "+ target.getWorkerId() + " is already inactive");
+            return null;
+        }
+
+
         int maxRetries = 3;
         int attempt = 0;
 
+        // maxRetries attempts are given to the worker to respond
         while (attempt < maxRetries){
             try (Socket requestSocket = new Socket(target.getWorkerIp(), target.getWorkerPort());
                  ObjectOutputStream outWorker = new ObjectOutputStream(requestSocket.getOutputStream());
@@ -235,7 +254,7 @@ public class MasterHandler extends Thread {
                     }
                 } else {
                     // If there are no more tries, target worker is marked as inactive
-                    target.setActive(false);
+                    markWorkerAsFailed(target);
                     System.err.println("Worker " + target.getWorkerId() + " marked as INACTIVE.");
                 }
             }
@@ -264,5 +283,76 @@ public class MasterHandler extends Thread {
 
     private boolean isBackupOf(WorkerInfo backup, WorkerInfo primary) {
         return backup.getWorkerId() == (primary.getWorkerId() + 1) % workers.size();
+    }
+
+    private boolean pingWorker(WorkerInfo w) throws IOException, ClassNotFoundException {
+        int maxRetries = 3;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try{
+                // send dummy request to the worker, to check if the connection holds
+                String response = (String) sendRequestToWorker(w, new MasterMessage(MasterMessageType.PING, null), true, false);
+
+                return response != null;
+            } catch (IOException e) {
+                System.err.println("Ping attempt " + attempt + " failed for Worker " + w.getWorkerId());
+
+                if (attempt < maxRetries) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // If all maxTries attempts are over
+        markWorkerAsFailed(w);
+
+        return false;
+    }
+
+    /**
+     * Ενημερώνει την κατάσταση του Worker τοπικά στο Master ως failed και
+     * στέλνει broadcast μήνυμα στους υπόλοιπους workers, ώστε να ενημερωθεί
+     * ο reducer για τη μείωση του αριθμού των ενεργών workers
+     * @param failedWorker ο Worker που τέθηκε εκτός λειτουργίας
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void markWorkerAsFailed(WorkerInfo failedWorker) throws IOException, ClassNotFoundException {
+
+        // In case worker was already failed
+        // not to send message to reducer again and decrease its workers counter furthermore
+        if(!failedWorker.isActive()){
+            System.out.println("The worker "+ failedWorker.getWorkerId() + " is already inactive");
+            return;
+        }
+
+        // change Worker info active status
+        failedWorker.setActive(false);
+        int failedId = failedWorker.getWorkerId();
+        System.err.println("!!! ALERT: Worker " + failedId + " is down. Notifying the backup node...");
+
+
+        int backupIndex = (failedId + 1) % workers.size();
+        WorkerInfo backupWorker = getBackupWorker(failedId);
+
+        // Notification to the backup worker of the failed one to inform the reducer about it
+        if (backupWorker.isActive()) {
+            System.out.println("Directing failure notification to Backup Worker: " + backupIndex);
+
+            // failure message construction
+            MasterMessage failureNotice = new MasterMessage(MasterMessageType.WORKER_FAILURE, Integer.valueOf(failedId));
+
+            // Message sending to the backup worker to inform reducer for the newly found failure
+            sendRequestToWorker(backupWorker, failureNotice, false, false);
+        } else {
+            System.err.println("Critical: Backup Worker " + backupIndex + " is also inactive!");
+        }
+
+
     }
 }

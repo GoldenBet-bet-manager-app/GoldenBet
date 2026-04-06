@@ -6,7 +6,7 @@ public class MasterMessage implements Serializable {
 
     private final MasterMessageType type;
     private Object payload;
-    private int mapId;
+    private int mapId = -1;
 
     public MasterMessage(MasterMessageType type, Object payload) {
         this.type = type;

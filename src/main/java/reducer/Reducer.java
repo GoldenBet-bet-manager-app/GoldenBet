@@ -17,7 +17,7 @@ public class Reducer {
 
     final HashMap<Integer, AggregationBox> resultsBuffer = new HashMap<>();
 
-    int numberOfWorkers = -1;
+    static Integer numberOfWorkers = -1;
     int MasterPort = -1;
     String MasterIp = null;
 
@@ -31,7 +31,7 @@ public class Reducer {
             while(true){
 
                 Socket connection = providerSocket.accept();
-                Thread t = new ReducerHandler(connection, resultsBuffer, numberOfWorkers, MasterIp, MasterPort);
+                Thread t = new ReducerHandler(connection, resultsBuffer, MasterIp, MasterPort);
                 t.start();
             }
         } catch (IOException ioException) {
@@ -51,7 +51,7 @@ public class Reducer {
             System.out.print("Enter number of Workers: ");
 
             if(scanner.hasNextInt()){
-                this.numberOfWorkers = scanner.nextInt();
+                Reducer.numberOfWorkers = scanner.nextInt();
 
                 if(numberOfWorkers > 1) {
                     scanner.nextLine();

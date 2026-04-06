@@ -101,7 +101,7 @@ public class Worker {
         return includeBackUps;
     }
 
-    public static void setIncludeBackUps(boolean includeBackUps) {
+    public synchronized static void setIncludeBackUps(boolean includeBackUps) {
         Worker.includeBackUps = includeBackUps;
     }
 
