@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static java.util.UUID.randomUUID;
@@ -59,7 +60,7 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, gameToModify.getGameName ( ), "modify" );
                     break;
 
-                case SEARCH, GET_ACTIVE_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
+                case SEARCH, GET_ACTIVE_GAMES,GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
                     executeMapReducePhase ( message );
                     break;
 
@@ -104,7 +105,7 @@ public class MasterHandler extends Thread {
         System.out.println ( "Master is trying to " + actionLog + " game: " + gameName + "..." );
         System.out.println ( "Primary: Worker " + gameWorkerIndex + " | Backup: Worker " + backupIndex );
         Object response = sendRequestToWorker ( target, message, true, false);
-
+        System.out.println(response!=null);
 
         if ( response != null ) {
             // Backup property of a game is set true when sent to the backup worker
@@ -334,7 +335,10 @@ public class MasterHandler extends Thread {
         // change Worker info active status
         failedWorker.setActive(false);
         int failedId = failedWorker.getWorkerId();
-        System.err.println("!!! ALERT: Worker " + failedId + " is down. Notifying the backup node...");
+
+        LocalTime time = LocalTime.now();
+
+        System.err.println("["+ time +"] !!! ALERT: Worker " + failedId + " is down. Notifying the backup node...");
 
 
         int backupIndex = (failedId + 1) % workers.size();

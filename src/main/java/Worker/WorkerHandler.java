@@ -86,7 +86,7 @@ public class WorkerHandler extends Thread {
                         response = executeModifyGame((Game) message.getPayload());
                         break;
 
-                    case SEARCH, GET_ACTIVE_GAMES:
+                    case SEARCH, GET_ACTIVE_GAMES, GET_ALL_GAMES:
                         executeMapReduceTask(message);
                         break;
                     case PLAYBACKUP:
@@ -209,19 +209,20 @@ public class WorkerHandler extends Thread {
 
     private void executeMapReduceTask(MasterMessage message) throws IOException {
 
-        ArrayList<Game> activeGames = new ArrayList<>();
+        ArrayList<Game> gamesToReducer = new ArrayList<>();
 
         if (message.getType() == MasterMessageType.SEARCH) {
-            activeGames = searchGames((SearchFilters) message.getPayload());
+            gamesToReducer = searchGames((SearchFilters) message.getPayload());
         } else {
             synchronized (myGames) {
                 for (Game g : myGames.values()) {
                     if(!g.isBackUp() || (g.isBackUp() && Worker.includeBackUps()))
-                        if (g.isActive()) activeGames.add(g);
+                        if (g.isActive() || (!g.isActive() && message.getType() == MasterMessageType.GET_ALL_GAMES))
+                            gamesToReducer.add(g);
                 }
             }
         }
-        sendToReducer(message.getType(), activeGames, message.getMapId());
+        sendToReducer(message.getType(), gamesToReducer, message.getMapId());
     }
 
     private void executeProviderGamesProfits(MasterMessage message){
@@ -324,6 +325,7 @@ public class WorkerHandler extends Thread {
             throw new IllegalArgumentException ( "Ακυρώθηκε: Το ποντάρισμα πρέπει να είναι μεταξύ "
                     + game.getMinBet ( ) + " και " + game.getMaxBet ( ) + " tokens." );
         }
+
         int index;
         BigDecimal[] gameMultiplies;
         int random = getSecuredRandomNumber ( game.getGameName ( ) );

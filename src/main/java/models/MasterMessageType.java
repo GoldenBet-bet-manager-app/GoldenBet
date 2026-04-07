@@ -13,5 +13,6 @@ public enum MasterMessageType {
     RATE,
     PLAYBACKUP,
     WORKER_FAILURE,
-    PING
+    PING,
+    GET_ALL_GAMES
 }

@@ -77,7 +77,7 @@ public class ManagerApp {
                     break;
                 //************DISPLAY GAMES*************
                 case "1":
-
+                    getAndDisplayAllGames();
                     break;
                 //****************ADD GAME****************
                 case "2":
@@ -306,8 +306,14 @@ public class ManagerApp {
         if(providerGameProfits != null && !providerGameProfits.isEmpty()){
             int i=0;
             System.out.printf("*******************PROFITS OF PROVIDER \"%s\" *******************\n",providerName);
+            System.out.println("--------------------------------------------------------------------");
+
+            String gameFormat = "%-8s | %-20s | %-15s%n";
+            System.out.printf(gameFormat, "Number", "Name", "Profit/Loss");
+
             for (String gameName : providerGameProfits.keySet()){
-                System.out.println(++i + "| "+ gameName + "| " + providerGameProfits.get(gameName) + " FUN");
+                String profitStr = providerGameProfits.get(gameName) + " FUN";
+                System.out.printf(gameFormat, ++i, gameName, profitStr);
             }
         }
         else{
@@ -335,9 +341,14 @@ public class ManagerApp {
         if(gameProfits != null && !gameProfits.isEmpty()){
             int i=0;
             System.out.println("*******************PROFITS PER GAME*******************");
+            System.out.println("------------------------------------------------------");
+
+            String gameFormat = "%-8s | %-20s | %-15s%n";
+            System.out.printf(gameFormat, "Number", "Name", "Profit/Loss");
+
             for (String name : gameProfits.keySet()){
-                System.out.println(++i + "| "+ name + "| " + gameProfits.get(name) + " FUN");
-            }
+                String profitStr = gameProfits.get(name) + " FUN";
+                System.out.printf(gameFormat, ++i, name, profitStr);            }
         }
         else{
             System.out.println("No games were found");
@@ -364,9 +375,14 @@ public class ManagerApp {
         if(playersProfits != null && !playersProfits.isEmpty()){
             int i=0;
             System.out.println("*******************PROFITS PER PLAYER*******************");
-            for (String name : playersProfits.keySet()){
-                System.out.println(++i + "| "+ name + "| " + playersProfits.get(name) + " FUN");
-            }
+            System.out.println("--------------------------------------------------------");
+
+            String format = "%-7s | %-15s | %-15s%n";
+            System.out.printf(format, "Number", "Player Id", "Profit/Loss");
+
+            for (String playerId : playersProfits.keySet()){
+                String profitStr = playersProfits.get(playerId) + " FUN";
+                System.out.printf(format, ++i, playerId, profitStr);            }
         }
         else{
             System.out.println("No players were found");
@@ -423,11 +439,16 @@ public class ManagerApp {
         ArrayList<Game> activeGames = (ArrayList<Game>) responseActiveGames;
 
         if (activeGames != null && !activeGames.isEmpty()) {
-            System.out.println("\t\t ACTIVE GAMES");
-            System.out.println("Number " + "| " + "Name " + "| " + " ProviderName");
+            System.out.println("\t\t\t\t\t ACTIVE GAMES");
+            System.out.println("----------------------------------------------------");
+
+            String format = "%-8s | %-25s | %-20s%n";
+            System.out.printf(format, "Number", "Name", "ProviderName");
+
             for(int i=0;i<activeGames.size();i++){
                 Game curGame = activeGames.get(i);
-                System.out.println((i+1) + "|  " + curGame.getGameName() + "|  " + curGame.getProviderName());
+
+                System.out.printf(format, (i + 1), curGame.getGameName(), curGame.getProviderName());
             }
         }
         else {
@@ -437,6 +458,48 @@ public class ManagerApp {
 
 
         return activeGames;
+    }
+
+
+    private static ArrayList<Game> getAndDisplayAllGames(){
+        MasterMessage message = new MasterMessage(GET_ALL_GAMES, null);
+
+        Client client = new Client("127.0.0.1",43210,message);
+
+        client.start();
+
+        Object responseAllGames = null;
+        // Wait for the client thread to finish remove game before returning to manager's main menu
+        try {
+            client.join();
+
+            responseAllGames = client.getResponse();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Game> allGames = (ArrayList<Game>) responseAllGames;
+
+        if (allGames != null && !allGames.isEmpty()) {
+            System.out.println("\t\t\t\t\t ALL GAMES STORED");
+            System.out.println("-----------------------------------------------------------------");
+
+            String format = "%-8s | %-22s | %-18s | %-10s%n";
+            System.out.printf(format, "Number", "Name", "ProviderName", "Status");
+
+            for(int i=0;i<allGames.size();i++){
+                Game curGame = allGames.get(i);
+                String status = curGame.isActive()?"active": "inactive";
+
+                System.out.printf(format, (i + 1), curGame.getGameName(), curGame.getProviderName(), status);
+            }
+        }
+        else {
+            System.out.println("There are no (active or inactive) games stored");
+            return null;
+        }
+
+        return allGames;
     }
 
     public static void main(String[] args) {
