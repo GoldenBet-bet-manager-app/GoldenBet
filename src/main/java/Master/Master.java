@@ -7,10 +7,21 @@ import java.util.HashMap;
 import Worker.Worker;
 import models.MasterMessage;
 import models.WorkerInfo;
+import utils.ConfigLoader;
 
 public class Master{
 
+    // static variables for network communication
+    private static int masterPort;
+    private static int reducerListenerPort;
+
     public static void main(String []args) {
+
+        ConfigLoader.loadConfig("system_network_config.conf");
+
+        masterPort = ConfigLoader.getPort("MASTER");
+        reducerListenerPort = ConfigLoader.getPort("MASTER_REDUCER_LISTENER");
+
 
         new Master().openServer();
     }
@@ -20,11 +31,15 @@ public class Master{
 
     void openServer() {
 
-        loadWorkersConfig("workers.conf");
+        ArrayList<WorkerInfo> loadedWorkers = ConfigLoader.getAllWorkers();
+        if (loadedWorkers != null) {
+            this.workersList.addAll(loadedWorkers);
+        }
 
-        startReducerListener(43211);
 
-        try(ServerSocket providerSocket = new ServerSocket(43210, 50);){
+        startReducerListener(reducerListenerPort);
+
+        try(ServerSocket providerSocket = new ServerSocket(masterPort, 50);){
 
             System.out.println("Listening for Clients on port 43210...");
             while(true) {
@@ -78,32 +93,5 @@ public class Master{
 
         }).start();
     }
-
-
-    private void loadWorkersConfig(String fileName) {
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-
-            String line;
-            int currentWorkerId = 0;
-
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("#") || line.trim().isEmpty()) continue;
-
-                String[] parts = line.split(":");
-                String ip = parts[0];
-                int port = Integer.parseInt(parts[1]);
-
-                WorkerInfo info = new WorkerInfo(ip, port, currentWorkerId);
-                workersList.add(info);
-                currentWorkerId += 1;
-            }
-            System.out.println(workersList.size() + " Workers were initialized");
-
-        } catch (IOException e) {
-            System.err.println("Critical Error: Could not read config file!");
-        }
-    }
-
 
 }

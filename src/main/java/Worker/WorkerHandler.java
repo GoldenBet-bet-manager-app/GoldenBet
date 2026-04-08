@@ -1,6 +1,8 @@
 package Worker;
 
 import models.*;
+import utils.ConfigLoader;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -139,7 +141,12 @@ public class WorkerHandler extends Thread {
                 gamesProfits.put(gameToAdd.getGameName(),BigDecimal.ZERO);
 
                 if(!gameToAdd.isBackUp()) {
-                    try (Socket s = new Socket("127.0.0.1", 5000);
+
+                    // DYNAMIC SRG CONNECTION
+                    String srgIp = ConfigLoader.getIp("SRG");
+                    int srgPort = ConfigLoader.getPort("SRG");
+
+                    try (Socket s = new Socket(srgIp, srgPort);
                          ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
                          ObjectInputStream in = new ObjectInputStream(s.getInputStream())) {
 
@@ -294,8 +301,10 @@ public class WorkerHandler extends Thread {
     }
 
     private <T> void sendToReducer(MasterMessageType type, T payload, int mapId)  {
+        String redIp = ConfigLoader.getIp("REDUCER");
+        int redPort = ConfigLoader.getPort("REDUCER");
 
-        try (Socket reducerSocket = new Socket("127.0.0.1", 43500);
+        try (Socket reducerSocket = new Socket(redIp, redPort);
              ObjectOutputStream reducerOut = new ObjectOutputStream(reducerSocket.getOutputStream())) {
 
             MasterMessage msg = new MasterMessage(type, payload);
@@ -384,10 +393,16 @@ private void updateProfits(Bet bet,BigDecimal payout) {
         if ( gameName == null || gameName.trim ( ).isEmpty ( ) ) {
             throw new IllegalArgumentException ( "Το όνομα του παιχνιδιού για τον SRG δεν μπορεί να είναι κενό." );
         }
+
         Game g = myGames.get ( gameName );
         String secret = g.getHashKey ( );
 
-        try(Socket requestSocket = new Socket ( "127.0.0.1", 5000 );
+
+        String srgIp = ConfigLoader.getIp("SRG");
+        int srgPort = ConfigLoader.getPort("SRG");
+
+
+        try(Socket requestSocket = new Socket ( srgIp, srgPort );
             ObjectOutputStream requestOut = new ObjectOutputStream(requestSocket.getOutputStream());
             ObjectInputStream requestIn = new ObjectInputStream(requestSocket.getInputStream());) {
 

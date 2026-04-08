@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.nio.file.Files;
 
-import Master.MasterHandler;
 import models.Game;
 import models.MasterMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 import Client.Client;
+import utils.ConfigLoader;
 
 import static models.MasterMessageType.*;
 
@@ -23,7 +23,8 @@ import static models.MasterMessageType.*;
 public class ManagerApp {
 
     private static Scanner scanner;
-
+    private static String masterIp;
+    private static int masterPort;
 
     private static ArrayList<File> showGamesList (String folderPath, String operation) {
         File folder = new File ( folderPath );
@@ -150,7 +151,7 @@ public class ManagerApp {
             try {
                 MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
 
-                Client client = new Client("127.0.0.1", 43210, message);
+                Client client = new Client(masterIp, masterPort, message);
                 client.start();
 
                 // Wait for the client thread to finish add game before returning to manager's main menu
@@ -177,7 +178,7 @@ public class ManagerApp {
 
        MasterMessage removalMessage = new MasterMessage(REMOVE_GAME, gameToDelete);
 
-       Client client = new Client("127.0.0.1", 43210, removalMessage);
+       Client client = new Client(masterIp, masterPort, removalMessage);
        client.start();
 
         try {
@@ -270,7 +271,7 @@ public class ManagerApp {
         MasterMessage modificationMessage = new MasterMessage(MODIFY_GAME, gameToModify);
 
 
-        Client client = new Client("127.0.0.1", 43210, modificationMessage);
+        Client client = new Client(masterIp, masterPort, modificationMessage);
         client.start();
 
         String responseToGameModification = null;
@@ -290,7 +291,7 @@ public class ManagerApp {
         String providerName = ManagerApp.scanner.nextLine();
 
         MasterMessage providerAggregationMessage = new MasterMessage(PROVIDER_GAME_PROFITS,providerName);
-        Client client = new Client("127.0.0.1", 43210, providerAggregationMessage);
+        Client client = new Client(masterIp, masterPort, providerAggregationMessage);
         client.start();
 
         HashMap<String,BigDecimal> providerGameProfits = null;
@@ -325,7 +326,7 @@ public class ManagerApp {
 
     public static void profitsPerGame(){
         MasterMessage gameAggregationMessage = new MasterMessage(GAMES_PROFITS,null);
-        Client client = new Client("127.0.0.1", 43210, gameAggregationMessage);
+        Client client = new Client(masterIp, masterPort, gameAggregationMessage);
         client.start();
 
         HashMap<String,BigDecimal> gameProfits = null;
@@ -359,7 +360,7 @@ public class ManagerApp {
 
     public static void profitsPerPlayer(){
         MasterMessage playerAggregationMessage = new MasterMessage(PLAYERS_PROFITS,null);
-        Client client = new Client("127.0.0.1", 43210, playerAggregationMessage);
+        Client client = new Client(masterIp, masterPort, playerAggregationMessage);
         client.start();
 
         HashMap<String,BigDecimal> playersProfits = null;
@@ -422,7 +423,7 @@ public class ManagerApp {
     private static ArrayList<Game> getAndDisplayActiveGames(){
         MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
 
-        Client client = new Client("127.0.0.1",43210,message);
+        Client client = new Client(masterIp,masterPort,message);
 
         client.start();
 
@@ -464,7 +465,7 @@ public class ManagerApp {
     private static ArrayList<Game> getAndDisplayAllGames(){
         MasterMessage message = new MasterMessage(GET_ALL_GAMES, null);
 
-        Client client = new Client("127.0.0.1",43210,message);
+        Client client = new Client(masterIp,masterPort,message);
 
         client.start();
 
@@ -504,6 +505,14 @@ public class ManagerApp {
 
     public static void main(String[] args) {
         ManagerApp.scanner = new Scanner(System.in);
+
+        // load servers configurations
+        ConfigLoader.loadConfig("system_network_config.conf");
+
+        // Get Master's ip and port
+        ManagerApp.masterIp = ConfigLoader.getIp("MASTER");
+        ManagerApp.masterPort = ConfigLoader.getPort("MASTER");
+
         startConsoleMenu ();
     }
 

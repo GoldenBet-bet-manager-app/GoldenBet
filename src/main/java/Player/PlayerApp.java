@@ -8,7 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import utils.ConfigLoader;
+
+
 public class PlayerApp {
+
+    // static variables for network communication
+    private static String masterIp;
+    private static int masterPort;
 
     private Player currentPlayer;
     private BigDecimal tokenBalance;
@@ -58,7 +65,7 @@ public class PlayerApp {
         }
 
         SearchFilters filters = new SearchFilters ( playerId, minStars, maxStars, betLimit, riskLevel );
-        SearchClient searchClient = new SearchClient ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.SEARCH, filters ), this );
+        SearchClient searchClient = new SearchClient ( masterIp, masterPort, new MasterMessage ( MasterMessageType.SEARCH, filters ), this );
         searchClient.start ( );
     }
 
@@ -72,7 +79,7 @@ public class PlayerApp {
             throw new IllegalArgumentException ( "Προσοχή: Δεν έχετε αρκετά FUN." );
 
         Bet bet = new Bet ( amount, currentPlayer.getPlayerId(), gameName );
-        Client playClient = new Client ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.PLAY, bet ) );
+        Client playClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.PLAY, bet ) );
         playClient.start ( );
         playClient.join ();
 
@@ -86,6 +93,7 @@ public class PlayerApp {
             BigDecimal payout = (BigDecimal) response;
             this.tokenBalance = this.tokenBalance.subtract ( amount );
             System.out.println ( "Αφαιρέθηκαν: " + bet.getAmount ( ) +" FUN" );
+
             if ( payout.compareTo ( BigDecimal.ZERO ) > 0 ) {
                 System.out.println ( "Συγχαρητήρια! Κερδίσατε " + payout + " FUN!" );
                 addBalance ( payout );
@@ -116,9 +124,11 @@ public class PlayerApp {
             throw new IllegalArgumentException("Προσοχή: Η βαθμολογία πρέπει να είναι από 1.0 έως 5.0, με βήμα μισού αστεριού (π.χ. 1.0, 1.5, 2.0, 2.5...).");
         if ( gamePlayedStatus.getOrDefault ( gameName, false ) ) {
             Rating rating = new Rating ( currentPlayer.getPlayerId ( ), gameName, stars );
-            Client ratingClient = new Client ( "127.0.0.1", 43210, new MasterMessage ( MasterMessageType.RATE, rating ) );
+
+            Client ratingClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.RATE, rating ) );
             ratingClient.start ( );
             ratingClient.join ();
+
             Object response = ratingClient.getResponse ( );
             if ( response instanceof String )
                 System.out.println ( response );
@@ -274,6 +284,15 @@ public class PlayerApp {
     }
 
     public static void main (String[] args) {
+
+        // load servers configurations
+        ConfigLoader.loadConfig("system_network_config.conf");
+
+        // Get Master's ip and port
+        masterIp = ConfigLoader.getIp("MASTER");
+        masterPort = ConfigLoader.getPort("MASTER");
+
+
         Scanner sc = new Scanner ( System.in );
         System.out.println ( "============== Εγγραφή / Είσοδος Παίκτη ==========" );
         System.out.print ( "Όνομα: " );

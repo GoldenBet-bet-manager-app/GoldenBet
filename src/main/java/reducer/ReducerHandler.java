@@ -12,15 +12,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static reducer.Reducer.numberOfWorkers;
 
 public class ReducerHandler extends Thread{
 
     private final HashMap<Integer, AggregationBox> resultsBuffer;
     private final Socket connection;
 
-    private final String masterIp;
-    private final int masterPort;
+    private final String masterListenerIp;
+    private final int masterListenerPort;
 
 
     public ReducerHandler(Socket connection, HashMap<Integer, AggregationBox> resultsBuffer,
@@ -28,8 +27,8 @@ public class ReducerHandler extends Thread{
 
         this.resultsBuffer = resultsBuffer;
         this.connection = connection;
-        this.masterIp = masterIp;
-        this.masterPort = masterPort;
+        this.masterListenerIp = masterIp;
+        this.masterListenerPort = masterPort;
     }
 
 
@@ -44,10 +43,10 @@ public class ReducerHandler extends Thread{
                 processAggregation(message);
             else{
 
-                synchronized (numberOfWorkers){
-                    numberOfWorkers--;
-                }
-                System.out.println("The number of workers decreased to " +  numberOfWorkers +
+
+                Reducer.setNumberOfWorkers(Reducer.getNumberOfWorkers()-1);
+
+                System.out.println("The number of workers decreased to " +  Reducer.getNumberOfWorkers() +
                         " after the failure of worker " + (Integer) message.getPayload());
 
             }
@@ -94,15 +93,15 @@ public class ReducerHandler extends Thread{
                 resultsBuffer.put(currentMapId, currentBox);
             }
 
-            synchronized (numberOfWorkers) {
-                if (currentBox.getReceivedResponses() == numberOfWorkers) {
 
-                    Object finalPayload = currentBox.getGamesFromWorkers();
-                    newMessage = new MasterMessage(finalPayload, currentMapId);
+            if (currentBox.getReceivedResponses() == Reducer.getNumberOfWorkers()) {
 
-                    resultsBuffer.remove(currentMapId);
-                }
+                Object finalPayload = currentBox.getGamesFromWorkers();
+                newMessage = new MasterMessage(finalPayload, currentMapId);
+
+                resultsBuffer.remove(currentMapId);
             }
+
         }
 
         if (newMessage != null) {
@@ -113,7 +112,7 @@ public class ReducerHandler extends Thread{
 
     private void sendGamesToMaster(MasterMessage message){
 
-        try(Socket s = new Socket(masterIp, masterPort);
+        try(Socket s = new Socket(masterListenerIp, masterListenerPort);
             ObjectOutputStream outMaster = new ObjectOutputStream(s.getOutputStream());){
 
             outMaster.writeObject(message);
