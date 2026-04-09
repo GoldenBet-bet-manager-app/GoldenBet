@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3982966c-fd9b-4819-9741-e28a3a06cb67" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Client/Client.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Client/SearchClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Manager/ManagerApp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Master/Master.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Master/MasterHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Master/ResultBox.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Player/PlayerApp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Worker/Worker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Worker/WorkerHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/generator/GeneratorHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/generator/RandomNumberGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/generator/SRGServer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/Bet.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/Game.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/Manager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/MasterMessage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/MasterMessageType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/PlayBackUp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/Player.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/Rating.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/SHA256Generator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/SearchFilters.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/models/WorkerInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/AggregationBox.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/GameListBox.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/Reducer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/ReducerHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/StatsMapBox.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/utils/ConfigLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/system_network_config.conf" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "vmpanos"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/GoldenBet-bet-manager-app/GoldenBet.git",
+    "accountId": "e179da99-ad75-48c0-9adb-1ad547f45b86"
+  }
+}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="3C7Nmo5vfCVlqDZAZrNM67lmhYH" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ManagerApp.executor": "Run",
+    "Application.Master.executor": "Run",
+    "Application.PlayerApp.executor": "Run",
+    "Application.Reducer.executor": "Run",
+    "Application.Worker.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/vasilis/Documents/projects/GoldenBet",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.Worker">
+    <configuration name="ManagerApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Manager.ManagerApp" />
+      <module name="GoldenBet" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Manager.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Master" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Master.Master" />
+      <module name="GoldenBet" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Master.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PlayerApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Player.PlayerApp" />
+      <module name="GoldenBet" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Player.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Reducer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="reducer.Reducer" />
+      <module name="GoldenBet" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="reducer.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Worker" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Worker.Worker" />
+      <module name="GoldenBet" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Worker.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Worker" />
+        <item itemvalue="Application.Reducer" />
+        <item itemvalue="Application.Master" />
+        <item itemvalue="Application.ManagerApp" />
+        <item itemvalue="Application.PlayerApp" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3982966c-fd9b-4819-9741-e28a3a06cb67" name="Changes" comment="" />
+      <created>1775732811038</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775732811038</updated>
+    </task>
+    <servers />
+  </component>
+</project>
