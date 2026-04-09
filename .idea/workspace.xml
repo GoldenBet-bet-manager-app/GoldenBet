@@ -4,43 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3982966c-fd9b-4819-9741-e28a3a06cb67" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Client/Client.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Client/SearchClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Manager/ManagerApp.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Master/Master.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Master/MasterHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Master/ResultBox.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Player/PlayerApp.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Worker/Worker.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Worker/WorkerHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/generator/GeneratorHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/generator/RandomNumberGenerator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/generator/SRGServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/Bet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/Game.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/Manager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/MasterMessage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/MasterMessageType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/PlayBackUp.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/Player.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/Rating.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/SHA256Generator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/SearchFilters.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/WorkerInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/AggregationBox.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/GameListBox.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/Reducer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/ReducerHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/StatsMapBox.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utils/ConfigLoader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/system_network_config.conf" beforeDir="false" />
+    <list default="true" id="3982966c-fd9b-4819-9741-e28a3a06cb67" name="Changes" comment="ΕΚΑΝΑ BONUS .ΑΛΛΑΓΕΣ ΣΕ MASTERHANDLER KAI WORKERHANDLER">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Master/MasterHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Master/MasterHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Player/PlayerApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Player/PlayerApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Worker/WorkerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Worker/WorkerHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/games/Dragon'sLair.json" beforeDir="false" afterPath="$PROJECT_DIR$/games/Dragon'sLair.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/games/FruitFiesta.json" beforeDir="false" afterPath="$PROJECT_DIR$/games/FruitFiesta.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/games/GatesOfOlympus.json" beforeDir="false" afterPath="$PROJECT_DIR$/games/GatesOfOlympus.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/games/Pharaoh'sDynasty.json" beforeDir="false" afterPath="$PROJECT_DIR$/games/Pharaoh'sDynasty.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/games/Pirate'sBounty.json" beforeDir="false" afterPath="$PROJECT_DIR$/games/Pirate'sBounty.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,18 +23,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "vmpanos"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;vmpanos&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/GoldenBet-bet-manager-app/GoldenBet.git",
-    "accountId": "e179da99-ad75-48c0-9adb-1ad547f45b86"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/GoldenBet-bet-manager-app/GoldenBet.git&quot;,
+    &quot;accountId&quot;: &quot;e179da99-ad75-48c0-9adb-1ad547f45b86&quot;
   }
-}]]></component>
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 8
@@ -77,7 +53,7 @@
     "Application.Master.executor": "Run",
     "Application.PlayerApp.executor": "Run",
     "Application.Reducer.executor": "Run",
-    "Application.Worker.executor": "Run",
+    "Application.Worker.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -155,13 +131,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.ManagerApp" />
+      <item itemvalue="Application.Reducer" />
+      <item itemvalue="Application.Worker" />
+      <item itemvalue="Application.PlayerApp" />
+      <item itemvalue="Application.Master" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Worker" />
+        <item itemvalue="Application.PlayerApp" />
         <item itemvalue="Application.Reducer" />
         <item itemvalue="Application.Master" />
         <item itemvalue="Application.ManagerApp" />
-        <item itemvalue="Application.PlayerApp" />
       </list>
     </recent_temporary>
   </component>
@@ -181,5 +164,9 @@
       <updated>1775732811038</updated>
     </task>
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="ΕΚΑΝΑ BONUS .ΑΛΛΑΓΕΣ ΣΕ MASTERHANDLER KAI WORKERHANDLER" />
+    <option name="LAST_COMMIT_MESSAGE" value="ΕΚΑΝΑ BONUS .ΑΛΛΑΓΕΣ ΣΕ MASTERHANDLER KAI WORKERHANDLER" />
   </component>
 </project>

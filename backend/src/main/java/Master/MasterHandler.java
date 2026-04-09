@@ -108,26 +108,33 @@ public class MasterHandler extends Thread {
         Object response = sendRequestToWorker ( target, message, true, false);
         System.out.println(response!=null);
 
-        if ( response != null ) {
-            // Backup property of a game is set true when sent to the backup worker
-            if(message.getType() == MasterMessageType.ADD_GAME)
-                ((Game) message.getPayload()).setBackUp(true);
-
-            if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
-                System.out.println ( "Συγχρονισμός δεδομένων με τον Backup Worker " + backupIndex + "..." );
-                sendRequestToWorker ( backupTarget, message, false, false);
-            } else {
-                BigDecimal payout = (BigDecimal) response;
-                Bet originalBet = (Bet) message.getPayload ( );
-                PlayBackUp playBackUp = new PlayBackUp ( payout, originalBet );
-                sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false, false);
-            }
-        } else {
-            System.out.println ( "Ο Primary Worker με id: " + gameWorkerIndex + " έπεσε!!! " +
-                    "Δρομολόγηση στον Backup Worker με id: " + backupIndex );
-            response = sendRequestToWorker ( backupTarget, message, true, true );
+        if (response == null) {
+            System.out.println("Ο Primary Worker με id: " + gameWorkerIndex + " έπεσε!!! Δρομολόγηση στον Backup Worker με id: " + backupIndex);
+            response = sendRequestToWorker(backupTarget, message, true, true);
+            out.writeObject(response);
+            out.flush();
+            return;
         }
 
+        if ( message.getType ( ).equals ( MasterMessageType.ADD_GAME ) )
+            ((Game) message.getPayload ( )).setBackUp ( true );
+
+        if ( message.getType().equals (MasterMessageType.RATE ) && response instanceof String)
+            System.out.println ( "Επιστράφηκε μήνυμα λάθους στην αξιολόγηση. Ακύρωση Backup Data." );
+
+        else if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
+            System.out.println ( "Συγχρονισμός δεδομένων με τον Backup Worker " + backupIndex + "..." );
+            sendRequestToWorker ( backupTarget, message, false, false );
+        }
+        else if ( response instanceof BigDecimal ) {
+            BigDecimal payout = (BigDecimal) response;
+            Bet originalBet = (Bet) message.getPayload ( );
+            PlayBackUp playBackUp = new PlayBackUp ( payout, originalBet );
+            sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false, false );
+        }
+        else if (message.getType ( ).equals ( MasterMessageType.PLAY ) && response instanceof String){
+            System.out.println ( "Επιστράφηκε μήνυμα λάθους από το ποντάρισμα. Ακύρωση Backup Data." );
+        }
         out.writeObject ( response );
         out.flush ( );
     }

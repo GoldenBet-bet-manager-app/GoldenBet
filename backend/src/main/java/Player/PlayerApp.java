@@ -52,15 +52,21 @@ public class PlayerApp {
             throw new IllegalArgumentException("Προσοχή: Το ελάχιστο όριο αστεριών δεν μπορεί να είναι μεγαλύτερο από το μέγιστο.");
         }
 
-        if ( betLimit != null && !betLimit.trim().isEmpty() ) {
-            if ( !betLimit.equals("$") && !betLimit.equals("$$") && !betLimit.equals("$$$") ) {
-                throw new IllegalArgumentException("Προσοχή: Το όριο πονταρίσματος πρέπει να είναι $, $$ ή $$$.");
+        if ( betLimit != null && !betLimit.isEmpty ( ) ) {
+            String[] limits = betLimit.split ( "," );
+            for ( String limit : limits ) {
+                if ( !limit.trim ( ).equals ( "$" ) && !limit.trim ( ).equals ( "$$" ) && !limit.trim ( ).equals ( "$$$" ) ) {
+                    throw new IllegalArgumentException ( "Προσοχή: Τα όρια πονταρίσματος πρέπει να είναι $, $$ ή $$$." );
+                }
             }
         }
 
-        if ( riskLevel != null && !riskLevel.trim().isEmpty() ) {
-            if ( !riskLevel.equalsIgnoreCase("low") && !riskLevel.equalsIgnoreCase("medium") && !riskLevel.equalsIgnoreCase("high") ) {
-                throw new IllegalArgumentException("Προσοχή: Το επίπεδο ρίσκου πρέπει να είναι low, medium ή high.");
+        if ( riskLevel != null && !riskLevel.trim ( ).isEmpty ( ) ) {
+            String[] risks = riskLevel.split ( "," );
+            for ( String risk : risks ) {
+                if ( !risk.trim ( ).equalsIgnoreCase ( "low" ) && !risk.trim ( ).equalsIgnoreCase ( "medium" ) && !risk.trim ( ).equalsIgnoreCase ( "high" ) ) {
+                    throw new IllegalArgumentException ( "Προσοχή: Το επίπεδο ρίσκου πρέπει να είναι low, medium ή high." );
+                }
             }
         }
 
@@ -137,7 +143,7 @@ public class PlayerApp {
             else
                 System.out.println ( "Σφάλμα: Δεν λάβαμε απάντηση από τον Master." );
         } else {
-            throw new IllegalArgumentException ( "Προσοχή: Δεν μπορείτε να βαθμολογήσετε το παιχνίδι '" + gameName + "' γιατί δεν το έχετε παίξει ακόμα!" );
+            throw new IllegalArgumentException ( "Προσοχή: Δεν μπορείτε να βαθμολογήσετε το παιχνίδι " + gameName + " γιατί δεν το έχετε παίξει ακόμα!" );
         }
     }
 
@@ -179,7 +185,6 @@ public class PlayerApp {
 
 
     private void handleRate (Scanner sc, PlayerApp currentplayer) throws InterruptedException {
-        ArrayList<Game> availableGames = searchedGames;
         System.out.print ( "Πληκτρολογήστε το όνομα του παιχνιδιού που θέλετε να βαθμολογήσετε: " );
         String gameToRate = sc.nextLine ( );
         System.out.print ( "Δώστε βαθμολογία από 1.0 έως 5.0, με βήμα μισού αστεριού (π.χ. 1.0, 1.5, 2.0, 2.5...): ");
@@ -190,36 +195,35 @@ public class PlayerApp {
     private void addsearchfilters (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
         projectIsActive = false;
         System.out.println ( "\n--- Κριτήρια Αναζήτησης ---" );
-        System.out.print ( "Δώστε Αστέρια (π.χ. 4) ή Εύρος (π.χ. 3-4.5) ή Enter για κανένα φίλτρο: " );
-        String searchStars = sc.nextLine ( ).trim ( );
         float minSearchStars = 1.0f;
         float maxSearchStars = 5.0f;
+
+        System.out.print ( "Δώστε Αστέρια (π.χ. 4) ή Εύρος (π.χ. 3-4.5) ή Enter για κανένα φίλτρο: " );
+        String searchStars = sc.nextLine ( ).trim ( );
 
         if ( !searchStars.isEmpty ( ) ) {
             try {
                 if ( searchStars.contains ( "-" ) ) {
                     String[] parts = searchStars.split ( "-" );
-                    minSearchStars = Float.parseFloat ( parts[ 0 ].trim () );
-                    maxSearchStars = Float.parseFloat ( parts[ 1 ].trim () );
+                    minSearchStars = Float.parseFloat ( parts[ 0 ].trim ( ) );
+                    maxSearchStars = Float.parseFloat ( parts[ 1 ].trim ( ) );
                 } else {
                     minSearchStars = Float.parseFloat ( searchStars );
                     maxSearchStars = Float.parseFloat ( searchStars );
                 }
             } catch (NumberFormatException e) {
-                System.out.println ( "Μη έγκυρη μορφή αστεριών. Το φίλτρο δεν θα εφαρμοστεί." );
-                minSearchStars = 1.0f;
-                maxSearchStars = 5.0f;
-            }
+            System.out.println ( "Λάθος: Μη έγκυρη μορφή αριθμού. Παρακαλώ εισάγετε αριθμούς (π.χ. '4' ή '3.5-5').\n" );
+        }
         }
 
         System.out.println ( "\n--- Όρια Πονταρίσματος ---" );
         System.out.println ( "Ελάχιστο ποντάρισμα 0.1 FUN -> $" );
         System.out.println ( "Ελάχιστο ποντάρισμα 1 FUN -> $$" );
         System.out.println ( "Ελάχιστο ποντάρισμα 5 FUN -> $$$" );
-        System.out.print ( "Όριο Πονταρίσματος ($, $$, $$$) ή πατήστε Enter για κανένα φίλτρο: " );
+        System.out.print ( "Όριο Πονταρίσματος ($, $$, $$$) [Χωρίστε με κόμμα για πολλαπλά, π.χ. $, $$] ή Enter: " );
         String searchBetLimit = sc.nextLine ( ).trim ( );
 
-        System.out.print ( "Επίπεδο Ρίσκου (low, medium, high) ή πατήστε Enter για κανένα φίλτρο: " );
+        System.out.print ( "Επίπεδο Ρίσκου (low, medium, high) [Χωρίστε με κόμμα για πολλαπλά, π.χ. low, medium] ή Enter: " );
         String searchRiskLevel = sc.nextLine ( ).trim ( );
 
         currentplayer.search ( myPlayer.getPlayerId ( ), minSearchStars, maxSearchStars, searchBetLimit, searchRiskLevel );

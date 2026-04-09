@@ -354,7 +354,7 @@ public class WorkerHandler extends Thread {
 
 private void updateProfits(Bet bet,BigDecimal payout) {
     Game game = myGames.get ( bet.getGameName ( ) );
-    BigDecimal playerProfit, gameprofit = BigDecimal.ZERO;
+    BigDecimal  gameprofit = BigDecimal.ZERO;
 
 
     try {
@@ -435,12 +435,28 @@ private void updateProfits(Bet bet,BigDecimal payout) {
                 if ( game.isActive ( ) ) {
                     boolean condition1 = game.getStars() < filters.getMinstars() || game.getStars() > filters.getMaxstars();
 
-                    boolean condition2=filters.getRiskLevel() != null && !filters.getRiskLevel().trim ().isEmpty() &&
-                            !game.getRiskLevel().equalsIgnoreCase(filters.getRiskLevel());
-
-                    boolean condition3=filters.getBetCategory() != null && !filters.getBetCategory().trim().isEmpty() &&
-                            !game.getBetCategory().equals(filters.getBetCategory());
-
+                    boolean condition2= false;
+                    if (filters.getRiskLevel() != null && !filters.getRiskLevel().trim().isEmpty()) {
+                        condition2 = true;
+                        String[] risks = filters.getRiskLevel().split(",");
+                        for (String risk : risks) {
+                            if (game.getRiskLevel().equalsIgnoreCase(risk.trim())) {
+                                condition2 = false;
+                                break;
+                            }
+                        }
+                    }
+                    boolean condition3=false;
+                    if(filters.getBetCategory ()!=null && !filters.getBetCategory ().trim ().isEmpty ()){
+                        condition3=true;
+                        String[] bets=filters.getBetCategory ().split ( "," );
+                        for(String b:bets){
+                            if (game.getBetCategory ().equalsIgnoreCase(b.trim())) {
+                                condition3 = false;
+                                break;
+                            }
+                        }
+                    }
 
                     if(!condition1 && !condition2 && !condition3){
                         matchedGames.add ( game );
