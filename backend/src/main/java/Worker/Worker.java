@@ -28,7 +28,7 @@ public class Worker {
             int index = Integer.parseInt(args[0]);
 
             // Load the central configuration file
-            ConfigLoader.loadConfig("backend/system_network_config.conf");
+            ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
 
             // Initialize the Worker instance
             Worker worker = new Worker();

@@ -290,7 +290,7 @@ public class PlayerApp {
     public static void main (String[] args) {
 
         // load servers configurations
-        ConfigLoader.loadConfig("backend/system_network_config.conf");
+        ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
 
         // Get Master's ip and port
         masterIp = ConfigLoader.getIp("MASTER");

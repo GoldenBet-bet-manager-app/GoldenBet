@@ -12,7 +12,7 @@ public class Reducer {
 
     public static void main(String []args){
         // Load the centralized configuration file
-        ConfigLoader.loadConfig("backend/system_network_config.conf");
+        ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
 
 
         Reducer reducer = new Reducer();

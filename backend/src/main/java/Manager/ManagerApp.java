@@ -113,7 +113,7 @@ public class ManagerApp {
     }
 
     public static void addGame() {
-        ArrayList<File> jsonFiles = showGamesList("games", "Add");
+        ArrayList<File> jsonFiles = showGamesList("src/main/resources/games", "Add");
 
         // When there are no json files in games folder
         if (jsonFiles == null){return;}
@@ -507,7 +507,7 @@ public class ManagerApp {
         ManagerApp.scanner = new Scanner(System.in);
 
         // load servers configurations
-        ConfigLoader.loadConfig("backend/system_network_config.conf");
+        ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
 
         // Get Master's ip and port
         ManagerApp.masterIp = ConfigLoader.getIp("MASTER");

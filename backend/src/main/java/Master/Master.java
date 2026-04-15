@@ -17,7 +17,7 @@ public class Master{
 
     public static void main(String []args) {
 
-        ConfigLoader.loadConfig("backend/system_network_config.conf");
+        ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
 
         masterPort = ConfigLoader.getPort("MASTER");
         reducerListenerPort = ConfigLoader.getPort("MASTER_REDUCER_LISTENER");
