@@ -2,4 +2,19 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+
+    <color name="luxury_red">#8B0000</color>
+    <color name="casino_black">#121212</color>
+    <color name="card_dark">#1E1E1E</color>
+    <color name="text_light">#E0E0E0</color>
+    <color name="bg_light">#F5F5F5</color>
+    <color name="card_light">#FFFFFF</color>
+    <color name="text_dark">#212121</color>
+    <color name="input_bg_dark">#2C2C2C</color>
+    <color name="input_bg_light">#EBEBEB</color>
+    <color name="gold_dark">#B8860B</color>
+    <color name="gold_classic">#C6930A</color>
+
 </resources>
