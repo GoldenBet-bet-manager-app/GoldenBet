@@ -76,7 +76,8 @@ public class PlayerApp {
     }
 
 
-    public void play (String gameName, BigDecimal amount) throws InterruptedException {
+    public BigDecimal play (String gameName, BigDecimal amount) throws InterruptedException {
+        BigDecimal payout=BigDecimal.ZERO;
         if ( gameName == null || gameName.trim ( ).isEmpty ( ) )
             throw new IllegalArgumentException ( "Προσοχή: Μη έγκυρο όνομα παιχνιδιού" );
         if ( amount.compareTo ( BigDecimal.ZERO ) <= 0 )
@@ -96,7 +97,7 @@ public class PlayerApp {
             System.out.println ( response );
         else if ( response instanceof BigDecimal ) {
             changeGamePlayedStatus ( bet.getGameName( ) );
-            BigDecimal payout = (BigDecimal) response;
+            payout = (BigDecimal) response;
             this.tokenBalance = this.tokenBalance.subtract ( amount );
             System.out.println ( "Αφαιρέθηκαν: " + bet.getAmount ( ) +" FUN" );
 
@@ -107,6 +108,8 @@ public class PlayerApp {
                 System.out.println ( "Δυστυχώς δεν κερδίσατε αυτή τη φορά. Καλή τύχη στο επόμενο ποντάρισμα!" );
         } else
             System.out.println ( "Προσοχή: Δεν λάβαμε απάντηση από τον Master." );
+
+        return payout;
     }
 
     public void addBalance (BigDecimal amount) {
@@ -212,8 +215,8 @@ public class PlayerApp {
                     maxSearchStars = Float.parseFloat ( searchStars );
                 }
             } catch (NumberFormatException e) {
-            System.out.println ( "Λάθος: Μη έγκυρη μορφή αριθμού. Παρακαλώ εισάγετε αριθμούς (π.χ. '4' ή '3.5-5').\n" );
-        }
+                System.out.println ( "Λάθος: Μη έγκυρη μορφή αριθμού. Παρακαλώ εισάγετε αριθμούς (π.χ. '4' ή '3.5-5').\n" );
+            }
         }
 
         System.out.println ( "\n--- Όρια Πονταρίσματος ---" );
@@ -290,7 +293,7 @@ public class PlayerApp {
     public static void main (String[] args) {
 
         // load servers configurations
-        ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
+        ConfigLoader.loadConfig("backend/system_network_config.conf");
 
         // Get Master's ip and port
         masterIp = ConfigLoader.getIp("MASTER");
