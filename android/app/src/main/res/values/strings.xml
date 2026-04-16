@@ -37,9 +37,39 @@
     <string name="settings_darkMode_label">Dark Mode</string>
 
 
-    <!--activity_language_list-->
+    <!--activity_language_list.xml-->
     <string name="language_list_header">Select Language</string>
     <string name="language_list_query_hint">Search language...</string>
 
+
+    <!--activity_main_menu.xml-->
+    <string name="main_menu_home">Home</string>
+    <string name="main_menu_profile">Profile</string>
+    <string name="main_menu_search">Search</string>
+
+
+    <!--fragment_home.xml-->
+    <string name="fragment_home_hello_message">Welcome,</string>
+    <string name="fragment_home_balance">Current Balance</string>
+    <string name="fragment_home_deposit">Deposit</string>
+    <string name="fragment_home_history">History</string>
+    <string name="fragment_home_statistics">Statistics</string>
+    <string name="fragment_home_ratings">Ratings</string>
+
+
+    <!--fragment_profile.xml-->
+    <string name="profile_account_details">Account Details</string>
+    <string name="profile_username_hint">Username</string>
+    <string name="profile_password_hint">Password</string>
+    <string name="profile_first_name_hint">First Name</string>
+    <string name="profile_last_name_hint">Last Name</string>
+    <string name="profile_email_hint">Email Address</string>
+    <string name="profile_phone_hint">Phone Number</string>
+    <string name="profile_address_label">Residential Address</string>
+    <string name="profile_street_hint">Street</string>
+    <string name="profile_number_hint">No.</string>
+    <string name="profile_city_hint">City</string>
+    <string name="profile_zip_hint">ZIP Code</string>
+    <string name="profile_btn">SAVE CHANGES</string>
 
 </resources>

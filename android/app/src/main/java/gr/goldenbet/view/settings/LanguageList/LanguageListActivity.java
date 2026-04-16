@@ -3,6 +3,7 @@ package gr.goldenbet.view.settings.LanguageList;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;

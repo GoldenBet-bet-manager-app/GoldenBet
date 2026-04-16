@@ -1,45 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GoldenBet</string>
 
 
     <!--activity_login.xml-->
     <string name="login_title">Golden Bet</string>
-    <string name="login_subtitle">Where luck meets luxury</string>
-    <string name="login_username_hint">Username</string>
-    <string name="login_password_hint">Password</string>
-    <string name="login_button_text">LOGIN</string>
-    <string name="login_new_user_text">New to Golden Bet?</string>
-    <string name="login_create_account_text">Create Account</string>
+    <string name="login_subtitle">Εκεί που η τύχη συναντά την πολυτέλεια</string>
+    <string name="login_username_hint">Όνομα χρήστη</string>
+    <string name="login_password_hint">Κωδικός πρόσβασης</string>
+    <string name="login_button_text">ΣΥΝΔΕΣΗ</string>
+    <string name="login_new_user_text">Νέος στο Golden Bet;</string>
+    <string name="login_create_account_text">Δημιουργία Λογαριασμού</string>
 
 
     <!--activity_register.xml-->
-    <string name="register_header">Join the Club</string>
-    <string name="register_username_hint">Username</string>
-    <string name="register_password_hint">Password</string>
-    <string name="register_first_name_hint">First Name</string>
-    <string name="register_last_name_hint">Last Name</string>
-    <string name="register_email_hint">Email Address</string>
-    <string name="register_phone_hint">Phone Number</string>
-    <string name="register_address_label">Residential Address</string>
-    <string name="register_street_hint">Street</string>
-    <string name="register_number_hint">No.</string>
-    <string name="register_city_hint">City</string>
-    <string name="register_zip_hint">ZIP Code</string>
-    <string name="register_btn">CREATE ACCOUNT</string>
-    <string name="register_already_member">Already a member?</string>
-    <string name="register_already_member_signin">Signin.</string>
+    <string name="register_header">Γίνετε μέλος του Club</string>
+    <string name="register_username_hint">Όνομα χρήστη</string>
+    <string name="register_password_hint">Κωδικός πρόσβασης</string>
+    <string name="register_first_name_hint">Όνομα</string>
+    <string name="register_last_name_hint">Επώνυμο</string>
+    <string name="register_email_hint">Διεύθυνση Email</string>
+    <string name="register_phone_hint">Αριθμός Τηλεφώνου</string>
+    <string name="register_address_label">Διεύθυνση Κατοικίας</string>
+    <string name="register_street_hint">Οδός</string>
+    <string name="register_number_hint">Αρ.</string>
+    <string name="register_city_hint">Πόλη</string>
+    <string name="register_zip_hint">Ταχυδρομικός Κώδικας</string>
+    <string name="register_btn">ΔΗΜΙΟΥΡΓΙΑ ΛΟΓΑΡΙΑΣΜΟΥ</string>
+    <string name="register_already_member">Είστε ήδη μέλος;</string>
+    <string name="register_already_member_signin">Είσοδος.</string>
 
 
     <!--activity_settings.xml-->
-    <string name="settings_header">Settings</string>
-    <string name="settings_language_label">Languages</string>
-    <string name="settings_selected_language_name">English</string>
-    <string name="settings_darkMode_label">Dark Mode</string>
+    <string name="settings_header">Ρυθμίσεις</string>
+    <string name="settings_language_label">Γλώσσες</string>
+    <string name="settings_selected_language_name">Ελληνικά</string>
+    <string name="settings_darkMode_label">Σκούρα Λειτουργία</string>
 
 
-    <!--activity_language_list-->
-    <string name="language_list_header">Select Language</string>
-    <string name="language_list_query_hint">Search language...</string>
+    <!--activity_language_list.xml-->
+    <string name="language_list_header">Επιλογή Γλώσσας</string>
+    <string name="language_list_query_hint">Αναζήτηση γλώσσας...</string>
 
 
+    <!--activity_main_menu.xml-->
+    <string name="main_menu_home">Αρχική</string>
+    <string name="main_menu_profile">Προφίλ</string>
+    <string name="main_menu_search">Αναζήτηση</string>
+
+
+    <!--fragment_home.xml-->
+    <string name="fragment_home_hello_message">Καλωσήρθατε</string>
+    <string name="fragment_home_balance">Τρέχον Υπόλοιπο</string>
+    <string name="fragment_home_deposit">Κατάθεση</string>
+    <string name="fragment_home_history">Ιστορικό</string>
+    <string name="fragment_home_statistics">Στατιστικά</string>
+    <string name="fragment_home_ratings">Αξιολογήσεις</string>
+
+
+    <!--fragment_profile.xml-->
+    <string name="profile_account_details">Λεπτομέρειες Λογαριασμού</string>
+    <string name="profile_username_hint">Όνομα χρήστη</string>
+    <string name="profile_password_hint">Κωδικός πρόσβασης</string>
+    <string name="profile_first_name_hint">Όνομα</string>
+    <string name="profile_last_name_hint">Επώνυμο</string>
+    <string name="profile_email_hint">Διεύθυνση Email</string>
+    <string name="profile_phone_hint">Αριθμός Τηλεφώνου</string>
+    <string name="profile_address_label">Διεύθυνση Κατοικίας</string>
+    <string name="profile_street_hint">Οδός</string>
+    <string name="profile_number_hint">Αρ.</string>
+    <string name="profile_city_hint">Πόλη</string>
+    <string name="profile_zip_hint">Ταχυδρομικός Κώδικας</string>
+    <string name="profile_btn">ΑΠΟΘΗΚΕΥΣΗ ΑΛΛΑΓΩΝ</string>
 </resources>

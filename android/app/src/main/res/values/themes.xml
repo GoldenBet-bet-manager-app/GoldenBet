@@ -12,8 +12,13 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="colorSurfaceVariant">@color/input_bg_light</item>
         <item name="colorSecondary">@color/gold_classic</item>
+
     </style>
 
+
+    <style name="CircleImage">
+        <item name="cornerSize">50%</item>
+    </style>
 
     <style name="Theme.GoldenBet" parent="Base.Theme.GoldenBet" />
 </resources>
