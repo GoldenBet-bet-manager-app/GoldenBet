@@ -64,8 +64,9 @@ public class ManagerApp {
             System.out.println ( "3. Αφαίρεση Παιχνιδιού" );
             System.out.println ( "4. Τροποποίηση Παιχνιδιού" );
             System.out.println ( "5. Εμφάνιση κερδών/ζημιών ανά Παιχνίδι" );
-            System.out.println ( "6. Εμφάνιση κερδών/ζημιών ανά Παίκτη" );
-            System.out.println ( "7. Εμφάνιση κερδών/ζημιών ανά Πάροχο" );
+            System.out.println ( "6. Εμφάνιση κερδών/ζημιών ανά Παίκτη (για όλους τους παίκτες)");
+            System.out.println ( "7. Εμφάνιση κερδών/ζημιών ανά Παίκτη (για συγκεκριμένο παίκτη)");
+            System.out.println ( "8. Εμφάνιση κερδών/ζημιών ανά Πάροχο" );
             System.out.println ( "0. Έξοδος" );
             System.out.print ( "Επιλέξτε μια ενέργεια: " );
             String choice = scanner.nextLine();
@@ -97,11 +98,12 @@ public class ManagerApp {
                     profitsPerGame();
                     break;
                 //****************PROFITS/LOSS PER PLAYER****************
-                case "6":
-                    profitsPerPlayer();
+                // For all Player and for a particular one, depending on choice
+                case "6","7":
+                    profitsPerPlayer(choice);
                     break;
                 //****************PROFITS/LOSS PER PROVIDER****************
-                case "7":
+                case "8":
                     profitsPerProvider();
                     break;
                 default:
@@ -358,7 +360,7 @@ public class ManagerApp {
 
     }
 
-    public static void profitsPerPlayer(){
+    public static void profitsPerPlayer(String choice){
         MasterMessage playerAggregationMessage = new MasterMessage(PLAYERS_PROFITS,null);
         Client client = new Client(masterIp, masterPort, playerAggregationMessage);
         client.start();
@@ -374,17 +376,38 @@ public class ManagerApp {
         }
 
         if(playersProfits != null && !playersProfits.isEmpty()){
-            int i=0;
-            System.out.println("*******************PROFITS PER PLAYER*******************");
-            System.out.println("--------------------------------------------------------");
+            String format;
+            String profitStr;
 
-            String format = "%-7s | %-15s | %-15s%n";
-            System.out.printf(format, "Number", "Player Id", "Profit/Loss");
+            // Stats for all Players
+            if (choice.equals("6")) {
+                int i=0;
+                System.out.println("*******************PROFITS/LOSS PER PLAYER*******************");
+                System.out.println("--------------------------------------------------------");
 
-            for (String playerId : playersProfits.keySet()){
-                String profitStr = playersProfits.get(playerId) + " FUN";
-                System.out.printf(format, ++i, playerId, profitStr);            }
+                format = "%-7s | %-15s | %-15s%n";
+                System.out.printf(format, "Number", "Player Id", "Profit/Loss");
+
+                for (String playerId : playersProfits.keySet()){
+                    profitStr = playersProfits.get(playerId) + " FUN";
+                    System.out.printf(format, ++i, playerId, profitStr);            }
+            }
+            // Stats for a particular one
+            else if (choice.equals("7")) {
+                System.out.print("Please, type player's id: ");
+                String playerName = ManagerApp.scanner.nextLine();
+
+                System.out.printf("*******************PROFITS/LOSS for %s*******************\n",playerName);
+                System.out.println("--------------------------------------------------------");
+
+                format = "%-15s | %-15s%n";
+                System.out.printf(format, "Player Id", "Profit/Loss");
+
+                profitStr = playersProfits.get(playerName) + " FUN";
+                System.out.printf(format, playerName, profitStr);
+            }
         }
+
         else{
             System.out.println("No players were found");
         }
