@@ -72,4 +72,27 @@
     <string name="profile_city_hint">Πόλη</string>
     <string name="profile_zip_hint">Ταχυδρομικός Κώδικας</string>
     <string name="profile_btn">ΑΠΟΘΗΚΕΥΣΗ ΑΛΛΑΓΩΝ</string>
+
+
+    <!--HomeFragment.java Toast and dialog messages-->
+    <string name="nav_deposit_msg">Μεταφορά στην Κατάθεση...</string>
+    <string name="nav_history_msg">Άνοιγμα Ιστορικού...</string>
+    <string name="nav_stats_msg">Προβολή Στατιστικών...</string>
+    <string name="nav_ratings_msg">Αξιολογήσεις...</string>
+    <string name="nav_settings_msg">Άνοιγμα ρυθμίσεων</string>
+
+    <!--Logout dialog messages-->
+    <string name="nav_logout_dialog_title">Αποσύνδεση</string>
+    <string name="nav_logout_dialog_msg">Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε από το GoldenBet;</string>
+
+
+    <!--ProfileFragment.java Toast and dialog messages-->
+    <string name="profile_update_success_title">Επιτυχία</string>
+    <string name="profile_update_success_msg">Τα στοιχεία του προφίλ σας ενημερώθηκαν με επιτυχία!</string>
+    <string name="profile_update_error_title">Προσοχή</string>
+    <string name="profile_update_error_msg">Παρουσιάστηκε σφάλμα: %s</string>
+
+    <!--Common messages throughout the application-->
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Ακύρωση</string>
 </resources>
