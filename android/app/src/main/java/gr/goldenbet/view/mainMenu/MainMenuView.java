@@ -4,4 +4,6 @@ public interface MainMenuView {
     void showHome();
     void showSearch();
     void showProfile();
+
+
 }

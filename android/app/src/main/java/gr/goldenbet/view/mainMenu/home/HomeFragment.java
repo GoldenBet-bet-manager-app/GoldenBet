@@ -17,6 +17,8 @@ import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentHomeBinding;
 import gr.goldenbet.view.login.LoginActivity;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
+import gr.goldenbet.view.mainMenu.home.deposit.DepositFragment;
+import gr.goldenbet.view.settings.settingsMenu.SettingsMenuActivity;
 
 public class HomeFragment extends Fragment implements HomeView {
 
@@ -69,7 +71,19 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToDeposit() {
-        // Εδώ θα καλέσεις το navigation προς την κατάθεση
+
+        Toast.makeText(requireContext(), R.string.nav_deposit_msg, Toast.LENGTH_SHORT).show();
+
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in_right,  // enter
+                        R.anim.slide_out_left,  // exit
+                        R.anim.slide_in_left,   // popEnter
+                        R.anim.slide_out_right  // popExit
+                )
+                .replace(R.id.fragment_container, new DepositFragment())
+                .addToBackStack(null)
+                .commit();
         Toast.makeText(getContext(), R.string.nav_deposit_msg, Toast.LENGTH_SHORT).show();
     }
 
@@ -94,6 +108,7 @@ public class HomeFragment extends Fragment implements HomeView {
                 .setPositiveButton(R.string.common_ok, (dialog, which) -> {
                     Intent intent = new Intent(requireContext(), LoginActivity.class);
 
+                    // clean back stack not to return with back button
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                     startActivity(intent);
@@ -109,6 +124,10 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToSettings(){
+        // requireContext() is used to retrieve the context of the host activity
+        Intent intent = new Intent(requireContext(), SettingsMenuActivity.class);
+        startActivity(intent);
+
         Toast.makeText(getContext(), R.string.nav_settings_msg, Toast.LENGTH_SHORT).show();
     }
 

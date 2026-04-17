@@ -92,6 +92,21 @@
     <string name="profile_update_error_msg">An error occurred: %s</string>
 
 
+    <!--fragment_deposit.xml-->
+    <string name="deposit_header">Deposit</string>
+    <string name="deposit_quick_select">Quick Amount Selection</string>
+    <string name="deposit_custom_amount_hint">Other amount (FUN)</string>
+    <string name="deposit_payment_methods_title">Payment Method</string>
+    <string name="deposit_method_card">Credit / Debit Card</string>
+    <string name="deposit_method_paypal">PayPal</string>
+    <string name="deposit_confirm_btn">DEPOSIT NOW</string>
+
+    <string name="deposit_error_invalid_amount">Please enter a valid amount (min. 10€).</string>
+    <string name="deposit_error_no_method">Please select a payment method.</string>
+    <string name="deposit_success_title">Deposit Successful</string>
+    <string name="deposit_success_msg">An amount of %s has been added to your balance.</string>
+
+
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>
     <string name="common_cancel">Ακύρωση</string>

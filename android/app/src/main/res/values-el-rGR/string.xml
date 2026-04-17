@@ -92,6 +92,21 @@
     <string name="profile_update_error_title">Προσοχή</string>
     <string name="profile_update_error_msg">Παρουσιάστηκε σφάλμα: %s</string>
 
+    <!--fragment_deposit.xml-->
+    <string name="deposit_header">Κατάθεση</string>
+    <string name="deposit_quick_select">Γρήγορη Επιλογή Ποσού</string>
+    <string name="deposit_custom_amount_hint">Άλλο ποσό (FUN)</string>
+    <string name="deposit_payment_methods_title">Τρόπος Πληρωμής</string>
+    <string name="deposit_method_card">Πιστωτική / Χρεωστική Κάρτα</string>
+    <string name="deposit_method_paypal">PayPal</string>
+    <string name="deposit_confirm_btn">ΚΑΤΑΘΕΣΗ ΤΩΡΑ</string>
+
+    <string name="deposit_error_invalid_amount">Παρακαλώ εισάγετε ένα έγκυρο ποσό (ελάχ. 10€).</string>
+    <string name="deposit_error_no_method">Παρακαλώ επιλέξτε τρόπο πληρωμής.</string>
+    <string name="deposit_success_title">Επιτυχής Κατάθεση</string>
+    <string name="deposit_success_msg">Το ποσό των %s προστέθηκε στο υπόλοιπό σας.</string>
+
+
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>
     <string name="common_cancel">Ακύρωση</string>

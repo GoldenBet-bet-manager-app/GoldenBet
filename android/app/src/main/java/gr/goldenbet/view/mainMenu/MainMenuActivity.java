@@ -47,6 +47,7 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
             presenter.onNavigationItemSelected(item.getItemId());
             return true;
         });
+
     }
 
     @Override
@@ -63,6 +64,9 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
     public void showProfile() {
         replaceFragment(new ProfileFragment());
     }
+
+
+
     private void replaceFragment(Fragment fragment){
 
         FragmentManager fragmentManager = getSupportFragmentManager();

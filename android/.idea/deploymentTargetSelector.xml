@@ -8,6 +8,7 @@
       </SelectionState>
       <SelectionState runConfigName="LoginActivity">
         <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="MainMenuActivity">
         <option name="selectionMode" value="DROPDOWN" />

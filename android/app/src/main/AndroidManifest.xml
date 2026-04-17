@@ -12,13 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GoldenBet">
         <activity
-            android:name=".view.mainMenu.MainMenuActivity"
-            android:exported="true" />
-        <activity
-            android:name=".view.settings.LanguageList.LanguageListActivity"
-            android:exported="true" />
-        <activity
             android:name=".view.settings.settingsMenu.SettingsMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.mainMenu.MainMenuActivity"
             android:exported="true" />
         <activity
             android:name=".view.register.RegisterActivity"
