@@ -9,7 +9,6 @@ public class MainMenuPresenter {
         this.view = view;
     }
 
-    // Η λογική πλοήγησης μεταφέρθηκε εδώ
     public void onNavigationItemSelected(int itemId) {
         if (itemId == R.id.main_menu_home) {
             view.showHome();
