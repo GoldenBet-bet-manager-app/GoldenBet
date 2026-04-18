@@ -1,70 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="?android:attr/windowBackground"
-    tools:context=".view.mainMenu.Rate.RateFragment">
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/bg_light"
+    android:gravity="center_horizontal">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:text="@string/rate_title"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_dark"
+        android:layout_marginBottom="32dp"
+        android:gravity="center" />
 
-        <TextView
-            android:id="@+id/etTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="30dp"
-            android:text="Βαθμολογήστε την εμπειρία σας από κάποιο παιχνιίδι "
-            android:textAlignment="center"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/rate_game_hint"
+        app:boxStrokeColor="@color/gold_classic"
+        android:layout_marginBottom="32dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteGameName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
-            android:hint="Επιλέξτε Παιχνίδι">
+            android:inputType="none"
+            android:textColor="@color/text_dark" />
 
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteGameName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:text=""
-                android:textAlignment="center"
-                android:textStyle="bold" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        </com.google.android.material.textfield.TextInputLayout>
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="0.5"
+        android:progressTint="@color/gold_classic"
+        android:secondaryProgressTint="@color/gold_glow"
+        android:layout_marginBottom="48dp" />
 
-        <RatingBar
-            android:id="@+id/ratingBar"
-            style="?android:attr/ratingBarStyleIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
-            android:isIndicator="false"
-            android:numStars="5"
-            android:progressTint="?attr/colorPrimary"
-            android:stepSize="0.5" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSubmitRate"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/rate_submit_btn"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/luxury_red"
+        android:textColor="@color/white" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSubmitRate"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="ΕΠΙΒΕΒΑΙΩΣΗ ΑΞΙΟΛΟΓΗΣΗΣ"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="?attr/colorPrimary"
-            app:cornerRadius="12dp" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</LinearLayout>

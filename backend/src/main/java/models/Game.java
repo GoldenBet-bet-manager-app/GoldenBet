@@ -103,6 +103,9 @@ public class Game implements Serializable {
     public float getStars ( ) {
         return stars;
     }
+    public float getDisplayStars() {
+        return Math.round(stars * 2) / 2.0f;
+    }
 
     public void setStars (float stars) {
         this.stars = stars;

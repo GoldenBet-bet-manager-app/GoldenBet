@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
+import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentRateBinding;
 
 public class RateFragment extends Fragment implements RateView {
@@ -32,11 +34,9 @@ public class RateFragment extends Fragment implements RateView {
 
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         binding = FragmentRateBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -44,28 +44,30 @@ public class RateFragment extends Fragment implements RateView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         presenter = new RatePresenter(this);
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, games
         );
         binding.autoCompleteGameName.setAdapter(adapter);
+
         binding.btnSubmitRate.setOnClickListener(v -> {
             currentstars = binding.ratingBar.getRating();
-            currentGameName=binding.autoCompleteGameName.getText().toString();
-            presenter.onRateClicked(currentGameName,currentstars);
+            currentGameName = binding.autoCompleteGameName.getText().toString();
+            presenter.onRateClicked(currentGameName, currentstars);
         });
-
     }
-
 
     @Override
-    public void showMessage(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    public void showMessage(int messageResId) {
+        Toast.makeText(getContext(), getString(messageResId), Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     public void clearRateForm() {
-        currentstars=0.0f;
+        currentstars = 0.0f;
         binding.ratingBar.setRating(0.0f);
         binding.autoCompleteGameName.setText("");
     }
