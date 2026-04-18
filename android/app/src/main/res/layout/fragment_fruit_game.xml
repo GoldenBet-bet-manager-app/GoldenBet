@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1A1A1A"
+    tools:context=".view.Games.FruitGame.FruitGameFragment">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4"
+        android:scaleType="centerCrop"
+        android:src="@drawable/gates_of_olympus_logo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:shadowColor="#FF000000"
+            android:shadowDx="2"
+            android:shadowDy="4"
+            android:shadowRadius="4"
+            android:text="xxxxxxxxxxxxx"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvbalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:shadowColor="#FF000000"
+            android:shadowDx="2"
+            android:shadowDy="4"
+            android:shadowRadius="4"
+            android:text="XXXXXXXXXX"
+            android:textColor="#EDF0ED"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <GridLayout
+            android:id="@+id/slotGrid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:background="#60000000"
+            android:columnCount="3"
+            android:padding="10dp"
+            android:rowCount="3">
+
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+            <TextView android:layout_width="70dp" android:layout_height="70dp" android:layout_margin="4dp" android:background="#50FFFFFF" android:gravity="center" android:text="x" android:textSize="40sp" android:textStyle="bold" />
+
+        </GridLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/betInputCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="32dp"
+            app:cardBackgroundColor="#80000000"
+            app:cardCornerRadius="25dp"
+            app:cardElevation="0dp">
+
+            <EditText
+                android:id="@+id/etbetAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:hint="Ποντάρισμα "
+                android:inputType="numberDecimal"
+                android:padding="16dp"
+                android:textColor="#FFD700"
+                android:textColorHint="#A0A0A0"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/spinButtonCard"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="50dp"
+            app:cardElevation="8dp">
+
+            <ImageButton
+                android:id="@+id/spinButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:scaleType="centerCrop"
+                android:src="@drawable/spin" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tvresult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:shadowColor="#FF000000"
+            android:shadowDx="2"
+            android:shadowDy="4"
+            android:shadowRadius="4"
+            android:text="xxxxxxxx"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</FrameLayout>

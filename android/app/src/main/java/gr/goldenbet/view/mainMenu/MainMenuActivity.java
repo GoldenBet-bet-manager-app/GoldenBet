@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.ActivityMainMenuBinding;
+import gr.goldenbet.view.mainMenu.Rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.HomeFragment;
 import gr.goldenbet.view.mainMenu.profile.ProfileFragment;
 import gr.goldenbet.view.mainMenu.search.SearchFragment;
@@ -63,6 +64,12 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
     public void showProfile() {
         replaceFragment(new ProfileFragment());
     }
+
+    @Override
+    public void showRate() {
+        replaceFragment(new RateFragment());
+    }
+
     private void replaceFragment(Fragment fragment){
 
         FragmentManager fragmentManager = getSupportFragmentManager();

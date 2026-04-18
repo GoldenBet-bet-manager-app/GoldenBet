@@ -78,6 +78,8 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToRatings() {
+        if (getActivity() instanceof MainMenuActivity)
+            ((MainMenuActivity) getActivity()).showRate();
         Toast.makeText(getContext(), "Αξιολογήσεις...", Toast.LENGTH_SHORT).show();
     }
 

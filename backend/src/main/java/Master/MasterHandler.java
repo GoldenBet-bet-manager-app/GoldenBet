@@ -1,21 +1,18 @@
 package Master;
 
-import Worker.Worker;
+
 import models.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static java.util.UUID.randomUUID;
 
-/**
- *  Χειρίζεται την επικοινωνία του Master με τους πελάτες (Παίκτες ή Managers).
- */
+
 public class MasterHandler extends Thread {
 
 
@@ -88,14 +85,6 @@ public class MasterHandler extends Thread {
         }
     }
 
-    /**
-     * Δρομολογεί ένα αίτημα σε έναν συγκεκριμένο Worker με βάση το όνομα του παιχνιδιού.
-     * Περιμένει την απάντηση και την επιστρέφει απευθείας στον πελάτη.
-     *
-     * @param message   Το μήνυμα αναζήτησης
-     * @param gameName  Το όνομα του παιχνιδιού για να βρεθεί ο σωστός Worker
-     * @param actionLog Περίπτωση ενέργειας
-     */
     private void routeToSingleWorker (MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
 
         int numOfWorkers = workers.size ( );
@@ -109,7 +98,7 @@ public class MasterHandler extends Thread {
         System.out.println(response!=null);
 
         if (response == null) {
-            System.out.println("Ο Primary Worker με id: " + gameWorkerIndex + " έπεσε!!! Δρομολόγηση στον Backup Worker με id: " + backupIndex);
+            System.out.println("Primary Worker with id: " + gameWorkerIndex + " failed!!! Routing to Backup Worker with id: " + backupIndex);
             response = sendRequestToWorker(backupTarget, message, true, true);
             out.writeObject(response);
             out.flush();
@@ -120,10 +109,10 @@ public class MasterHandler extends Thread {
             ((Game) message.getPayload ( )).setBackUp ( true );
 
         if ( message.getType().equals (MasterMessageType.RATE ) && response instanceof String)
-            System.out.println ( "Επιστράφηκε μήνυμα λάθους στην αξιολόγηση. Ακύρωση Backup Data." );
+            System.out.println ( "Error message returned during rating. Canceling Backup Data." );
 
         else if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
-            System.out.println ( "Συγχρονισμός δεδομένων με τον Backup Worker " + backupIndex + "..." );
+            System.out.println ( "Synchronizing data with Backup Worker " + backupIndex + "..." );
             sendRequestToWorker ( backupTarget, message, false, false );
         }
         else if ( response instanceof BigDecimal ) {
@@ -133,18 +122,13 @@ public class MasterHandler extends Thread {
             sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false, false );
         }
         else if (message.getType ( ).equals ( MasterMessageType.PLAY ) && response instanceof String){
-            System.out.println ( "Επιστράφηκε μήνυμα λάθους από το ποντάρισμα. Ακύρωση Backup Data." );
+            System.out.println ( "Error message returned from betting. Canceling Backup Data." );
         }
         out.writeObject ( response );
         out.flush ( );
     }
 
 
-    /**
-     * Εκτελεί τη διαδικασία MapReduce για αναζητήσεις, περιμένει μέχρι ο Reducer
-     * να φέρει το τελικό αποτέλεσμα στο ResultBox.
-     * @param message Το μήνυμα που εξυπηρετούμε
-     */
     private void executeMapReducePhase (MasterMessage message) throws IOException, ClassNotFoundException {
 
 
@@ -204,13 +188,6 @@ public class MasterHandler extends Thread {
         out.flush();
     }
 
-    /**
-     * Ανοίγει σύνδεση με έναν Worker, περιμένει το ACK και του στέλνει το μήνυμα.
-     * @param target Ο Worker που θα λάβει το μήνυμα
-     * @param message Το μήνυμα που εξυπηρετούμε
-     * @param expectResponse Διαχείριση επιστροφής
-     * @return Την απάντηση του Worker ή null αν δε συνδεθεί με τον Worker μετά από έναν συγκεκριμένο αριθμό προσπαθειών
-     */
     private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse, boolean includeBackUps) throws IOException, ClassNotFoundException {
 
         // In case worker is already failed
@@ -273,12 +250,6 @@ public class MasterHandler extends Thread {
         return null;
     }
 
-    /**
-     * Υπολογίζει σε ποιον Worker ανήκει ένα παιχνίδι κάνοντας hash το όνομά του.
-     * @param gameName Το όνομα του παιχνιδιού
-     * @param numbersOfWorkers Το συνολικό πλήθος των Workers
-     * @return Το index του υπεύθυνου Worker
-     */
     private int hashGameToWorker(String gameName,int numbersOfWorkers){
 
         int hash = Math.abs(gameName.hashCode());
@@ -323,14 +294,7 @@ public class MasterHandler extends Thread {
         return false;
     }
 
-    /**
-     * Ενημερώνει την κατάσταση του Worker τοπικά στο Master ως failed και
-     * στέλνει broadcast μήνυμα στους υπόλοιπους workers, ώστε να ενημερωθεί
-     * ο reducer για τη μείωση του αριθμού των ενεργών workers
-     * @param failedWorker ο Worker που τέθηκε εκτός λειτουργίας
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
+
     private void markWorkerAsFailed(WorkerInfo failedWorker) throws IOException, ClassNotFoundException {
 
         // In case worker was already failed

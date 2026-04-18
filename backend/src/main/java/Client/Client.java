@@ -32,10 +32,10 @@ public class Client extends Thread {
         } catch (UnknownHostException unknownHost) {
             System.err.println ( "You are trying to connect to an unknown host!" );
         } catch (IOException e) {
-            System.err.println ( "Σφάλμα I/O στην επικοινωνία με την πόρτα " + port );
+            System.err.println ( "I/O error in communication with port " + port );
             e.printStackTrace ( );
         } catch (ClassNotFoundException e) {
-            System.err.println ( "Η κλάση του αντικειμένου που διαβάστηκε δεν βρέθηκε!" );
+            System.err.println ( "The class of the read object was not found!" );
             e.printStackTrace ( );
         }
     }

@@ -108,7 +108,7 @@ public class WorkerHandler extends Thread {
             }catch (IllegalArgumentException | IllegalStateException e) {
                 response =  e.getMessage();
             } catch (IOException | ClassNotFoundException e) {
-                response = "ΣΦΑΛΜΑ ΕΣΩΤΕΡΙΚΗΣ ΕΠΙΚΟΙΝΩΝΙΑΣ (SRG/Reducer): " + e.getMessage();
+                response = "INTERNAL COMMUNICATION ERROR (SRG/Reducer): " + e.getMessage();
                 System.err.println("Worker " + workerId + " internal network error: " + e.getMessage());
             }
 
@@ -324,22 +324,22 @@ public class WorkerHandler extends Thread {
 
     private BigDecimal CalculateProfit (Bet bet) throws IOException, ClassNotFoundException {
         BigDecimal payout = BigDecimal.ZERO;
-        if ( bet == null ) throw new IllegalArgumentException ( "Το ποντάρισμα Bet δεν μπορεί να είναι null." );
+        if ( bet == null ) throw new IllegalArgumentException ( "The Bet cannot be null." );
         Game game = myGames.get ( bet.getGameName ( ) );
         if ( game == null ) {
-            throw new IllegalArgumentException ( "Το παιχνίδι '" + bet.getGameName ( ) + "' δεν βρέθηκε σε αυτόν τον Worker." );
+            throw new IllegalArgumentException ( "The game '" + bet.getGameName ( ) + "' was not found on this Worker." );
         }
 
         if ( bet.getAmount ( ).compareTo ( game.getMinBet ( ) ) < 0 || bet.getAmount ( ).compareTo ( game.getMaxBet ( ) ) > 0 ) {
-            throw new IllegalArgumentException ( "Ακυρώθηκε: Το ποντάρισμα πρέπει να είναι μεταξύ "
-                    + game.getMinBet ( ) + " και " + game.getMaxBet ( ) + " tokens." );
+            throw new IllegalArgumentException ( "Cancelled: The bet must be between "
+                    + game.getMinBet ( ) + " and " + game.getMaxBet ( ) + " tokens." );
         }
 
         int index;
         BigDecimal[] gameMultiplies;
         int random = getSecuredRandomNumber ( game.getGameName ( ) );
         if ( random == -1 )
-            throw new IllegalStateException ( "Τεχνικό Πρόβλημα: Ακυρώθηκε το ποντάρισμα λόγω αδυναμίας παραγωγής ασφαλούς τυχαίου αριθμού." );
+            throw new IllegalStateException ( "Technical Issue: Bet cancelled due to failure to generate a secure random number." );
 
         if ( random % 100 == 0 ) {
             payout = bet.getAmount ( ).multiply ( game.getJackpot ( ) );
@@ -352,33 +352,33 @@ public class WorkerHandler extends Thread {
         return payout;
     }
 
-private void updateProfits(Bet bet,BigDecimal payout) {
-    Game game = myGames.get ( bet.getGameName ( ) );
-    BigDecimal  gameprofit = BigDecimal.ZERO;
+    private void updateProfits(Bet bet,BigDecimal payout) {
+        Game game = myGames.get ( bet.getGameName ( ) );
+        BigDecimal  gameprofit = BigDecimal.ZERO;
 
 
-    try {
-        if (game.isBackUp()) {
-            synchronized (backupPlayersProfits) { // Κλειδώνεις απευθείας το πεδίο της κλάσης
-                updatePlayerProfitsMap(backupPlayersProfits, bet, payout);
+        try {
+            if (game.isBackUp()) {
+                synchronized (backupPlayersProfits) { // Κλειδώνεις απευθείας το πεδίο της κλάσης
+                    updatePlayerProfitsMap(backupPlayersProfits, bet, payout);
+                }
+            } else {
+                synchronized (primaryPlayersProfits) { // Κλειδώνεις απευθείας το πεδίο της κλάσης
+                    updatePlayerProfitsMap(primaryPlayersProfits, bet, payout);
+                }
             }
-        } else {
-            synchronized (primaryPlayersProfits) { // Κλειδώνεις απευθείας το πεδίο της κλάσης
-                updatePlayerProfitsMap(primaryPlayersProfits, bet, payout);
+
+            synchronized (gamesProfits) {
+                gameprofit = gamesProfits.getOrDefault ( game.getGameName ( ), BigDecimal.ZERO );
+                gameprofit = gameprofit.add ( bet.getAmount ( ) );
+                gameprofit = gameprofit.subtract ( payout );
+                gamesProfits.put ( game.getGameName ( ), gameprofit );
             }
-        }
 
-        synchronized (gamesProfits) {
-            gameprofit = gamesProfits.getOrDefault ( game.getGameName ( ), BigDecimal.ZERO );
-            gameprofit = gameprofit.add ( bet.getAmount ( ) );
-            gameprofit = gameprofit.subtract ( payout );
-            gamesProfits.put ( game.getGameName ( ), gameprofit );
+        } catch (Exception e) {
+            System.err.println ( "Error while updating profit HashMaps: " + e.getMessage ( ) );
         }
-
-    } catch (Exception e) {
-        System.err.println ( "Σφάλμα κατά την ενημέρωση των HashMaps κερδών: " + e.getMessage ( ) );
     }
-}
 
     // auxiliary method to update player profits maps after play
     private void updatePlayerProfitsMap(HashMap<String, BigDecimal> map, Bet bet, BigDecimal payout) {
@@ -391,7 +391,7 @@ private void updateProfits(Bet bet,BigDecimal payout) {
     private int getSecuredRandomNumber(String gameName) throws IOException, ClassNotFoundException, IllegalArgumentException{
 
         if ( gameName == null || gameName.trim ( ).isEmpty ( ) ) {
-            throw new IllegalArgumentException ( "Το όνομα του παιχνιδιού για τον SRG δεν μπορεί να είναι κενό." );
+            throw new IllegalArgumentException ( "The game name for SRG cannot be empty." );
         }
 
         Game g = myGames.get ( gameName );
@@ -413,10 +413,10 @@ private void updateProfits(Bet bet,BigDecimal payout) {
             int randomNumber = requestIn.readInt();
             String receivedHash = (String) requestIn.readObject();
             if (randomNumber == -1) {
-                throw new IllegalStateException("SRG Error: Ο SRGServer απάντησε ότι δεν βρήκε το παιχνίδι '" + gameName);
+                throw new IllegalStateException("SRG Error: SRGServer responded that it did not find the game '" + gameName);
             }
             if (!(computeSHA256(randomNumber + secret)).equals(receivedHash)) {
-                throw new IllegalStateException("SECURE Error: Τα δύο hashes δεν είναι ίδια. Πιθανή παραβίαση SRG!");
+                throw new IllegalStateException("SECURE Error: The two hashes do not match. Possible SRG breach!");
 
             }
             return randomNumber;
@@ -426,7 +426,7 @@ private void updateProfits(Bet bet,BigDecimal payout) {
 
     private ArrayList<Game> searchGames(SearchFilters filters) {
 
-        if (filters == null) throw new IllegalArgumentException("Τα φίλτρα αναζήτησης δεν μπορεί να είναι null.");
+        if (filters == null) throw new IllegalArgumentException("Search filters cannot be null.");
 
         ArrayList<Game> matchedGames = new ArrayList<>();
         for (Game game : myGames.values()) {
@@ -470,12 +470,12 @@ private void updateProfits(Bet bet,BigDecimal payout) {
 
     private float averageRate(Rating rating) {
 
-        if (rating == null) throw new IllegalArgumentException("Η αξιολόγηση  δεν μπορεί να είναι null.");
+        if (rating == null) throw new IllegalArgumentException("The rating cannot be null.");
         if (rating.getGameName() == null || rating.getGameName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Το όνομα του παιχνιδιού δεν μπορεί να είναι κενό.");
+            throw new IllegalArgumentException("The game name cannot be empty.");
         }
         if (rating.getStars() < 1 || rating.getStars() > 5) {
-            throw new IllegalArgumentException("Η βαθμολογία πρέπει να είναι από 1 έως 5 αστέρια.");
+            throw new IllegalArgumentException("The rating must be from 1 to 5 stars.");
         }
 
         Game game = myGames.get(rating.getGameName());
@@ -492,7 +492,7 @@ private void updateProfits(Bet bet,BigDecimal payout) {
             return average;
 
         } else {
-            throw new IllegalArgumentException("Το παιχνίδι δεν βρέθηκε σε αυτόν τον Worker.");
+            throw new IllegalArgumentException("The game was not found on this Worker.");
         }
     }
 }

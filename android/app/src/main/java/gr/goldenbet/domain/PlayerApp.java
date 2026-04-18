@@ -15,7 +15,7 @@ public class PlayerApp {
     private static int masterPort;
 
     private Player currentPlayer;
-    private BigDecimal tokenBalance;
+    private BigDecimal balance;
     private Boolean projectIsActive;
     private HashMap<String, Boolean> gamePlayedStatus = new HashMap<> ( );
     private ArrayList<Game> searchedGames=new ArrayList<> ();
@@ -30,11 +30,11 @@ public class PlayerApp {
 
     public PlayerApp (Player currentPlayer) {
         this.currentPlayer = currentPlayer;
-        this.tokenBalance = BigDecimal.ZERO;
+        this.balance = BigDecimal.ZERO;
     }
 
-    public BigDecimal getTokenBalance ( ) {
-        return tokenBalance;
+    public BigDecimal getBalance ( ) {
+        return balance;
     }
 
 
@@ -79,7 +79,7 @@ public class PlayerApp {
             throw new IllegalArgumentException ( "Προσοχή: Μη έγκυρο όνομα παιχνιδιού" );
         if ( amount.compareTo ( BigDecimal.ZERO ) <= 0 )
             throw new IllegalArgumentException ( "Προσοχή: Το ποντάρισμα δεν μπορεί να είναι αρνητικό ή μηδέν" );
-        if ( amount.compareTo ( this.tokenBalance ) > 0 )
+        if ( amount.compareTo ( this.balance ) > 0 )
             throw new IllegalArgumentException ( "Προσοχή: Δεν έχετε αρκετά FUN." );
 
         Bet bet = new Bet ( amount, currentPlayer.getPlayerId(), gameName );
@@ -95,7 +95,7 @@ public class PlayerApp {
         else if ( response instanceof BigDecimal ) {
             changeGamePlayedStatus ( bet.getGameName( ) );
             payout = (BigDecimal) response;
-            this.tokenBalance = this.tokenBalance.subtract ( amount );
+            this.balance = this.balance.subtract ( amount );
             System.out.println ( "Αφαιρέθηκαν: " + bet.getAmount ( ) +" FUN" );
 
             if ( payout.compareTo ( BigDecimal.ZERO ) > 0 ) {
@@ -112,8 +112,8 @@ public class PlayerApp {
     public void addBalance (BigDecimal amount) {
         if ( amount.compareTo ( BigDecimal.ZERO ) <= 0 )
             throw new IllegalArgumentException ( "Προσοχή: Το πλήθος των FUN δεν μπορεί να είναι αρνητικό ή μηδέν" );
-        this.tokenBalance = this.tokenBalance.add ( amount );
-        System.out.println ( "Επιτυχής κατάθεση!\nΝέο διαθέσιμο υπόλοιπο: " + this.tokenBalance + " FUN." );
+        this.balance = this.balance.add ( amount );
+        System.out.println ( "Επιτυχής κατάθεση!\nΝέο διαθέσιμο υπόλοιπο: " + this.balance + " FUN." );
     }
 
 
@@ -160,44 +160,8 @@ public class PlayerApp {
         return contain;
     }
 
-    private void addsearchfilters (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
-        projectIsActive = false;
-        System.out.println ( "\n--- Κριτήρια Αναζήτησης ---" );
-        float minSearchStars = 1.0f;
-        float maxSearchStars = 5.0f;
 
-        System.out.print ( "Δώστε Αστέρια (π.χ. 4) ή Εύρος (π.χ. 3-4.5) ή Enter για κανένα φίλτρο: " );
-        String searchStars = sc.nextLine ( ).trim ( );
-
-        if ( !searchStars.isEmpty ( ) ) {
-            try {
-                if ( searchStars.contains ( "-" ) ) {
-                    String[] parts = searchStars.split ( "-" );
-                    minSearchStars = Float.parseFloat ( parts[ 0 ].trim ( ) );
-                    maxSearchStars = Float.parseFloat ( parts[ 1 ].trim ( ) );
-                } else {
-                    minSearchStars = Float.parseFloat ( searchStars );
-                    maxSearchStars = Float.parseFloat ( searchStars );
-                }
-            } catch (NumberFormatException e) {
-            System.out.println ( "Λάθος: Μη έγκυρη μορφή αριθμού. Παρακαλώ εισάγετε αριθμούς (π.χ. '4' ή '3.5-5').\n" );
-        }
-        }
-
-        System.out.println ( "\n--- Όρια Πονταρίσματος ---" );
-        System.out.println ( "Ελάχιστο ποντάρισμα 0.1 FUN -> $" );
-        System.out.println ( "Ελάχιστο ποντάρισμα 1 FUN -> $$" );
-        System.out.println ( "Ελάχιστο ποντάρισμα 5 FUN -> $$$" );
-        System.out.print ( "Όριο Πονταρίσματος ($, $$, $$$) [Χωρίστε με κόμμα για πολλαπλά, π.χ. $, $$] ή Enter: " );
-        String searchBetLimit = sc.nextLine ( ).trim ( );
-
-        System.out.print ( "Επίπεδο Ρίσκου (low, medium, high) [Χωρίστε με κόμμα για πολλαπλά, π.χ. low, medium] ή Enter: " );
-        String searchRiskLevel = sc.nextLine ( ).trim ( );
-
-        currentplayer.search ( myPlayer.getPlayerId ( ), minSearchStars, maxSearchStars, searchBetLimit, searchRiskLevel );
-    }
-
-    private void projectavailablegames (Scanner sc, PlayerApp currentplayer, Player myPlayer) {
+    private void projectavailablegames ( PlayerApp currentplayer, Player myPlayer) {
         projectIsActive = true;
         currentplayer.search ( myPlayer.getPlayerId ( ), 1.0f,5.0f, "","" );
     }
