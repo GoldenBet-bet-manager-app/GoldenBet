@@ -43,7 +43,6 @@ public class MasterHandler extends Thread {
 
             switch (type) {
                 case ADD_GAME:
-                    System.out.println("Hello from master");
                     Game gameToAdd = (Game) message.getPayload ( );
                     routeToSingleWorker ( message, gameToAdd.getGameName ( ), "add" );
                     break;

@@ -59,16 +59,16 @@ public class ManagerApp {
 
         while (running) {
             System.out.println ( "\n=========== ΜΕΝΟΥ ΔΙΑΧΕΙΡΙΣΗΣ ===========" );
-            System.out.println ( "1. Εμφάνιση παιχνιδιών" );
-            System.out.println ( "2. Προσθήκη Παιχνιδιού" );
-            System.out.println ( "3. Αφαίρεση Παιχνιδιού" );
-            System.out.println ( "4. Τροποποίηση Παιχνιδιού" );
-            System.out.println ( "5. Εμφάνιση κερδών/ζημιών ανά Παιχνίδι" );
-            System.out.println ( "6. Εμφάνιση κερδών/ζημιών ανά Παίκτη (για όλους τους παίκτες)");
-            System.out.println ( "7. Εμφάνιση κερδών/ζημιών ανά Παίκτη (για συγκεκριμένο παίκτη)");
-            System.out.println ( "8. Εμφάνιση κερδών/ζημιών ανά Πάροχο" );
-            System.out.println ( "0. Έξοδος" );
-            System.out.print ( "Επιλέξτε μια ενέργεια: " );
+            System.out.println ( "1. Display games" );
+            System.out.println ( "2. Add game" );
+            System.out.println ( "3. Remove game" );
+            System.out.println ( "4. Modify game" );
+            System.out.println ( "5. Display Profit/Loss per game" );
+            System.out.println ( "6. Display Profit/Loss per player (for all players)");
+            System.out.println ( "7. Display Profit/Loss per player (for a particular player)");
+            System.out.println ( "8. Display Profit/Loss per provider" );
+            System.out.println ( "0. Exit" );
+            System.out.print ( "Select an action: " );
             String choice = scanner.nextLine();
             ArrayList<File> jsonFiles;
 
@@ -107,7 +107,7 @@ public class ManagerApp {
                     profitsPerProvider();
                     break;
                 default:
-                    System.out.println("Λανθασμένη επιλογή, δώστε τον αριθμό λειτουργίας (0-6)");
+                    System.out.println("Wrong choice, type a valid operation number (0-6)");
                     break;
             }
         }
@@ -143,9 +143,9 @@ public class ManagerApp {
                     jsonObject.getString("HashKey")
             );
             } catch (IOException e) {
-                System.err.println("Σφάλμα κατά την ανάγνωση του αρχείου: " + e.getMessage());
+                System.err.println("Error reading JSON file: " + e.getMessage());
             } catch (JSONException e) {
-                System.err.println("Σφάλμα στη δομή του JSON: " + e.getMessage());
+                System.err.println("Error in JSON's structure: " + e.getMessage());
             }
 
 
@@ -203,69 +203,70 @@ public class ManagerApp {
         boolean endModify = false;
 
         while(!endModify) {
-            System.out.println("\n--- Τροποποίηση Παιχνιδιού: " + gameToModify.getGameName() + " ---");
-            System.out.println("1. Όνομα Παρόχου (Τρέχον: " + gameToModify.getProviderName() + ")");
-            System.out.println("2. Επίπεδο Ρίσκου (Τρέχον: " + gameToModify.getRiskLevel() + ")");
-            System.out.println("3. Ελάχιστο Ποντάρισμα (Τρέχον: " + gameToModify.getMinBet() + ")");
-            System.out.println("4. Μέγιστο Ποντάρισμα (Τρέχον: " + gameToModify.getMaxBet() + ")");
-            System.out.println("5. Path Λογοτύπου (Τρέχον: " + gameToModify.getGameLogo() + ")");
-            System.out.println("6. Αποθήκευση αλλαγών και επιστροφή στο Μενού");
-            System.out.println("0. Ακύρωση αλλαγών και επιστροφή στο Μενού");
-            System.out.print("Επιλέξτε πεδίο προς αλλαγή: ");
+            System.out.println("\n--- Game Modification: " + gameToModify.getGameName() + " ---");
+            System.out.println("1. Provider name (Current: " + gameToModify.getProviderName() + ")");
+            System.out.println("2. Risk level (Current: " + gameToModify.getRiskLevel() + ")");
+            System.out.println("3. Min Bet (Current: " + gameToModify.getMinBet() + ")");
+            System.out.println("4. Max Bet (Current: " + gameToModify.getMaxBet() + ")");
+            System.out.println("5. Logo Path (Path: " + gameToModify.getGameLogo() + ")");
+            System.out.println("6. Save changes and return to menu");
+            System.out.println("0. Cancel changes and return to menu");
+            System.out.print("Select field to modify: ");
 
             String choice = scanner.nextLine();
 
             switch (choice) {
                 case "1":
-                    System.out.print("Νέο όνομα παρόχου: ");
+                    System.out.print("New provider name: ");
                     gameToModify.setProviderName(scanner.nextLine());
                     break;
 
                 case "2":
-                    System.out.print("Νέο επίπεδο ρίσκου (low, medium, high): ");
+                    System.out.print("New risk level (low, medium, high): ");
                     String newRisk = scanner.nextLine().toLowerCase();
                     if (newRisk.equals("low") || newRisk.equals("medium") || newRisk.equals("high")) {
                         gameToModify.setRiskLevel(newRisk);
                     } else {
-                        System.out.println("Άκυρη τιμή ρίσκου.");
+                        System.out.println("Invalid risk value.");
                         return;
                     }
                     break;
 
                 case "3":
-                    System.out.print("Νέο ελάχιστο ποντάρισμα (π.χ. 0.1, 1, 5): ");
+                    System.out.print("New min bet (e.g. 0.1, 1, 5): ");
                     try {
                         java.math.BigDecimal min = new java.math.BigDecimal(scanner.nextLine());
                         gameToModify.setMinBet(min);
                     } catch (NumberFormatException e) {
-                        System.out.println("Μη έγκυρος αριθμός.");
+                        System.out.println("Non vallid number.");
                         return;
                     }
                     break;
 
                 case "4":
-                    System.out.print("Νέο μέγιστο ποντάρισμα: ");
+                    System.out.print("New max bet: ");
                     try {
                         gameToModify.setMaxBet(new java.math.BigDecimal(scanner.nextLine()));
                     } catch (NumberFormatException e) {
-                        System.out.println("Μη έγκυρος αριθμός.");
+                        System.out.println("Non valid number.");
                         return;
                     }
                     break;
 
                 case "5":
-                    System.out.print("Νέο path λογοτύπου: ");
+                    System.out.print("New logo path: ");
                     gameToModify.setGameLogo(scanner.nextLine());
                     break;
                 case "6":
                     endModify = true;
+                    System.out.println("Changes were saved.");
                     break;
                 case "0":
-                    System.out.println("Οι αλλαγές ακυρώθηκαν.");
+                    System.out.println("Changes were canceled.");
                     return;
 
                 default:
-                    System.out.println("Λανθασμένη επιλογή.");
+                    System.out.println("Wrong choice.");
                     return;
             }
         }

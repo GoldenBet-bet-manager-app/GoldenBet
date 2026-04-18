@@ -3,7 +3,7 @@ package Master;
 import models.MasterMessage;
 
 /**
- *  Κουτί αναμονής για ενα συγκεκριμένο mapId
+ *  Wait box for a particular mapId
  */
 public class ResultBox {
 

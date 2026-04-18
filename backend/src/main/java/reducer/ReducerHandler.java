@@ -120,7 +120,7 @@ public class ReducerHandler extends Thread{
             System.out.println("Sending final result back to Master completed successfully");
 
         }catch (Exception e){
-            System.err.println("Σφάλμα αποστολής στον Master: " + e.getMessage());
+            System.err.println("Error sending to Master: " + e.getMessage());
         }
     }
 
