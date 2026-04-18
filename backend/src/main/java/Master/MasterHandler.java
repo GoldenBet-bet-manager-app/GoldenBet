@@ -98,6 +98,11 @@ public class MasterHandler extends Thread {
 
         if (response == null) {
             System.out.println("Primary Worker with id: " + gameWorkerIndex + " failed!!! Routing to Backup Worker with id: " + backupIndex);
+
+            // If we try to re add game on backup worker not to consider it primary
+            if ( message.getType ( ).equals ( MasterMessageType.ADD_GAME ) )
+                ((Game) message.getPayload ( )).setBackUp ( true );
+
             response = sendRequestToWorker(backupTarget, message, true, true);
             out.writeObject(response);
             out.flush();
@@ -123,6 +128,7 @@ public class MasterHandler extends Thread {
         else if (message.getType ( ).equals ( MasterMessageType.PLAY ) && response instanceof String){
             System.out.println ( "Error message returned from betting. Canceling Backup Data." );
         }
+
         out.writeObject ( response );
         out.flush ( );
     }
