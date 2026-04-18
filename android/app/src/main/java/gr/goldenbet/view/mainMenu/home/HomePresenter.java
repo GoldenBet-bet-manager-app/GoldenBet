@@ -16,4 +16,7 @@ public class HomePresenter {
     public void onHistoryClicked() { view.navigateToHistory(); }
     public void onStatsClicked() { view.navigateToStats(); }
     public void onRatingsClicked() { view.navigateToRatings(); }
+    public void onLogoutCLicked() { view.navigateToLogin();}
+    public void onSettingsClicked() {view.navigateToSettings();}
+
 }

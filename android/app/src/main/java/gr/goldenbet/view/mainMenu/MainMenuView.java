@@ -5,4 +5,6 @@ public interface MainMenuView {
     void showSearch();
     void showProfile();
     void showRate();
+
+
 }

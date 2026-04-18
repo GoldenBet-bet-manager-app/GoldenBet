@@ -74,4 +74,42 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+
+    <!--HomeFragment.java Toast and dialog messages-->
+    <string name="nav_deposit_msg">Redirecting to Deposit...</string>
+    <string name="nav_history_msg">Opening History...</string>
+    <string name="nav_stats_msg">Viewing Statistics...</string>
+    <string name="nav_ratings_msg">Opening Ratings...</string>
+    <string name="nav_settings_msg">Opening Settings</string>
+
+    <!--Logout dialog messages-->
+    <string name="nav_logout_dialog_title">Logout</string>
+    <string name="nav_logout_dialog_msg">Are you sure you want to logout from GoldenBet?</string>
+
+
+    <!--ProfileFragment.java Toast and dialog messages-->
+    <string name="profile_update_success_title">Success</string>
+    <string name="profile_update_success_msg">Your profile details have been updated successfully!</string>
+    <string name="profile_update_error_title">Attention</string>
+    <string name="profile_update_error_msg">An error occurred: %s</string>
+
+
+    <!--fragment_deposit.xml-->
+    <string name="deposit_header">Deposit</string>
+    <string name="deposit_quick_select">Quick Amount Selection</string>
+    <string name="deposit_custom_amount_hint">Other amount (FUN)</string>
+    <string name="deposit_payment_methods_title">Payment Method</string>
+    <string name="deposit_method_card">Credit / Debit Card</string>
+    <string name="deposit_method_paypal">PayPal</string>
+    <string name="deposit_confirm_btn">DEPOSIT NOW</string>
+
+    <string name="deposit_error_invalid_amount">Please enter a valid amount (min. 10€).</string>
+    <string name="deposit_error_no_method">Please select a payment method.</string>
+    <string name="deposit_success_title">Deposit Successful</string>
+    <string name="deposit_success_msg">An amount of %s has been added to your balance.</string>
+
+
+    <!--Common messages throughout the application-->
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Ακύρωση</string>
 </resources>

@@ -8,4 +8,6 @@ public interface HomeView {
     void navigateToHistory();
     void navigateToStats();
     void navigateToRatings();
+    void navigateToLogin();
+    void navigateToSettings();
 }
