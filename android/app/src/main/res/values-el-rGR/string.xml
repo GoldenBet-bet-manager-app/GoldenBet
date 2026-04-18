@@ -106,6 +106,12 @@
     <string name="deposit_success_title">Επιτυχής Κατάθεση</string>
     <string name="deposit_success_msg">Το ποσό των %s προστέθηκε στο υπόλοιπό σας.</string>
 
+    <!--fragment_rate.xml-->
+    <string name="rate_title">Αξιολόγηση Παιχνιδιού</string>
+    <string name="rate_game_hint">Επιλέξτε παιχνίδι</string>
+    <string name="rate_submit_btn">ΥΠΟΒΟΛΗ ΑΞΙΟΛΟΓΗΣΗΣ</string>
+    <string name="rate_error_no_game">Παρακαλώ επιλέξτε ένα παιχνίδι από τη λίστα!</string>
+    <string name="rate_error_invalid_stars">Η βαθμολογία πρέπει να είναι μεταξύ 1 και 5 αστέρια (με βήμα μισού αστεριού)!</string>
 
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>

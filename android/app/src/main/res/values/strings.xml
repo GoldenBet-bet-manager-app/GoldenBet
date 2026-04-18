@@ -108,6 +108,12 @@
     <string name="deposit_success_title">Deposit Successful</string>
     <string name="deposit_success_msg">An amount of %s has been added to your balance.</string>
 
+    <!--fragment_rate.xml-->
+    <string name="rate_title">Rate a Game</string>
+    <string name="rate_game_hint">Select a game</string>
+    <string name="rate_submit_btn">SUBMIT RATING</string>
+    <string name="rate_error_no_game">Please select a game from the list!</string>
+    <string name="rate_error_invalid_stars">TThe rating must be between 1 and 5 stars (in half-star increments)!</string>
 
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>

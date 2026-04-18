@@ -486,10 +486,10 @@ public class WorkerHandler extends Thread {
             float newStarRating = rating.getStars();
             float totalStars = (currentStars * currentVotes) + newStarRating;
             int newVotes = currentVotes + 1;
-            float average = Math.round((totalStars / newVotes) * 2) / 2.0f;
+            float average = totalStars / newVotes;
             game.setStars(average);
             game.setVotes(newVotes);
-            return average;
+            return Math.round(average * 2) / 2.0f;
 
         } else {
             throw new IllegalArgumentException("The game was not found on this Worker.");
