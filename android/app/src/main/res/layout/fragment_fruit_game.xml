@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#1A1A1A"
-    tools:context=".view.Games.FruitGame.FruitGameFragment">
+    tools:context=".view.games.fruitgame.FruitGameFragment">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.4"
+        android:alpha="0.3"
         android:scaleType="centerCrop"
         android:src="@drawable/gates_of_olympus_logo" />
 

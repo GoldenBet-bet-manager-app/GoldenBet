@@ -19,9 +19,16 @@ public class Game implements Serializable {
     private BigDecimal[] multipliers;
     private boolean active = true;
     private boolean backUp = false;
+    private String gameCategory;
 
 
+    public String getGameCategory ( ) {
+        return gameCategory;
+    }
 
+    public void setGameCategory (String gameCategory) {
+        this.gameCategory = gameCategory;
+    }
 
     public Game (String gameName, String providerName, float stars, int votes,
                  String gameLogo, BigDecimal minBet, BigDecimal maxBet,

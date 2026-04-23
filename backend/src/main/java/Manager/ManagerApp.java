@@ -141,7 +141,26 @@ public class ManagerApp {
                     jsonObject.getBigDecimal("MaxBet"),
                     jsonObject.getString("RiskLevel"),
                     jsonObject.getString("HashKey")
+
             );
+
+            switch (selectedGame.getGameName()) {
+                case "Gates of Olympus","Fruit Fiesta","Lucky Seven":
+                    selectedGame.setGameCategory ("FRUIT");
+                    break;
+                case "Pharaoh's Dynasty","Dragon's Lair","Pirate's Bounty":
+                    selectedGame.setGameCategory ("WHEEL");
+                    break;
+
+                case "High Roller Poker":
+                    selectedGame.setGameCategory ("POKER");
+                    break;
+                default:
+                    selectedGame.setGameCategory ("GENERAL");
+                    break;
+            }
+
+            System.out.println("Επιτυχής αντιστοίχιση! Το παιχνίδι μπήκε στην κατηγορία: " + selectedGame.getGameCategory ());
             } catch (IOException e) {
                 System.err.println("Error reading JSON file: " + e.getMessage());
             } catch (JSONException e) {

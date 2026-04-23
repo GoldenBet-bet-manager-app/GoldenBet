@@ -1,7 +1,7 @@
 package gr.goldenbet.view.mainMenu;
 
 import android.os.Bundle;
-import android.view.MenuItem;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -13,7 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.ActivityMainMenuBinding;
-import gr.goldenbet.view.mainMenu.Rate.RateFragment;
+import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.HomeFragment;
 import gr.goldenbet.view.mainMenu.profile.ProfileFragment;
 import gr.goldenbet.view.mainMenu.search.SearchFragment;

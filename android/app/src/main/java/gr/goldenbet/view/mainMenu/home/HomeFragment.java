@@ -16,7 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentHomeBinding;
 import gr.goldenbet.view.login.LoginActivity;
-import gr.goldenbet.view.mainMenu.MainMenuActivity;
+import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.deposit.DepositFragment;
 import gr.goldenbet.view.settings.settingsMenu.SettingsMenuActivity;
 
@@ -95,12 +95,21 @@ public class HomeFragment extends Fragment implements HomeView {
     public void navigateToStats() {
         Toast.makeText(getContext(), R.string.nav_stats_msg, Toast.LENGTH_SHORT).show();    }
 
+
     @Override
     public void navigateToRatings() {
-        if (getActivity() instanceof MainMenuActivity)
-            ((MainMenuActivity) getActivity()).showRate();
-        Toast.makeText(getContext(), "Αξιολογήσεις...", Toast.LENGTH_SHORT).show();
+
         Toast.makeText(getContext(), R.string.nav_ratings_msg, Toast.LENGTH_SHORT).show();
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_right
+                )
+                .replace(R.id.fragment_container, new RateFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

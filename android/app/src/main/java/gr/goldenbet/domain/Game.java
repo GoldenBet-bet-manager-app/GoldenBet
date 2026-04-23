@@ -19,14 +19,13 @@ public class Game implements Serializable {
     private BigDecimal[] multipliers;
     private boolean active = true;
     private boolean backUp = false;
+    private String gameCategory;
 
 
-
-
-    public Game (String gameName, String providerName, float stars, int votes,
-                 String gameLogo, BigDecimal minBet, BigDecimal maxBet,
-                 String riskLevel, String hashKey) {
-        super ( );
+    public Game(String gameName, String providerName, float stars, int votes,
+                String gameLogo, BigDecimal minBet, BigDecimal maxBet,
+                String riskLevel, String hashKey) {
+        super();
         this.gameName = gameName;
         this.providerName = providerName;
         this.stars = stars;
@@ -37,17 +36,17 @@ public class Game implements Serializable {
         this.riskLevel = riskLevel;
         this.hashKey = hashKey;
 
-        calculateBetCategory ( );
-        setJackpotAndMultipliers ( );
+        calculateBetCategory();
+        setJackpotAndMultipliers();
     }
 
 
-    public void calculateBetCategory ( ) {
+    public void calculateBetCategory() {
         // If min bet between 0.1 and 1
-        if ( this.minBet.compareTo ( new BigDecimal ( "1.0" ) ) < 0 ) {
+        if (this.minBet.compareTo(new BigDecimal("1.0")) < 0) {
             this.betCategory = "$";
             // If min bet between 1 and 5
-        } else if ( this.minBet.compareTo ( new BigDecimal ( "5.0" ) ) < 0 ) {
+        } else if (this.minBet.compareTo(new BigDecimal("5.0")) < 0) {
             this.betCategory = "$$";
             // If min bet greater than 5
         } else {
@@ -56,131 +55,138 @@ public class Game implements Serializable {
     }
 
 
-    public void setJackpotAndMultipliers ( ) {
-        if ( this.riskLevel.equalsIgnoreCase ( "low" ) ) {
-            setJackpot ( new BigDecimal ( 10 ) );
+    public void setJackpotAndMultipliers() {
+        if (this.riskLevel.equalsIgnoreCase("low")) {
+            setJackpot(new BigDecimal(10));
             this.multipliers = new BigDecimal[]{
                     BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-                    new BigDecimal ( "0.1" ), new BigDecimal ( "0.5" ), BigDecimal.ONE,
-                    new BigDecimal ( "1.1" ), new BigDecimal ( "1.3" ), new BigDecimal ( "2.0" ), new BigDecimal ( "2.5" )
+                    new BigDecimal("0.1"), new BigDecimal("0.5"), BigDecimal.ONE,
+                    new BigDecimal("1.1"), new BigDecimal("1.3"), new BigDecimal("2.0"), new BigDecimal("2.5")
             };
         }
-        if ( this.riskLevel.equalsIgnoreCase ( "medium" ) ) {
-            setJackpot ( new BigDecimal ( 20 ) );
+        if (this.riskLevel.equalsIgnoreCase("medium")) {
+            setJackpot(new BigDecimal(20));
             this.multipliers = new BigDecimal[]{
                     BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-                    new BigDecimal ( "0.5" ), BigDecimal.ONE, new BigDecimal ( "1.5" ),
-                    new BigDecimal ( "2.5" ), new BigDecimal ( "3.5" )
+                    new BigDecimal("0.5"), BigDecimal.ONE, new BigDecimal("1.5"),
+                    new BigDecimal("2.5"), new BigDecimal("3.5")
             };
         }
-        if ( this.riskLevel.equalsIgnoreCase ( "high" ) ) {
-            setJackpot ( new BigDecimal ( 40 ) );
+        if (this.riskLevel.equalsIgnoreCase("high")) {
+            setJackpot(new BigDecimal(40));
             this.multipliers = new BigDecimal[]{
                     BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
                     BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ONE,
-                    new BigDecimal ( "2.0" ), new BigDecimal ( "6.5" )
+                    new BigDecimal("2.0"), new BigDecimal("6.5")
             };
         }
     }
 
+    public void setGameCategory(String gameCategory) {
+        this.gameCategory = gameCategory;
+    }
 
-    public String getGameName ( ) {
+    public String getGameName() {
         return gameName;
     }
 
-    public void setGameName (String gameName) {
+    public void setGameName(String gameName) {
         this.gameName = gameName;
     }
 
-    public String getProviderName ( ) {
+    public String getProviderName() {
         return providerName;
     }
 
-    public void setProviderName (String providerName) {
+    public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
 
-    public float getStars ( ) {
+    public float getStars() {
         return stars;
     }
 
-    public void setStars (float stars) {
+    public void setStars(float stars) {
         this.stars = stars;
     }
 
-    public int getVotes ( ) {
+    public int getVotes() {
         return votes;
     }
 
-    public void setVotes (int votes) {
+    public void setVotes(int votes) {
         this.votes = votes;
     }
 
-    public String getGameLogo ( ) {
+    public String getGameLogo() {
         return gameLogo;
     }
 
-    public void setGameLogo (String gameLogo) {
+    public void setGameLogo(String gameLogo) {
         this.gameLogo = gameLogo;
     }
 
-    public BigDecimal getMinBet ( ) {
+    public BigDecimal getMinBet() {
         return minBet;
     }
 
-    public void setMinBet (BigDecimal minBet) {
+    public void setMinBet(BigDecimal minBet) {
         this.minBet = minBet;
         calculateBetCategory();
     }
 
-    public BigDecimal getMaxBet ( ) {
+    public BigDecimal getMaxBet() {
         return maxBet;
     }
 
-    public void setMaxBet (BigDecimal maxBet) {
+    public void setMaxBet(BigDecimal maxBet) {
         this.maxBet = maxBet;
     }
 
-    public String getRiskLevel ( ) {
+    public String getRiskLevel() {
         return riskLevel;
     }
 
-    public void setRiskLevel (String riskLevel) {
+    public void setRiskLevel(String riskLevel) {
         this.riskLevel = riskLevel;
         setJackpotAndMultipliers();
     }
 
-    public String getHashKey ( ) {
+    public String getHashKey() {
         return hashKey;
     }
 
-    public void setHashKey (String hashKey) {
+    public void setHashKey(String hashKey) {
         this.hashKey = hashKey;
     }
 
-    public String getBetCategory ( ) {
+    public String getBetCategory() {
         return betCategory;
     }
 
-    public void setBetCategory (String betCategory) {
+    public void setBetCategory(String betCategory) {
         this.betCategory = betCategory;
     }
 
-    public BigDecimal getJackpot ( ) {
+    public BigDecimal getJackpot() {
         return jackpot;
     }
 
-    public void setJackpot (BigDecimal jackpot) {
+    public void setJackpot(BigDecimal jackpot) {
         this.jackpot = jackpot;
     }
 
-    public BigDecimal[] getMultipliers ( ) {
+    public BigDecimal[] getMultipliers() {
         return multipliers;
     }
 
-    public boolean isActive() { return active; }
+    public boolean isActive() {
+        return active;
+    }
 
-    public void setActive(boolean active) { this.active = active; }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public boolean isBackUp() {
         return backUp;
