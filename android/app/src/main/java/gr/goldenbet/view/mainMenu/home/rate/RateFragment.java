@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import gr.goldenbet.databinding.FragmentRateBinding;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
 
 public class RateFragment extends Fragment implements RateView {
 
@@ -44,7 +46,12 @@ public class RateFragment extends Fragment implements RateView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Player mockPlayer = new Player("Test", "User", "tester", "1234");
+        mockPlayer.setPlayerId("P123"); // Δώσε του ένα ID χειροκίνητα
 
+        // Αρχικοποιούμε το Singleton!
+        // Τώρα το getInstance() θα δουλεύει σε όλο το App.
+        PlayerApp.initializeApp(mockPlayer);
         presenter = new RatePresenter(this);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),

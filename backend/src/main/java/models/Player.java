@@ -1,18 +1,24 @@
 package models;
 
-public class Player {
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class Player implements Serializable {
     private String name;
     private String surname;
     private String username;
     private String password;
     private String playerId;
+    private boolean isLoggedIn;
+    private static final AtomicInteger idCounter = new AtomicInteger (1);
 
-    public Player (String name, String surname, String username, String password, String playerId) {
+    public Player (String name, String surname, String username, String password) {
         this.name = name;
         this.surname = surname;
         this.username = username;
         this.password = password;
-        this.playerId = playerId;
+        this.isLoggedIn=false;
+        this.playerId="P"+idCounter.getAndIncrement ();
     }
 
     public String getName ( ) {
@@ -51,5 +57,11 @@ public class Player {
         return playerId;
     }
 
+    public boolean isLoggedIn ( ) {
+        return isLoggedIn;
+    }
 
+    public void setLoggedIn (boolean loggedIn) {
+        isLoggedIn = loggedIn;
+    }
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import Worker.Worker;
 import models.MasterMessage;
+import models.Player;
 import models.WorkerInfo;
 import utils.ConfigLoader;
 
@@ -28,6 +29,7 @@ public class Master{
 
     final ArrayList<WorkerInfo> workersList = new ArrayList<>();
     final HashMap<Integer, ResultBox> sharedResults = new HashMap<>();
+    final HashMap<String, Player> registeredPlayers = new HashMap<>();
 
     void openServer() {
 
@@ -45,7 +47,7 @@ public class Master{
             while(true) {
 
                 Socket connection = providerSocket.accept();
-                Thread t = new MasterHandler(connection, workersList , sharedResults);
+                Thread t = new MasterHandler(connection, workersList , sharedResults,registeredPlayers);
                 t.start();
             }
         } catch (IOException ioException) {

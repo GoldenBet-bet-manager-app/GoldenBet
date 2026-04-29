@@ -20,11 +20,13 @@ public class MasterHandler extends Thread {
     ObjectOutputStream out;
     private final ArrayList<WorkerInfo> workers;
     private final HashMap<Integer, ResultBox> sharedResults;
+    private HashMap<String,Player> registedPlayers;
 
-    public MasterHandler (Socket connection, ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults) {
+    public MasterHandler (Socket connection, ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults, HashMap<String, Player> registeredPlayers) {
 
         this.workers = workers;
         this.sharedResults = sharedResults;
+        this.registedPlayers=registeredPlayers;
         try {
             out = new ObjectOutputStream ( connection.getOutputStream ( ) );
             in = new ObjectInputStream ( connection.getInputStream ( ) );
@@ -70,6 +72,20 @@ public class MasterHandler extends Thread {
                     Rating rating = (Rating) message.getPayload ( );
                     routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
                     break;
+                case REGIST:
+                    Player player=(Player) message.getPayload ();
+                    Object regResponse = registplayers(player);
+                    out.writeObject(regResponse);
+                    out.flush();
+                    break;
+                case LOGIN:
+                    Object loginResponse = loginplayers(message.getPayload());
+                    out.writeObject(loginResponse);
+                    out.flush();
+                    break;
+                case LOGOUT:
+                    logoutplayers(message.getPayload ());
+                    break;
             }
 
         } catch (IOException | ClassNotFoundException e) {
@@ -83,6 +99,40 @@ public class MasterHandler extends Thread {
             }
         }
     }
+
+    private void logoutplayers (Object payload) {
+        String[] credentials = (String[]) payload;
+        for ( Player p : registedPlayers.values ( ) ) {
+            if ( p.getUsername ( ).equals ( credentials[ 0 ] ) && p.getPassword ( ).equals ( credentials[ 1 ] )
+                    && p.isLoggedIn ()){
+                p.setLoggedIn ( false );
+            }
+        }
+    }
+
+    private Object loginplayers (Object payload) {
+        String[] credentials = (String[]) payload;
+        for ( Player p : registedPlayers.values ( ) ) {
+            if ( p.getUsername ( ).equals ( credentials[ 0 ] ) && p.getPassword ( ).equals ( credentials[ 1 ] )
+            && !p.isLoggedIn ()) {
+                p.setLoggedIn ( true );
+                return p;
+            }
+        }
+         return "Incorrect username or password!!";
+    }
+
+    private Object registplayers (Player player) {
+        synchronized (registedPlayers) {
+            if ( !registedPlayers.containsKey ( player.getPlayerId ( ) ) ) {
+                return "The player with these details exists. Please log in.!!";
+            } else {
+                registedPlayers.put ( player.getPlayerId ( ), player );
+            }
+        }
+        return player;
+    }
+
 
     private void routeToSingleWorker (MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
 

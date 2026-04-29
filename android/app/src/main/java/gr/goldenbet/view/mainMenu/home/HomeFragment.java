@@ -74,17 +74,17 @@ public class HomeFragment extends Fragment implements HomeView {
 
         Toast.makeText(requireContext(), R.string.nav_deposit_msg, Toast.LENGTH_SHORT).show();
 
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        R.anim.slide_in_right,  // enter
-                        R.anim.slide_out_left,  // exit
-                        R.anim.slide_in_left,   // popEnter
-                        R.anim.slide_out_right  // popExit
-                )
-                .replace(R.id.fragment_container, new DepositFragment())
-                .addToBackStack(null)
-                .commit();
-        Toast.makeText(getContext(), R.string.nav_deposit_msg, Toast.LENGTH_SHORT).show();
+//        getParentFragmentManager().beginTransaction()
+//                .setCustomAnimations(
+//                        R.anim.slide_in_right,  // enter
+//                        R.anim.slide_out_left,  // exit
+//                        R.anim.slide_in_left,   // popEnter
+//                        R.anim.slide_out_right  // popExit
+//                )
+//                .replace(R.id.fragment_container, new DepositFragment())
+//                .addToBackStack(null)
+//                .commit();
+
     }
 
     @Override
@@ -99,17 +99,17 @@ public class HomeFragment extends Fragment implements HomeView {
     @Override
     public void navigateToRatings() {
 
-        Toast.makeText(getContext(), R.string.nav_ratings_msg, Toast.LENGTH_SHORT).show();
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_left,
-                        R.anim.slide_in_left,
-                        R.anim.slide_out_right
-                )
-                .replace(R.id.fragment_container, new RateFragment())
-                .addToBackStack(null)
-                .commit();
+//        Toast.makeText(getContext(), R.string.nav_ratings_msg, Toast.LENGTH_SHORT).show();
+//        getParentFragmentManager().beginTransaction()
+//                .setCustomAnimations(
+//                        R.anim.slide_in_right,
+//                        R.anim.slide_out_left,
+//                        R.anim.slide_in_left,
+//                        R.anim.slide_out_right
+//                )
+//                .replace(R.id.fragment_container, new RateFragment())
+//                .addToBackStack(null)
+//                .commit();
     }
 
     @Override

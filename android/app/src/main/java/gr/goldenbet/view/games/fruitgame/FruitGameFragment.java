@@ -78,7 +78,7 @@ public class FruitGameFragment extends Fragment implements FruitGameView{
     public void randomizeGrid() {
         for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
             TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-            cell.setText(symbols[random.nextInt(symbols.length)]);
+            //cell.setText(symbols[random.nextInt(symbols.length)]);
         }
     }
 
