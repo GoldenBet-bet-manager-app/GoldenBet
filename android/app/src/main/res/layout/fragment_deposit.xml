@@ -88,14 +88,15 @@
                 app:cardBackgroundColor="?attr/colorSurface"
                 android:clickable="true"
                 android:focusable="true">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="50 €"
+                    android:text="50 FUN"
                     android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    android:textSize="18sp"/>
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
             </com.google.android.material.card.MaterialCardView>
         </androidx.gridlayout.widget.GridLayout>
 
