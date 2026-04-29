@@ -18,6 +18,7 @@ import gr.goldenbet.databinding.FragmentHomeBinding;
 import gr.goldenbet.view.login.LoginActivity;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.deposit.DepositFragment;
+import gr.goldenbet.view.mainMenu.home.stats.StatsFragment;
 import gr.goldenbet.view.settings.settingsMenu.SettingsMenuActivity;
 
 public class HomeFragment extends Fragment implements HomeView {
@@ -72,7 +73,6 @@ public class HomeFragment extends Fragment implements HomeView {
     @Override
     public void navigateToDeposit() {
 
-        Toast.makeText(requireContext(), R.string.nav_deposit_msg, Toast.LENGTH_SHORT).show();
 
         getParentFragmentManager().beginTransaction()
                 .setCustomAnimations(
@@ -89,7 +89,20 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToHistory() {
-        Toast.makeText(getContext(), R.string.nav_history_msg, Toast.LENGTH_SHORT).show();    }
+
+
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in_right,  // enter
+                        R.anim.slide_out_left,  // exit
+                        R.anim.slide_in_left,   // popEnter
+                        R.anim.slide_out_right  // popExit
+                )
+                .replace(R.id.fragment_container, new StatsFragment())
+                .addToBackStack(null)
+                .commit();
+        Toast.makeText(getContext(), R.string.nav_history_msg, Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void navigateToStats() {

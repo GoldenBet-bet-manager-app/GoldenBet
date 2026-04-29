@@ -81,7 +81,7 @@ public class LanguageListFragment extends Fragment implements LanguageListView {
 
     @Override
     public void navigateBack() {
-        // Επιστροφή στο προηγούμενο Fragment (SettingsMenuFragment)
+        // Return to previous fragment (SettingsMenuFragment)
         if (getParentFragmentManager().getBackStackEntryCount() > 0) {
             getParentFragmentManager().popBackStack();
         }

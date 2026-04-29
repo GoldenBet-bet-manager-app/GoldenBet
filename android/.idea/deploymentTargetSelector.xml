@@ -12,6 +12,7 @@
       </SelectionState>
       <SelectionState runConfigName="MainMenuActivity">
         <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>
