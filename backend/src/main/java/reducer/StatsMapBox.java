@@ -1,9 +1,6 @@
 package reducer;
 
-import models.Game;
-
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class StatsMapBox implements AggregationBox {

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import models.WorkerInfo;
+import gr.goldenbet.domain.WorkerInfo;
 
 public class ConfigLoader {
     private static Map<String, String> serverConfigs = new HashMap<>();

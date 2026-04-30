@@ -1,4 +1,4 @@
-package models;
+package gr.goldenbet.domain;
 
 public enum MasterMessageType {
     ADD_GAME,
@@ -14,5 +14,8 @@ public enum MasterMessageType {
     PLAYBACKUP,
     WORKER_FAILURE,
     PING,
-    GET_ALL_GAMES
+    GET_ALL_GAMES,
+    REGIST,
+    LOGIN,
+    LOGOUT
 }

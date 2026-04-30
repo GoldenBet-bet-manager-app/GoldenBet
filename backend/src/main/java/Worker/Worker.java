@@ -1,7 +1,7 @@
 package Worker;
 
-import models.Game;
-import models.WorkerInfo;
+import gr.goldenbet.domain.Game;
+import gr.goldenbet.domain.WorkerInfo;
 import utils.ConfigLoader;
 
 import java.io.IOException;
@@ -10,7 +10,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
 
 public class Worker {

@@ -14,5 +14,8 @@ public enum MasterMessageType {
     PLAYBACKUP,
     WORKER_FAILURE,
     PING,
-    GET_ALL_GAMES
+    GET_ALL_GAMES,
+    LOGIN,
+    LOGOUT,
+    REGIST
 }

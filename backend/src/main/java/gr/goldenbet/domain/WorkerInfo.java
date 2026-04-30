@@ -1,4 +1,4 @@
-package models;
+package gr.goldenbet.domain;
 
 public class WorkerInfo {
 

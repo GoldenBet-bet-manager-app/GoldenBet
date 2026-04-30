@@ -1,6 +1,6 @@
 package Master;
 
-import models.MasterMessage;
+import gr.goldenbet.domain.MasterMessage;
 
 /**
  *  Wait box for a particular mapId

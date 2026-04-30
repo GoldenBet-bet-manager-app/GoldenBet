@@ -2,7 +2,7 @@ package Player;
 
 import Client.Client;
 import Client.SearchClient;
-import models.*;
+import gr.goldenbet.domain.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +22,20 @@ public class PlayerApp {
     private Boolean projectIsActive;
     private HashMap<String, Boolean> gamePlayedStatus = new HashMap<> ( );
     private ArrayList<Game> searchedGames=new ArrayList<> ();
+    private static PlayerApp instance;
+
+
+    public static void initializeApp(Player player) {
+        instance = new PlayerApp(player);
+    }
+
+    public static PlayerApp getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("Προσοχή: Ο παίκτης δεν έχει συνδεθεί ή έχει κάνει logout!");
+        }
+        return instance;
+    }
+
 
     public void setSearchedGames (ArrayList<Game> searchedGames) {
         this.searchedGames = searchedGames;
@@ -148,6 +162,28 @@ public class PlayerApp {
         } else {
             throw new IllegalArgumentException ( "Warning: You cannot rate the game " + gameName + " because you haven't played it yet!" );
         }
+    }
+    public static void regist(Player player) throws InterruptedException {
+        Client registClient=new Client ( masterIp,masterPort,new MasterMessage ( MasterMessageType.REGIST,player ) );
+        registClient.start ();
+    }
+    public static Player login(String username,String password) throws InterruptedException {
+        String[] credentials = new String[]{username, password};
+        Client loginClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.LOGIN, credentials ) );
+        loginClient.start ( );
+        loginClient.join ( );
+        Object response = loginClient.getResponse ( );
+
+        if ( response instanceof Player ) {
+            return (Player) response;
+        } else return null;
+
+    }
+    public void logout(String username,String password) throws InterruptedException {
+        String[] credentials = new String[]{username, password};
+        Client loginClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.LOGOUT, credentials ) );
+        loginClient.start ( );
+        loginClient.join ( );
     }
 
     public Boolean isavailableSelectedgame(String gameName,ArrayList<Game> availableGames){
@@ -310,9 +346,7 @@ public class PlayerApp {
         String username = sc.nextLine ( );
         System.out.print ( "Password: " );
         String password = sc.nextLine ( );
-        System.out.print ( "Player ID: " );
-        String id = sc.nextLine ( );
-        Player myPlayer = new Player ( name, surname, username, password, id );
+        Player myPlayer = new Player ( name, surname, username, password);
         PlayerApp currentplayer = new PlayerApp ( myPlayer );
         System.out.println ( "\nSuccessful login! Welcome to GoldenBet, " + myPlayer.getUsername ( ) + "!!!" );
         startmenu ( myPlayer, currentplayer );

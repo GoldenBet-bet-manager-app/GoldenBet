@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import gr.goldenbet.databinding.FragmentRateBinding;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
 
 public class RateFragment extends Fragment implements RateView {
 
@@ -44,7 +46,10 @@ public class RateFragment extends Fragment implements RateView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Player mockPlayer = new Player("Test", "User", "tester", "1234");
+        mockPlayer.setPlayerId("P123");
 
+        PlayerApp.initializeApp(mockPlayer);
         presenter = new RatePresenter(this);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
@@ -67,15 +72,31 @@ public class RateFragment extends Fragment implements RateView {
 
     @Override
     public void showMessage(int messageResId) {
-        Toast.makeText(getContext(), getString(messageResId), Toast.LENGTH_SHORT).show();
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), getString(messageResId), Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
+    @Override
+    public void showMessage(String message) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+            });
+        }
+    }
 
     @Override
     public void clearRateForm() {
-        currentstars = 0.0f;
-        binding.ratingBar.setRating(0.0f);
-        binding.autoCompleteGameName.setText("");
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.ratingBar.setRating(0.0f);
+                binding.autoCompleteGameName.setText("");
+
+            });
+        }
     }
 
     @Override

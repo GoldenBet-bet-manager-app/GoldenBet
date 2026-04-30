@@ -84,7 +84,6 @@ public class HomeFragment extends Fragment implements HomeView {
                 .replace(R.id.fragment_container, new DepositFragment())
                 .addToBackStack(null)
                 .commit();
-        Toast.makeText(getContext(), R.string.nav_deposit_msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override

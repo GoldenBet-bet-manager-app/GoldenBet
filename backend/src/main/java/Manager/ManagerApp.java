@@ -10,14 +10,14 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.nio.file.Files;
 
-import models.Game;
-import models.MasterMessage;
+import gr.goldenbet.domain.Game;
+import gr.goldenbet.domain.MasterMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 import Client.Client;
 import utils.ConfigLoader;
 
-import static models.MasterMessageType.*;
+import static gr.goldenbet.domain.MasterMessageType.*;
 
 
 public class ManagerApp {

@@ -13,7 +13,7 @@ import android.widget.Toast;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import gr.goldenbet.R; // Βεβαιώσου ότι αυτό είναι το σωστό path για το R
+import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentPokerBinding;
 
 public class PokerFragment extends Fragment implements PokerView {
