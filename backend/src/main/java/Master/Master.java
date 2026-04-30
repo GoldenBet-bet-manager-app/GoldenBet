@@ -4,10 +4,10 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import Worker.Worker;
-import models.MasterMessage;
-import models.Player;
-import models.WorkerInfo;
+
+import gr.goldenbet.domain.MasterMessage;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.WorkerInfo;
 import utils.ConfigLoader;
 
 public class Master{

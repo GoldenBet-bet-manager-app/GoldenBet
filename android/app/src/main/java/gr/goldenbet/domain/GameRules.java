@@ -4,7 +4,7 @@ import android.graphics.Color;
 import java.util.HashMap;
 import gr.goldenbet.R;
 
-public class GameRules {
+public class GameRules {// na to spaso se dio klaseis!!!!!!!!!!11
 
     // ==========================================
     // 1. ΜΕΤΑΒΛΗΤΕΣ ΤΟΥ ΠΑΙΧΝΙΔΙΟΥ

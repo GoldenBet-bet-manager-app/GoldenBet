@@ -28,12 +28,11 @@ public class RatePresenter {
 
         new Thread(() -> {
             try {
-
                 PlayerApp.getInstance().rate(currentGameName,currentstars);
                 rateView.showMessage(R.string.rate_success);
                 rateView.clearRateForm();
             } catch (Exception e) {
-             //   rateView.showMessage(e.getMessage());
+               rateView.showMessage(e.getMessage());
             }
 
         }).start();

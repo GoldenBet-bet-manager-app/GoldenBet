@@ -19,7 +19,7 @@ public class Player implements Serializable {
         this.username = username;
         this.password = password;
         this.isLoggedIn=false;
-        this.playerId="P"+idCounter.getAndIncrement ();
+        this.playerId="Player_"+idCounter.getAndIncrement ();
     }
 
     public String getName ( ) {

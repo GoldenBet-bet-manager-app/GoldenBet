@@ -14,14 +14,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 import gr.goldenbet.databinding.FragmentFruitGameBinding;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
 
 
 public class FruitGameFragment extends Fragment implements FruitGameView{
     private FruitGamePresenter presenter;
     private FragmentFruitGameBinding binding;
     private String playerId,currentGameName,betamount;
+    Random random=new Random();
 
 
     public FruitGameFragment() {
@@ -58,16 +62,16 @@ public class FruitGameFragment extends Fragment implements FruitGameView{
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Player mockPlayer = new Player("Test", "User", "tester", "1234");
+        mockPlayer.setPlayerId("P123");
+        PlayerApp.initializeApp(mockPlayer);
+        PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
         presenter=new FruitGamePresenter(this,playerId,currentGameName);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
        // presenter.initBalance();
         binding.spinButton.setOnClickListener(v -> {
             betamount=binding.etbetAmount.getText().toString();
-            binding.spinButton.setEnabled(false);
-            binding.etbetAmount.setEnabled(false);
-            binding.tvresult.setText("Γυρίζει... 🎰");
-            binding.tvresult.setTextColor(Color.LTGRAY);
             presenter.spinClicked(betamount);
         });
 
@@ -75,10 +79,14 @@ public class FruitGameFragment extends Fragment implements FruitGameView{
 
 
    @Override
-    public void randomizeGrid() {
-        for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
-            TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-            //cell.setText(symbols[random.nextInt(symbols.length)]);
+    public void randomizeGrid(String [] symbols) {
+        if(getActivity()!=null) {
+            getActivity().runOnUiThread(() -> {
+                for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
+                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
+                    cell.setText(symbols[random.nextInt(symbols.length)]);
+                }
+            });
         }
     }
 
@@ -88,41 +96,69 @@ public class FruitGameFragment extends Fragment implements FruitGameView{
     }
 
     @Override
+    public void showMessage(String message) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                lock(false);
+            });
+        }
+    }
+
+    @Override
+    public void showBalance(BigDecimal balance) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvbalance.setText("Υπόλοιπο: " + balance + " FUN");
+            });
+        }
+    }
+
+    @Override
+    public void showSpinResult(String result) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvresult.setText(result);
+               lock(false);
+            });
+        }
+    }
+
+    @Override
     public void setCellsToSymbol(int[] indices, String symbol, int textcolor) {
-        for (int i : indices) {
-            TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-            cell.setText(symbol);
-            cell.setBackgroundColor(Color.parseColor("#50FFFFFF"));
-            cell.setTextSize(50f);
-            cell.setTextColor(textcolor);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                for (int i : indices) {
+                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
+                    cell.setText(symbol);
+                    cell.setBackgroundColor(Color.parseColor("#50FFFFFF"));
+                    cell.setTextSize(50f);
+                    cell.setTextColor(textcolor);
+                }
+            });
         }
     }
 
     @Override
     public void clearFruitGrid() {
-        for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
-            TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-            cell.setText("");
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
+                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
+                    cell.setText("");
+                }
+            });
         }
     }
 
     @Override
-    public void showMessage(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-        binding.spinButton.setEnabled(true);
-        binding.etbetAmount.setEnabled(true);
-    }
-
-    @Override
-    public void showBalance(BigDecimal balance) {
-        binding.tvbalance.setText("Υπόλοιπο: "+String.valueOf(balance));
-    }
-
-    @Override
-    public void showSpinResult(String result) {
-        binding.tvresult.setText(result);
-        binding.spinButton.setEnabled(true);
-        binding.etbetAmount.setEnabled(true);
+    public void lock(Boolean flag) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.spinButton.setEnabled(!flag);
+                binding.etbetAmount.setEnabled(!flag);
+            });
+        }
     }
 
     @Override

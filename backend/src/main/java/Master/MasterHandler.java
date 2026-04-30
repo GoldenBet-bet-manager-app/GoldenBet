@@ -1,7 +1,8 @@
 package Master;
 
 
-import models.*;
+import gr.goldenbet.domain.*;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,7 +21,7 @@ public class MasterHandler extends Thread {
     ObjectOutputStream out;
     private final ArrayList<WorkerInfo> workers;
     private final HashMap<Integer, ResultBox> sharedResults;
-    private HashMap<String,Player> registedPlayers;
+    private HashMap<String, Player> registedPlayers;
 
     public MasterHandler (Socket connection, ArrayList<WorkerInfo> workers, HashMap<Integer, ResultBox> sharedResults, HashMap<String, Player> registeredPlayers) {
 

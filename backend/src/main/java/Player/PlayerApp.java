@@ -2,7 +2,7 @@ package Player;
 
 import Client.Client;
 import Client.SearchClient;
-import models.*;
+import gr.goldenbet.domain.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;

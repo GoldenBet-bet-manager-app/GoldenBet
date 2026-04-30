@@ -1,6 +1,7 @@
 package Worker;
 
-import models.*;
+import gr.goldenbet.domain.*;
+
 import utils.ConfigLoader;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 
 import static Worker.Worker.backupPlayersProfits;
 import static Worker.Worker.primaryPlayersProfits;
-import static models.SHA256Generator.computeSHA256;
+import static gr.goldenbet.domain.SHA256Generator.computeSHA256;
 
 public class WorkerHandler extends Thread {
 
@@ -349,6 +350,7 @@ public class WorkerHandler extends Thread {
             payout = bet.getAmount ( ).multiply ( gameMultiplies[ index ] );
         }
         updateProfits ( bet, payout );
+        System.out.print ( payout );
         return payout;
     }
 
