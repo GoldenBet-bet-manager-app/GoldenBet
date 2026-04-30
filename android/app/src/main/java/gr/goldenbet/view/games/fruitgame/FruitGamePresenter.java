@@ -2,32 +2,33 @@ package gr.goldenbet.view.games.fruitgame;
 
 import java.math.BigDecimal;
 
-import gr.goldenbet.domain.GameRules;
+import gr.goldenbet.domain.FruitGameRules;
 import gr.goldenbet.domain.PlayerApp;
 
 public class FruitGamePresenter {
     private FruitGameView view;
-    private String gameName,playerId;
-
+    private String gameName;
+    private BigDecimal payout,bet,playerBalance;
     private String[] symbols;
+    private double multiplier;
 
 
-    public FruitGamePresenter(FruitGameView view, String playerId, String gameName) {
+
+    public FruitGamePresenter(FruitGameView view, String gameName) {
         this.view = view;
-        this.playerId = playerId;
         this.gameName = gameName;
     }
 
     private void showPattern(double multiplier) {
         view.clearFruitGrid();
-        GameRules rules=GameRules.getFruitGraphics(gameName);
+        FruitGameRules rules= FruitGameRules.getFruitGraphics(gameName);
         if(rules.getWinPatterns().containsKey(multiplier)){
             view.setCellsToSymbol(rules.getWinPatterns().get(multiplier),rules.getDefaultSymbol(),rules.getColor());
         }
 
     }
    public void initializedata(String currentGameName) {
-            GameRules rules=GameRules.getFruitGraphics(currentGameName);
+            FruitGameRules rules= FruitGameRules.getFruitGraphics(currentGameName);
             if(rules!=null){
                 view.setImageBackground(rules.getLogoResId());
                 symbols=rules.getSymbols();
@@ -46,16 +47,15 @@ public class FruitGamePresenter {
         view.showSpinResult("Γυρίζουν...🎰...\nΑναμόνη για το αποτέλεσμα!!");
 
         view.lock(true);
-        GameRules rules=GameRules.getFruitGraphics(gameName);
+        FruitGameRules rules= FruitGameRules.getFruitGraphics(gameName);
         symbols=rules.getSymbols();
-        BigDecimal bet=new BigDecimal(betamount);
+        bet=new BigDecimal(betamount);
+        playerBalance=PlayerApp.getInstance().getBalance();
         new Thread(() -> {
             try {
-
-                BigDecimal playerBalance=PlayerApp.getInstance().getBalance();
-                BigDecimal payout= PlayerApp.getInstance().play(gameName,bet);
+                payout= PlayerApp.getInstance().play(gameName,bet);
                 view.showMessage(payout.toString());
-                double multiplier=0.0;
+                 multiplier=0.0;
                 if (payout.compareTo(BigDecimal.ZERO) > 0) {
                     multiplier = payout.doubleValue() / bet.doubleValue();
                 }

@@ -22,7 +22,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:padding="20dp">
@@ -37,8 +37,7 @@
                 android:shadowDx="2"
                 android:shadowDy="4"
                 android:shadowRadius="4"
-                android:text="xxxxxx"
-                android:textColor="#FFFFFF"
+                android:textColor="#FFD700"
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
@@ -51,8 +50,7 @@
                 android:shadowDx="2"
                 android:shadowDy="4"
                 android:shadowRadius="4"
-                android:text="Υπόλοιπο: 100 FUN"
-                android:textColor="#EDF0ED"
+                android:textColor="#FFD700"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -66,7 +64,7 @@
                     android:layout_width="300dp"
                     android:layout_height="300dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/wheel" />
 
                 <ImageButton
@@ -119,8 +117,7 @@
                 android:shadowDx="2"
                 android:shadowDy="4"
                 android:shadowRadius="4"
-                android:text="xxxxxxxx"
-                android:textColor="#FFFFFF"
+                android:textColor="#FFD700"
                 android:textSize="22sp"
                 android:textStyle="bold" />
         </LinearLayout>
