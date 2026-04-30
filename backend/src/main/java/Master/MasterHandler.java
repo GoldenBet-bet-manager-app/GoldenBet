@@ -74,6 +74,7 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
                     break;
                 case REGIST:
+                    System.out.println("Hello from player regist");
                     Player player=(Player) message.getPayload ();
                     Object regResponse = registplayers(player);
                     out.writeObject(regResponse);
@@ -89,9 +90,14 @@ public class MasterHandler extends Thread {
                     break;
             }
 
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println ( "Client Communication Error: " + e.getMessage ( ) );
-        } finally {
+        } catch (IOException e) {
+            System.err.println ( "Client Communication Error (IO exception): " + e.getMessage() );
+        }
+        catch (ClassNotFoundException e){
+            System.err.println ( "Client Communication Error (Class not found): " + e.getMessage() );
+
+        }
+        finally {
             try {
                 in.close ( );
                 out.close ( );
@@ -112,25 +118,34 @@ public class MasterHandler extends Thread {
     }
 
     private Object loginplayers (Object payload) {
+
         String[] credentials = (String[]) payload;
-        for ( Player p : registedPlayers.values ( ) ) {
-            if ( p.getUsername ( ).equals ( credentials[ 0 ] ) && p.getPassword ( ).equals ( credentials[ 1 ] )
-            && !p.isLoggedIn ()) {
-                p.setLoggedIn ( true );
-                return p;
+
+        synchronized (registedPlayers) {
+            for (Player p : registedPlayers.values()) {
+
+                if (p.getUsername().equals(credentials[0]) && p.getPassword().equals(credentials[1])
+                        && !p.isLoggedIn()) {
+                    p.setLoggedIn(true);
+                    return p;
+                }
+
             }
         }
-         return "Incorrect username or password!!";
+
+        return null;
     }
 
     private Object registplayers (Player player) {
+
         synchronized (registedPlayers) {
-            if ( !registedPlayers.containsKey ( player.getPlayerId ( ) ) ) {
-                return "The player with these details exists. Please log in.!!";
+            if ( !registedPlayers.containsKey( player.getPlayerId()) ) {
+                return "The player with this username already exists.";
             } else {
-                registedPlayers.put ( player.getPlayerId ( ), player );
+                registedPlayers.put (player.getPlayerId(), player);
             }
         }
+
         return player;
     }
 

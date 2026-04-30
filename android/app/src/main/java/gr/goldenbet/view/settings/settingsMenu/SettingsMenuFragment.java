@@ -84,7 +84,7 @@ public class SettingsMenuFragment extends Fragment implements SettingsMenuView {
 
     @Override
     public void navigateToLanguageSelection() {
-        /*getParentFragmentManager().beginTransaction()
+        getParentFragmentManager().beginTransaction()
                 // animations
                 .setCustomAnimations(
                         R.anim.slide_in_right,  // enter
@@ -94,7 +94,7 @@ public class SettingsMenuFragment extends Fragment implements SettingsMenuView {
                 )
                 .replace(R.id.settings_fragment_container, new LanguageListFragment())
                 .addToBackStack(null)
-                .commit();*/
+                .commit();
     }
 
     @Override

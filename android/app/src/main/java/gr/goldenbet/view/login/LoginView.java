@@ -1,5 +1,7 @@
 package gr.goldenbet.view.login;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public interface LoginView {
 
     /**
@@ -19,10 +21,9 @@ public interface LoginView {
 
     /**
      * Displays an error alert dialog.
-     * @param title   The title of the error.
      * @param message The detailed error description.
      */
-    void showErrorMessage(String title, String message);
+    void showErrorMessage(String message);
 
     /**
      * Displays a success feedback message.
@@ -32,6 +33,9 @@ public interface LoginView {
 
     /** Navigates to the user registration screen. */
     void navigateToRegister();
+
+    /** Navigates to the user's account home screen*/
+    void navigateToAccount(String playerId);
 
     /** Navigates to the user settings screen. */
     void navigateToSettings();

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +16,10 @@ import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import gr.goldenbet.R;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.register.RegisterActivity;
 import gr.goldenbet.view.settings.settingsMenu.SettingsMenuActivity;
 
@@ -54,13 +58,25 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
 
         settingsButton.setOnClickListener( v -> presenter.onSettings());
 
-
         registerTextView.setOnClickListener(v -> presenter.onRegister());
+
+        loginButton.setOnClickListener(v ->{
+            String username = usernameEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
+
+            presenter.onLogin(username, password);
+        });
 
 
 
     }
 
+
+    @Override
+    public void navigateToAccount(String playerId){
+        Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     public void navigateToRegister() {
@@ -99,8 +115,8 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
     }
 
     @Override
-    public void showErrorMessage(String title, String message) {
-
+    public void showErrorMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

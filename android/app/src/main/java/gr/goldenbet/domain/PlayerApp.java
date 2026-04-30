@@ -148,10 +148,12 @@ public class PlayerApp {
             throw new RuntimeException ( "Warning: You cannot rate the game " + gameName + " because you haven't played it yet!" );
         }
     }
+
     public static void regist(Player player) throws InterruptedException {
         Client registClient=new Client ( masterIp,masterPort,new MasterMessage ( MasterMessageType.REGIST,player ) );
         registClient.start ();
     }
+
     public static Player login(String username,String password) throws InterruptedException {
         String[] credentials = new String[]{username, password};
         Client loginClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.LOGIN, credentials ) );
@@ -161,9 +163,12 @@ public class PlayerApp {
 
         if ( response instanceof Player ) {
             return (Player) response;
-        } else return null;
+        }
+        else
+            return null;
 
     }
+
     public static void logout(String username,String password) throws InterruptedException {
         String[] credentials = new String[]{username, password};
         Client loginClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.LOGOUT, credentials ) );
@@ -193,7 +198,7 @@ public class PlayerApp {
 
 
     public static void main (String[] args) {
-        ConfigLoader.loadConfig("src/main/resources/system_network_config.conf");
+        ConfigLoader.loadConfig("src/main/resources/master_network_config.conf");
          masterIp = "10.0.2.2";
          masterPort = 43210;
 
