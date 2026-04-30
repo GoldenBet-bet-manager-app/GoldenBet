@@ -10,6 +10,7 @@
     <string name="login_button_text">LOGIN</string>
     <string name="login_new_user_text">New to Golden Bet?</string>
     <string name="login_create_account_text">Create Account</string>
+    <string name="login_failure">Incorrect username or password</string>
 
 
     <!--activity_register.xml-->
@@ -28,6 +29,8 @@
     <string name="register_btn">CREATE ACCOUNT</string>
     <string name="register_already_member">Already a member?</string>
     <string name="register_already_member_signin">Signin.</string>
+    <string name="confirm_title">Confirm Registration</string>
+    <string name="confirm_msg">Are you sure you want to register with these details?</string>
 
 
     <!--activity_settings.xml-->
@@ -71,8 +74,6 @@
     <string name="profile_city_hint">City</string>
     <string name="profile_zip_hint">ZIP Code</string>
     <string name="profile_btn">SAVE CHANGES</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
     <!--HomeFragment.java Toast and dialog messages-->
@@ -81,6 +82,7 @@
     <string name="nav_stats_msg">Viewing Statistics...</string>
     <string name="nav_ratings_msg">Opening Ratings...</string>
     <string name="nav_settings_msg">Opening Settings</string>
+
 
     <!--Logout dialog messages-->
     <string name="nav_logout_dialog_title">Logout</string>
@@ -116,7 +118,10 @@
     <string name="rate_error_invalid_stars">The rating must be between 1 and 5 stars (in half-star increments)!</string>
     <string name="rate_success">Successful review!!!!</string>
 
-    <!--Common messages throughout the application-->
-    <string name="common_ok">OK</string>
-    <string name="common_cancel">Ακύρωση</string>
+    <!--Common messages and settings throughout the application-->
+    <string name="common_ok">Ok</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_necessary_fields_msg">Please fill all necessary fields</string>
+    <string name="master_ip" translatable="false">192.168.1.17</string>
+    <integer name="master_port" translatable="false">43210</integer>
 </resources>

@@ -5,6 +5,13 @@ import android.content.SharedPreferences;
 import java.util.Arrays;
 import java.util.List;
 
+import gr.goldenbet.R;
+import gr.goldenbet.domain.Client;
+import gr.goldenbet.domain.MasterMessage;
+import gr.goldenbet.domain.MasterMessageType;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.view.register.RegisterActivity;
+
 public class LoginPresenter {
 
     private LoginView view;
@@ -12,9 +19,18 @@ public class LoginPresenter {
     private final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "el");
     private final String DEFAULT_LANGUAGE = "en";
 
+    // Master's network configurations
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
+
     public LoginPresenter(LoginView view, SharedPreferences prefs) {
         this.view = view;
         this.prefs = prefs;
+
+        // Set master configurations
+        MASTER_IP = ((RegisterActivity)view).getResources().getString(R.string.master_ip);
+        MASTER_PORT = ((RegisterActivity)view).getResources().getInteger(R.integer.master_port);
+
     }
     public void initializeSettings() {
         if (!prefs.contains("is_dark_mode")) {
@@ -68,6 +84,34 @@ public class LoginPresenter {
 
         // Language is applied automatically
     }
+
+
+    public void onLogin(String username, String password) {
+        String[] credentials = new String[]{username, password};
+        Client loginClient = new Client ( MASTER_IP, MASTER_PORT, new MasterMessage( MasterMessageType.LOGIN, credentials ) );
+        loginClient.start();
+
+        try {
+            loginClient.join ( );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Object response = loginClient.getResponse ( );
+
+        // Successful login
+        if (response instanceof Player) {
+            Player loggedInPlayer = (Player) response;
+            view.navigateToAccount(loggedInPlayer.getPlayerId());
+        }
+        // failed login attempt (null is returned)
+        else{
+            String msg = ((LoginActivity) view).getResources().getString(R.string.login_failure);
+            view.showErrorMessage(msg);
+        }
+    }
+
+
     public void onRegister() {
         view.navigateToRegister();
     }

@@ -11,6 +11,8 @@
     <string name="login_button_text">ΣΥΝΔΕΣΗ</string>
     <string name="login_new_user_text">Νέος στο Golden Bet;</string>
     <string name="login_create_account_text">Δημιουργία Λογαριασμού</string>
+    <string name="login_failure">Λάθος όνομα χρήστη ή κωδικός</string>
+
 
 
     <!--activity_register.xml-->
@@ -29,6 +31,8 @@
     <string name="register_btn">ΔΗΜΙΟΥΡΓΙΑ ΛΟΓΑΡΙΑΣΜΟΥ</string>
     <string name="register_already_member">Είστε ήδη μέλος;</string>
     <string name="register_already_member_signin">Είσοδος.</string>
+    <string name="confirm_title">Επιβεβαίωση Εγγραφής</string>
+    <string name="confirm_msg">Είστε σίγουροι ότι θέλετε να προχωρήσετε στην εγγραφή με αυτά τα στοιχεία;</string>
 
 
     <!--activity_settings.xml-->
@@ -117,4 +121,5 @@
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>
     <string name="common_cancel">Ακύρωση</string>
+    <string name="common_necessary_fields_msg">Παρακαλώ συμπληρώστε όλα τα απαραίτητα πεδία</string>
 </resources>

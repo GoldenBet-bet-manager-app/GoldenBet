@@ -6,6 +6,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import gr.goldenbet.domain.MasterMessage;
+import gr.goldenbet.domain.MasterMessageType;
+import gr.goldenbet.domain.PlayerStats;
+
 public class StatsPresenter {
     private StatsView view;
     private String masterIp = "10.0.2.2"; // IP για Android Emulator
@@ -23,9 +27,9 @@ public class StatsPresenter {
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-                MasterMessage request = new MasterMessage(MasterMessageType.PLAYER_STATS, playerName);
-                out.writeObject(request);
-                out.flush();
+//                MasterMessage request = new MasterMessage(MasterMessageType.PLAYER_STATS, playerName);
+//                out.writeObject(request);
+//                out.flush();
 
                 // Λήψη αποτελέσματος (Το socket παραμένει ανοιχτό [cite: 153])
                 PlayerStats stats = (PlayerStats) in.readObject();
