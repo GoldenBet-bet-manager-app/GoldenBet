@@ -1,6 +1,6 @@
 package Worker;
 
-import gr.goldenbet.domain.*;
+
 
 import Models.*;
 import utils.ConfigLoader;

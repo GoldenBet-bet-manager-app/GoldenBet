@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 
 import gr.goldenbet.databinding.FragmentWheelGameBinding;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.domain.PlayerApp;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,10 +69,7 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Player mockPlayer = new Player("Test", "User", "tester", "1234");
-        mockPlayer.setPlayerId("P123");
-        PlayerApp.initializeApp(mockPlayer);
-        PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
+
         presenter = new WheelGamePresenter(this, currentGameName);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);

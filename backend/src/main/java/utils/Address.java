@@ -26,7 +26,10 @@ public class Address implements Serializable {
         this.zipCode = zipCode;
     }
 
-    
+    public Address ( ) {
+
+    }
+
 
     // --- Getters and Setters ---
 

@@ -14,7 +14,7 @@ import Models.Game;
 import Models.MasterMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
-import Client.Client;
+import Client.*;
 import utils.ConfigLoader;
 
 import static Models.MasterMessageType.*;
@@ -141,7 +141,6 @@ public class ManagerApp {
                     jsonObject.getBigDecimal("MaxBet"),
                     jsonObject.getString("RiskLevel"),
                     jsonObject.getString("HashKey")
-
             );
 
             switch (selectedGame.getGameName()) {
@@ -161,32 +160,32 @@ public class ManagerApp {
             }
 
             System.out.println("Επιτυχής αντιστοίχιση! Το παιχνίδι μπήκε στην κατηγορία: " + selectedGame.getGameCategory ());
-            } catch (IOException e) {
-                System.err.println("Error reading JSON file: " + e.getMessage());
-            } catch (JSONException e) {
-                System.err.println("Error in JSON's structure: " + e.getMessage());
-            }
-
+        } catch (IOException e) {
+            System.err.println("Error reading JSON file: " + e.getMessage());
+        } catch (JSONException e) {
+            System.err.println("Error in JSON's structure: " + e.getMessage());
+        }
 
         if(selectedGame != null) {
             try {
                 MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
 
-                Client client = new Client(masterIp, masterPort, message);
+                com.google.gson.Gson gson = new com.google.gson.Gson();
+                String jsonMessage = gson.toJson(message);
+                JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
                 client.start();
-
-                // Wait for the client thread to finish add game before returning to manager's main menu
                 client.join();
-                String responseToGameAddition = (String) client.getResponse();
+
+                String responseToGameAddition = client.getJsonResponse();
                 System.out.println(responseToGameAddition);
 
-            }catch(InterruptedException e){
-                    System.err.println("Thread interrupted at client.join() logic: " + e.getMessage());
+            } catch(InterruptedException e){
+                System.err.println("Thread interrupted at client.join() logic: " + e.getMessage());
+            } catch (Exception e) {
+                System.err.println("Σφάλμα κατά την επικοινωνία: " + e.getMessage());
             }
         }
-
     }
-
     public static void removeGame() {
 
         // Query for the active games of all workers

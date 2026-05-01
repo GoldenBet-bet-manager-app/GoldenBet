@@ -2,7 +2,6 @@ package Player;
 
 import Client.Client;
 import Client.SearchClient;
-import gr.goldenbet.domain.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,7 +146,7 @@ public class PlayerApp {
         if ( stars < 1.0f || stars > 5.0f )
             throw new IllegalArgumentException("Warning: Rating must be from 1.0 to 5.0, in half-star increments (e.g., 1.0, 1.5, 2.0, 2.5...).");
         if ( gamePlayedStatus.getOrDefault ( gameName, false ) ) {
-            Rating rating = new Rating ( currentPlayer.getPlayerId ( ), gameName, stars );
+            Rating rating = new Rating ( gameName, stars );
 
             Client ratingClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.RATE, rating ) );
             ratingClient.start ( );

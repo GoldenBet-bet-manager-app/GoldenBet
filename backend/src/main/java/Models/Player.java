@@ -1,7 +1,11 @@
 package Models;
+
+
+
 import utils.Address;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -10,9 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Player implements Serializable {
 
-
-    // Personal Credentials
     private String name;
+    private BigDecimal balance;
+
     private String surname;
     private String username;
     private String password;
@@ -54,6 +58,7 @@ public class Player implements Serializable {
         this.isLoggedIn = false;
         this.email = "-";
         this.phone = "-";
+        this.balance = BigDecimal.ZERO;
 
         // Default Address constructor
         // sets all address fields to "-"
@@ -91,4 +96,12 @@ public class Player implements Serializable {
 
     public boolean isLoggedIn() { return isLoggedIn; }
     public void setLoggedIn(boolean loggedIn) { isLoggedIn = loggedIn; }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 }

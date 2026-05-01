@@ -3,13 +3,10 @@ package Master;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import gr.goldenbet.domain.*;
-import org.json.JSONObject;
-import utils.Address;
+import Models.*;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.Socket;
 import java.time.LocalTime;
@@ -21,8 +18,8 @@ import static java.util.UUID.randomUUID;
 public class MasterHandler extends Thread {
 
 
-    ObjectInputStream in;
-    ObjectOutputStream out;
+    DataInputStream in;
+    DataOutputStream out;
     private final ArrayList<WorkerInfo> workers;
     private final HashMap<Integer, ResultBox> sharedResults;
     private HashMap<String, Player> registedPlayers;
@@ -33,8 +30,8 @@ public class MasterHandler extends Thread {
         this.sharedResults = sharedResults;
         this.registedPlayers=registeredPlayers;
         try {
-            out = new ObjectOutputStream ( connection.getOutputStream ( ) );
-            in = new ObjectInputStream ( connection.getInputStream ( ) );
+            out = new DataOutputStream ( connection.getOutputStream ( ) );
+            in = new DataInputStream ( connection.getInputStream ( ) );
         } catch (IOException e) {
             e.printStackTrace ( );
         }
@@ -64,8 +61,11 @@ public class MasterHandler extends Thread {
 
 
             switch (type) {
+
                 case ADD_GAME:
-                    Game gameToAdd = (Game) message.getPayload ( );
+                    String addGameJson = gson.toJson(message.getPayload());
+                    Game gameToAdd = gson.fromJson(addGameJson, Game.class);
+                    message.setPayload(gameToAdd);
                     routeToSingleWorker ( message, gameToAdd.getGameName ( ), "add" );
                     break;
 
@@ -84,17 +84,20 @@ public class MasterHandler extends Thread {
                     break;
 
                 case PLAY:
-                    Bet bet = (Bet) message.getPayload ( );
-                    routeToSingleWorker ( message, bet.getGameName ( ), "play" );
+                    String betJson = gson.toJson(message.getPayload());
+                    Bet bet = gson.fromJson(betJson, Bet.class);
+                    message.setPayload(bet);
+                    routeToSingleWorker(message, bet.getGameName(), "play");
                     break;
 
                 case RATE:
-                    Rating rating = (Rating) message.getPayload ( );
-                    routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
+                    String ratingJson = gson.toJson(message.getPayload());
+                    Rating rating = gson.fromJson(ratingJson, Rating.class);
+                    message.setPayload(rating);
+                    routeToSingleWorker(message, rating.getGameName(), "rate");
                     break;
-                case REGIST:
 
-                    // 1. Λήψη παίκτη από το Payload (αν είναι Map, το μετατρέπουμε σε Player)
+                case REGIST:
                     Player player;
                     if (message.getPayload() instanceof Player) {
                         player = (Player) message.getPayload();
@@ -105,7 +108,6 @@ public class MasterHandler extends Thread {
 
                     Object regResponse = registplayers(player);
 
-                    // 2. Δημιουργία δυναμικού JSON απάντησης
                     JsonObject responseJson = new JsonObject();
 
                     if (regResponse instanceof Player) {
@@ -116,7 +118,6 @@ public class MasterHandler extends Thread {
                         responseJson.addProperty("message", (String) regResponse);
                     }
 
-                    // 3. Μετατροπή του JsonObject σε String και αποστολή
                     out.writeUTF(gson.toJson(responseJson));
                     out.flush();
                     break;
@@ -203,7 +204,7 @@ public class MasterHandler extends Thread {
 
 
     private void routeToSingleWorker (MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
-
+        Gson gson = new Gson();
         int numOfWorkers = workers.size ( );
         int gameWorkerIndex = hashGameToWorker ( gameName, numOfWorkers );
         WorkerInfo target = workers.get ( gameWorkerIndex );
@@ -222,9 +223,9 @@ public class MasterHandler extends Thread {
                 ((Game) message.getPayload ( )).setBackUp ( true );
 
             response = sendRequestToWorker(backupTarget, message, true, true);
-            out.writeObject(response);
+            String jsonResponse = gson.toJson(response);
+            out.writeUTF(jsonResponse);
             out.flush();
-            return;
         }
 
         if ( message.getType ( ).equals ( MasterMessageType.ADD_GAME ) )
@@ -240,15 +241,18 @@ public class MasterHandler extends Thread {
         else if ( response instanceof BigDecimal ) {
             BigDecimal payout = (BigDecimal) response;
             Bet originalBet = (Bet) message.getPayload ( );
+            Player player=registedPlayers.get (originalBet.getPlayerId ());
+         //edo enimeroneis to ipoloipo!!!!!!!!!!!!!!!!
             PlayBackUp playBackUp = new PlayBackUp ( payout, originalBet );
             sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false, false );
         }
         else if (message.getType ( ).equals ( MasterMessageType.PLAY ) && response instanceof String){
             System.out.println ( "Error message returned from betting. Canceling Backup Data." );
         }
-
-        out.writeObject ( response );
-        out.flush ( );
+        ;
+        String jsonResponse = gson.toJson(response);
+        out.writeUTF(jsonResponse);
+        out.flush();
     }
 
 
@@ -307,7 +311,9 @@ public class MasterHandler extends Thread {
         else if (finalResultMsg.getPayload() instanceof HashMap<?,?>)
             finalGames = (HashMap<String, BigDecimal>) finalResultMsg.getPayload();
 
-        out.writeObject(finalGames);
+        Gson localGsonMapRed = new Gson();
+        String finalGamesJson = localGsonMapRed.toJson(finalGames);
+        out.writeUTF(finalGamesJson);
         out.flush();
     }
 

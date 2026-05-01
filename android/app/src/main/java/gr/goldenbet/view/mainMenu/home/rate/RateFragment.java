@@ -1,5 +1,7 @@
 package gr.goldenbet.view.mainMenu.home.rate;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,7 +16,7 @@ import android.widget.Toast;
 
 import gr.goldenbet.databinding.FragmentRateBinding;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.domain.PlayerApp;
+
 
 public class RateFragment extends Fragment implements RateView {
 
@@ -46,11 +48,8 @@ public class RateFragment extends Fragment implements RateView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Player mockPlayer = new Player("Test", "User", "tester", "1234");
-        mockPlayer.setPlayerId("P123");
-
-        PlayerApp.initializeApp(mockPlayer);
-        presenter = new RatePresenter(this);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
+        presenter = new RatePresenter(this,prefs);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, games

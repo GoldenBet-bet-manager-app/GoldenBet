@@ -3,13 +3,11 @@ package gr.goldenbet.domain;
 import java.io.Serializable;
 
 public class Rating implements Serializable {
-    private String playerId;
     private String gameName;
     private float stars;
 
 
-    public Rating (String playerId, String gameName, float stars) {
-        this.playerId = playerId;
+    public Rating ( String gameName, float stars) {
         this.gameName = gameName;
         this.stars = stars;
     }
@@ -30,11 +28,5 @@ public class Rating implements Serializable {
         this.stars = stars;
     }
 
-    public String getPlayerId ( ) {
-        return playerId;
-    }
 
-    public void setPlayerId (String playerId) {
-        this.playerId = playerId;
-    }
 }

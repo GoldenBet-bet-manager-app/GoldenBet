@@ -15,11 +15,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import gr.goldenbet.R;
-import gr.goldenbet.domain.Client;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.view.register.RegisterActivity;
+
 
 public class LoginPresenter {
 

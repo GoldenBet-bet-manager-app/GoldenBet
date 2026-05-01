@@ -1,5 +1,7 @@
 package gr.goldenbet.view.games.fruitgame;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -18,7 +20,7 @@ import java.util.Random;
 
 import gr.goldenbet.databinding.FragmentFruitGameBinding;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.domain.PlayerApp;
+
 
 
 public class FruitGameFragment extends Fragment implements FruitGameView{
@@ -62,11 +64,8 @@ public class FruitGameFragment extends Fragment implements FruitGameView{
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Player mockPlayer = new Player("Test", "User", "tester", "1234");
-        mockPlayer.setPlayerId("P123");
-        PlayerApp.initializeApp(mockPlayer);
-        PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
-        presenter=new FruitGamePresenter(this,currentGameName,playerId);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
+        presenter=new FruitGamePresenter(this,currentGameName,playerId,prefs);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
        // presenter.initBalance();
