@@ -74,12 +74,19 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView 
 
     @Override
     public void onRegisterSuccess() {
-        Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-        finish(); // closes the activity
+
+        // Switch to Main Thread to update the UI
+        runOnUiThread(() -> {
+            Toast.makeText(this, R.string.register_success, Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
     public void onRegisterError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
+        // Switch to Main Thread to update the UI
+        runOnUiThread(() -> {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        });
     }
 }

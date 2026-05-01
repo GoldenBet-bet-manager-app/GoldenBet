@@ -27,10 +27,6 @@ public class StatsFragment extends Fragment implements StatsView {
 
         txtTotalProfit = view.findViewById(R.id.txtTotalProfit);
 
-        bars[0] = view.findViewById(R.id.barMon).findViewById(R.id.barView);
-        bars[1] = view.findViewById(R.id.barTue).findViewById(R.id.barView);
-        // ... και για τις 7 ημέρες ...
-
         presenter = new StatsPresenter(this);
         presenter.loadPlayerStats("user123");
     }
@@ -38,9 +34,8 @@ public class StatsFragment extends Fragment implements StatsView {
     @Override
     public void showStats(PlayerStats stats) {
         txtTotalProfit.setText(stats.totalProfit + " FUN");
-        // Ενημέρωση των υπόλοιπων KPIs...
 
-        // Δυναμική αλλαγή ύψους μπάρας
+
         updateBarGraph(stats.weeklyActivity);
     }
 

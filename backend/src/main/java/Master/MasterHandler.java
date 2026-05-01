@@ -1,8 +1,11 @@
 package Master;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import gr.goldenbet.domain.*;
-import Models.*;
+import org.json.JSONObject;
+import utils.Address;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -40,10 +43,25 @@ public class MasterHandler extends Thread {
 
     @Override
     public void run ( ) {
+//        MasterMessage message = (MasterMessage) in.readObject ( );
+//        MasterMessageType type = message.getType ( );
+
+        Gson gson = new Gson();
 
         try {
-            MasterMessage message = (MasterMessage) in.readObject ( );
-            MasterMessageType type = message.getType ( );
+            String receivedJsonString = null;
+
+            try {
+                receivedJsonString = in.readUTF();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+
+            MasterMessage message = gson.fromJson(receivedJsonString, MasterMessage.class);
+            MasterMessageType type = message.getType();
+
+
 
             switch (type) {
                 case ADD_GAME:
@@ -75,15 +93,48 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
                     break;
                 case REGIST:
-                    System.out.println("Hello from player regist");
-                    Player player=(Player) message.getPayload ();
+
+                    // 1. Λήψη παίκτη από το Payload (αν είναι Map, το μετατρέπουμε σε Player)
+                    Player player;
+                    if (message.getPayload() instanceof Player) {
+                        player = (Player) message.getPayload();
+                    } else {
+                        String playerJson = gson.toJson(message.getPayload());
+                        player = gson.fromJson(playerJson, Player.class);
+                    }
+
                     Object regResponse = registplayers(player);
-                    out.writeObject(regResponse);
+
+                    // 2. Δημιουργία δυναμικού JSON απάντησης
+                    JsonObject responseJson = new JsonObject();
+
+                    if (regResponse instanceof Player) {
+                        responseJson.addProperty("status", "SUCCESS");
+                        responseJson.addProperty("message", "Registration successful for: " + ((Player) regResponse).getUsername());
+                    } else {
+                        responseJson.addProperty("status", "FAILED");
+                        responseJson.addProperty("message", (String) regResponse);
+                    }
+
+                    // 3. Μετατροπή του JsonObject σε String και αποστολή
+                    out.writeUTF(gson.toJson(responseJson));
                     out.flush();
                     break;
                 case LOGIN:
                     Object loginResponse = loginplayers(message.getPayload());
-                    out.writeObject(loginResponse);
+
+                    JsonObject responseLoginJson = new JsonObject();
+
+                    if (loginResponse instanceof Player) {
+                        responseLoginJson.addProperty("status", "SUCCESS");
+                        responseLoginJson.addProperty("message", "Registration successful for: " + ((Player) loginResponse).getUsername());
+                        responseLoginJson.add("loggedInPlayer", gson.toJsonTree((Player) loginResponse));
+                    } else {
+                        responseLoginJson.addProperty("status", "FAILED");
+                        responseLoginJson.addProperty("message", "Incorrect username or password");
+                    }
+
+                    out.writeUTF(gson.toJson(responseLoginJson));
                     out.flush();
                     break;
                 case LOGOUT:
@@ -109,9 +160,9 @@ public class MasterHandler extends Thread {
     }
 
     private void logoutplayers (Object payload) {
-        String[] credentials = (String[]) payload;
+        ArrayList<String> credentials = (ArrayList<String>) payload;
         for ( Player p : registedPlayers.values ( ) ) {
-            if ( p.getUsername ( ).equals ( credentials[ 0 ] ) && p.getPassword ( ).equals ( credentials[ 1 ] )
+            if ( p.getUsername ( ).equals ( credentials.get(0)) && p.getPassword ( ).equals ( credentials.get(1) )
                     && p.isLoggedIn ()){
                 p.setLoggedIn ( false );
             }
@@ -120,12 +171,12 @@ public class MasterHandler extends Thread {
 
     private Object loginplayers (Object payload) {
 
-        String[] credentials = (String[]) payload;
+        ArrayList<String> credentials = (ArrayList<String>) payload;
 
         synchronized (registedPlayers) {
             for (Player p : registedPlayers.values()) {
 
-                if (p.getUsername().equals(credentials[0]) && p.getPassword().equals(credentials[1])
+                if (p.getUsername().equals(credentials.get(0)) && p.getPassword().equals(credentials.get(1))
                         && !p.isLoggedIn()) {
                     p.setLoggedIn(true);
                     return p;
@@ -140,10 +191,10 @@ public class MasterHandler extends Thread {
     private Object registplayers (Player player) {
 
         synchronized (registedPlayers) {
-            if ( !registedPlayers.containsKey( player.getPlayerId()) ) {
+            if ( registedPlayers.containsKey( player.getUsername()) ) {
                 return "The player with this username already exists.";
             } else {
-                registedPlayers.put (player.getPlayerId(), player);
+                registedPlayers.put (player.getUsername(), player);
             }
         }
 

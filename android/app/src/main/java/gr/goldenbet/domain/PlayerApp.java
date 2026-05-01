@@ -1,4 +1,6 @@
 package gr.goldenbet.domain;
+import android.util.Log;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +12,7 @@ import gr.goldenbet.utils.ConfigLoader;
 public class PlayerApp {
 
     // static variables for network communication
-    private static String masterIp = "10.0.2.2";
+    private static String masterIp = "192.168.1.17";
     private static int masterPort = 43210;
 
     private Player currentPlayer;

@@ -31,6 +31,7 @@
     <string name="register_already_member_signin">Signin.</string>
     <string name="confirm_title">Confirm Registration</string>
     <string name="confirm_msg">Are you sure you want to register with these details?</string>
+    <string name="register_success">Successful registration</string>
 
 
     <!--activity_settings.xml-->
@@ -117,6 +118,23 @@
     <string name="rate_error_no_game">Please select a game from the list!</string>
     <string name="rate_error_invalid_stars">The rating must be between 1 and 5 stars (in half-star increments)!</string>
     <string name="rate_success">Successful review!!!!</string>
+
+
+    <!--fragment_stats.xml-->
+    <string name="stats_weekly_activity_header">WEEKKLY ACTIVITY</string>
+    <string name="stats_weekly_performance_header">WEEKKLY PERFORMANCE</string>
+    <string name="stats_records_header">RECORDS AND DISCTINCTIONS</string>
+    <string name="stats_performance_indexes_header">BASIC PERFORMANCE INDEXES</string>
+    <string name="stats_main_header">PLAYER STATS</string>
+    <string name="stats_profit_header">TOTAL PROFIT</string>
+    <string name="stats_win_rate_header">WIN RATE</string>
+    <string name="stats_profit_per_attempt_header">PROFIT/LOSS PER ATTEMPT</string>
+    <string name="stats_loss_per_loss">LOSS PER LOSS</string>
+    <string name="stats_profit_per_win">PROFIT PER WIN</string>
+    <string name="stats_most_time">Game with most time:</string>
+    <string name="stats_most_fun">Attempt with most profit :</string>
+    <string name="stats_biggest_win">Largest win: </string>
+
 
     <!--Common messages and settings throughout the application-->
     <string name="common_ok">Ok</string>

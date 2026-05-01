@@ -1,7 +1,16 @@
 package gr.goldenbet.view.login;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -87,30 +96,46 @@ public class LoginPresenter {
 
 
     public void onLogin(String username, String password) {
+
+
         String[] credentials = new String[]{username, password};
-        Client loginClient = new Client ( MASTER_IP, MASTER_PORT, new MasterMessage( MasterMessageType.LOGIN, credentials ) );
-        loginClient.start();
+        MasterMessage loginMsg = new MasterMessage(MasterMessageType.LOGIN, credentials);
+        Gson gson = new Gson();
+        String jsonToSend = gson.toJson(loginMsg);
 
-        try {
-            loginClient.join ( );
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        new Thread(() -> {
+            try (Socket socket = new Socket(MASTER_IP, MASTER_PORT);
+                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-        Object response = loginClient.getResponse ( );
+                // Message sent to Master
+                out.writeUTF(jsonToSend);
+                out.flush();
 
-        // Successful login
-        if (response instanceof Player) {
-            Player loggedInPlayer = (Player) response;
-            view.navigateToAccount(loggedInPlayer.getPlayerId());
-        }
-        // failed login attempt (null is returned)
-        else{
-            String msg = ((LoginActivity) view).getResources().getString(R.string.login_failure);
-            view.showErrorMessage(msg);
-        }
+                // Master's response
+                String masterReply = in.readUTF();
+                JsonObject responseJson = gson.fromJson(masterReply, JsonObject.class);
+                String status = responseJson.get("status").getAsString();
+
+                ((Activity) view).runOnUiThread(() -> {
+                    if ("SUCCESS".equals(status)) {
+                        Player loggedInPlayer = gson.fromJson(responseJson.get("loggedInPlayer"), Player.class);
+
+
+                        view.navigateToAccount(loggedInPlayer.getPlayerId());
+                    } else {
+                        // Σφάλμα από τον Master
+                        String errorMsg = responseJson.get("message").getAsString();
+                        view.showErrorMessage(errorMsg);
+                    }
+                });
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
-
 
     public void onRegister() {
         view.navigateToRegister();

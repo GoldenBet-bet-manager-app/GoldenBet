@@ -4,6 +4,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -12,6 +17,8 @@ import gr.goldenbet.R;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
+import gr.goldenbet.utils.Address;
 import gr.goldenbet.view.utils.ConfigLoader;
 
 public class RegisterPresenter {
@@ -45,38 +52,46 @@ public class RegisterPresenter {
 
     public void sendRegistrationToMaster(Player player) {
 
+//        PlayerApp.initializeApp(new Player("s","g","g","a"));
         new Thread(() -> {
+//            try {
+//                PlayerApp.getInstance().regist(player);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }).start();
             try (Socket socket = new Socket(MASTER_IP, MASTER_PORT);
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-                // Send the registration request to Master
-                MasterMessage request = new MasterMessage(MasterMessageType.REGIST, player);
-                out.writeObject(request);
+                Gson gson = new Gson();
+
+                MasterMessage message = new MasterMessage(MasterMessageType.REGIST, player);
+                String jsonToSend = gson.toJson(message);
+
+                out.writeUTF(jsonToSend);
                 out.flush();
 
-                // Wait and read the response from Master
-                Object response = in.readObject();
+                String masterReply = in.readUTF();
+                JsonObject response = gson.fromJson(masterReply, JsonObject.class);
 
-                // Switch to Main Thread to update the UI
-                new Handler(Looper.getMainLooper()).post(() -> {
+                String status = response.get("status").getAsString();
+                String masterReplyMessage = response.get("message").getAsString();
 
-                    // Successful registration
-                    if (response instanceof Player) {
-                        view.onRegisterSuccess();
-                    } else if (response instanceof String) {
-                        view.onRegisterError((String) response);
-                    }
-
-                });
+                if ("SUCCESS".equals(status)) {
+                    view.onRegisterSuccess();
+                } else {
+                    view.onRegisterError(masterReplyMessage);
+                }
 
             } catch (Exception e) {
-                // Handle connection errors on the Main Thread
-                new Handler(Looper.getMainLooper()).post(() ->
-                        view.onRegisterError("Network Error: " + e.getMessage()));
-                Log.d("FATAL ERROR",e.getMessage());
+
+                // runOnUiThread called by method to update UI
+                view.onRegisterError("Network Error: " + e.getMessage());
             }
         }).start();
+
+
 
 
     }
