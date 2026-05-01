@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import org.json.JSONObject;
 
 import java.io.ObjectInputStream;
@@ -14,6 +17,7 @@ import gr.goldenbet.R;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
 import gr.goldenbet.utils.Address;
 import gr.goldenbet.view.utils.ConfigLoader;
 
@@ -48,64 +52,35 @@ public class RegisterPresenter {
 
     public void sendRegistrationToMaster(Player player) {
 
+//        PlayerApp.initializeApp(new Player("s","g","g","a"));
         new Thread(() -> {
+//            try {
+//                PlayerApp.getInstance().regist(player);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }).start();
             try (Socket socket = new Socket(MASTER_IP, MASTER_PORT);
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-                // Main JSON creation (MasterMessage)
+                Gson gson = new Gson();
+
                 MasterMessage message = new MasterMessage(MasterMessageType.REGIST, player);
-                JSONObject masterJson = new JSONObject();
-                masterJson.put("type", message.getType() != null ? message.getType().name() : "null");
-                masterJson.put("mapId", message.getMapId());
+                String jsonToSend = gson.toJson(message);
 
-                // if paylod is type of Player, it is converted into nested JSON
-                if (message.getPayload() instanceof Player) {
-                    JSONObject playerJson = new JSONObject();
-
-                    playerJson.put("name", player.getName());
-                    playerJson.put("surname", player.getSurname());
-                    playerJson.put("username", player.getUsername());
-                    playerJson.put("password", player.getPassword());
-                    playerJson.put("email", player.getEmail());
-                    playerJson.put("phone", player.getPhone());
-                    playerJson.put("playerId", player.getPlayerId());
-                    playerJson.put("isLoggedIn", player.isLoggedIn());
-
-                    // Conversion of object Address of Player
-                    JSONObject addressJson = new JSONObject();
-                    Address addr = player.getAddress();
-                    if (addr != null) {
-                        addressJson.put("street", addr.getStreet());
-                        addressJson.put("streetNumber", addr.getStreetNumber());
-                        addressJson.put("city", addr.getCity());
-                        addressJson.put("zipCode", addr.getZipCode());
-                    }
-                    playerJson.put("address", addressJson);
-
-                    // Place player into MasterMessage JSON
-                    masterJson.put("payload", playerJson);
-                }
-
-                // Send JSON as String
-                out.writeUTF(masterJson.toString());
+                out.writeUTF(jsonToSend);
                 out.flush();
 
-
                 String masterReply = in.readUTF();
-                JSONObject response = new JSONObject(masterReply);
+                JsonObject response = gson.fromJson(masterReply, JsonObject.class);
 
-                String status = response.getString("status");
-                String masterReplyMessage = response.getString("message");
+                String status = response.get("status").getAsString();
+                String masterReplyMessage = response.get("message").getAsString();
 
-
-                // Successful registration
-                // runOnUiThread called by methods to update UI
                 if ("SUCCESS".equals(status)) {
-                    // Successful Registration Attempt
                     view.onRegisterSuccess();
                 } else {
-                    // Failed Registration Attempt
                     view.onRegisterError(masterReplyMessage);
                 }
 
@@ -115,6 +90,7 @@ public class RegisterPresenter {
                 view.onRegisterError("Network Error: " + e.getMessage());
             }
         }).start();
+
 
 
 

@@ -1,6 +1,8 @@
 package Master;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import gr.goldenbet.domain.*;
 import org.json.JSONObject;
 import utils.Address;
@@ -41,57 +43,24 @@ public class MasterHandler extends Thread {
 
     @Override
     public void run ( ) {
+//        MasterMessage message = (MasterMessage) in.readObject ( );
+//        MasterMessageType type = message.getType ( );
 
+        Gson gson = new Gson();
 
         try {
-            MasterMessage message = (MasterMessage) in.readObject ( );
-            MasterMessageType type = message.getType ( );
+            String receivedJsonString = null;
+
+            try {
+                receivedJsonString = in.readUTF();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
 
+            MasterMessage message = gson.fromJson(receivedJsonString, MasterMessage.class);
+            MasterMessageType type = message.getType();
 
-//            MasterMessage message = null ;
-//            // 1. Διάβασμα του String από το Socket
-//            String receivedJsonString = in.readUTF();
-//            JSONObject masterJson = new JSONObject(receivedJsonString);
-//
-//// 2. Ξετύλιγμα του MasterMessage (Εξωτερικό επίπεδο)
-//            String typeStr = masterJson.getString("type");
-//            MasterMessageType type = MasterMessageType.valueOf(typeStr);
-//            int mapId = masterJson.getInt("mapId");
-//
-//// 3. Ξετύλιγμα του Player (Μεσαίο επίπεδο)
-//            if (masterJson.has("payload")) {
-//                JSONObject playerJson = masterJson.getJSONObject("payload");
-//
-//                // Λήψη στοιχείων Player
-//                String name = playerJson.getString("name");
-//                String surname = playerJson.getString("surname");
-//                String username = playerJson.getString("username");
-//                String password = playerJson.getString("password");
-//                String email = playerJson.getString("email");
-//                String phone = playerJson.getString("phone");
-//                String playerId = playerJson.getString("playerId");
-//                boolean isLoggedIn = playerJson.getBoolean("isLoggedIn");
-//
-//                // 4. Ξετύλιγμα της Address (Εσωτερικό επίπεδο)
-//                JSONObject addressJson = playerJson.getJSONObject("address");
-//                Address address = new Address(
-//                        addressJson.getString("street"),
-//                        addressJson.getString("streetNumber"),
-//                        addressJson.getString("city"),
-//                        addressJson.getString("zipCode")
-//                );
-//
-//                // 5. Ανασύνθεση των Java Objects
-//                Player player = new Player(name, surname, username, password, email, phone, address);
-//                player.setPlayerId(playerId);
-//                player.setLoggedIn(isLoggedIn);
-//
-//                message = new MasterMessage(type, player);
-//                message.setMapId(mapId);
-//
-//                // Τώρα το 'message' είναι έτοιμο για χρήση στο switch/case σας!
-//            }
 
 
             switch (type) {
@@ -124,29 +93,48 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
                     break;
                 case REGIST:
-                    System.out.println("Hello from MASTER REGIST");
-                    Player player = (Player) message.getPayload();
-                    Object regResponse = registplayers(player);
 
-                    JSONObject responseJson = new JSONObject();
-
-                    if (regResponse instanceof Player) {
-                        // Successful registration attempt
-                        responseJson.put("status", "SUCCESS");
-                        responseJson.put("message", "Registration successful for: " + ((Player) regResponse).getUsername());
+                    // 1. Λήψη παίκτη από το Payload (αν είναι Map, το μετατρέπουμε σε Player)
+                    Player player;
+                    if (message.getPayload() instanceof Player) {
+                        player = (Player) message.getPayload();
                     } else {
-                        // Failed registration attempt
-                        responseJson.put("status", "FAILED");
-                        responseJson.put("message", (String) regResponse);
+                        String playerJson = gson.toJson(message.getPayload());
+                        player = gson.fromJson(playerJson, Player.class);
                     }
 
-                    // Αποστολή του String μέσω του TCP Socket
-                    out.writeUTF(responseJson.toString());
+                    Object regResponse = registplayers(player);
+
+                    // 2. Δημιουργία δυναμικού JSON απάντησης
+                    JsonObject responseJson = new JsonObject();
+
+                    if (regResponse instanceof Player) {
+                        responseJson.addProperty("status", "SUCCESS");
+                        responseJson.addProperty("message", "Registration successful for: " + ((Player) regResponse).getUsername());
+                    } else {
+                        responseJson.addProperty("status", "FAILED");
+                        responseJson.addProperty("message", (String) regResponse);
+                    }
+
+                    // 3. Μετατροπή του JsonObject σε String και αποστολή
+                    out.writeUTF(gson.toJson(responseJson));
                     out.flush();
                     break;
                 case LOGIN:
                     Object loginResponse = loginplayers(message.getPayload());
-                    out.writeObject(loginResponse);
+
+                    JsonObject responseLoginJson = new JsonObject();
+
+                    if (loginResponse instanceof Player) {
+                        responseLoginJson.addProperty("status", "SUCCESS");
+                        responseLoginJson.addProperty("message", "Registration successful for: " + ((Player) loginResponse).getUsername());
+                        responseLoginJson.add("loggedInPlayer", gson.toJsonTree((Player) loginResponse));
+                    } else {
+                        responseLoginJson.addProperty("status", "FAILED");
+                        responseLoginJson.addProperty("message", "Incorrect username or password");
+                    }
+
+                    out.writeUTF(gson.toJson(responseLoginJson));
                     out.flush();
                     break;
                 case LOGOUT:
@@ -172,9 +160,9 @@ public class MasterHandler extends Thread {
     }
 
     private void logoutplayers (Object payload) {
-        String[] credentials = (String[]) payload;
+        ArrayList<String> credentials = (ArrayList<String>) payload;
         for ( Player p : registedPlayers.values ( ) ) {
-            if ( p.getUsername ( ).equals ( credentials[ 0 ] ) && p.getPassword ( ).equals ( credentials[ 1 ] )
+            if ( p.getUsername ( ).equals ( credentials.get(0)) && p.getPassword ( ).equals ( credentials.get(1) )
                     && p.isLoggedIn ()){
                 p.setLoggedIn ( false );
             }
@@ -183,12 +171,12 @@ public class MasterHandler extends Thread {
 
     private Object loginplayers (Object payload) {
 
-        String[] credentials = (String[]) payload;
+        ArrayList<String> credentials = (ArrayList<String>) payload;
 
         synchronized (registedPlayers) {
             for (Player p : registedPlayers.values()) {
 
-                if (p.getUsername().equals(credentials[0]) && p.getPassword().equals(credentials[1])
+                if (p.getUsername().equals(credentials.get(0)) && p.getPassword().equals(credentials.get(1))
                         && !p.isLoggedIn()) {
                     p.setLoggedIn(true);
                     return p;
