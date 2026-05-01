@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentPokerBinding;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.domain.PlayerApp;
+
 
 public class PokerFragment extends Fragment implements PokerView {
 
@@ -56,10 +56,8 @@ public class PokerFragment extends Fragment implements PokerView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Player mockPlayer = new Player("Test", "User", "tester", "1234");
-        mockPlayer.setPlayerId("P123");
-        PlayerApp.initializeApp(mockPlayer);
-        PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
+
+
         presenter = new PokerPresenter(this, currentGameName);
         binding.tvTitle.setText(currentGameName.toUpperCase());
 

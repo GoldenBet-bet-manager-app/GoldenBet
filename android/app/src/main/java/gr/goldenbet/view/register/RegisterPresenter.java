@@ -17,7 +17,7 @@ import gr.goldenbet.R;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.domain.PlayerApp;
+
 import gr.goldenbet.utils.Address;
 import gr.goldenbet.view.utils.ConfigLoader;
 

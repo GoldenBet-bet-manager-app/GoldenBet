@@ -3,7 +3,6 @@ package gr.goldenbet.view.games.poker;
 import java.math.BigDecimal;
 
 import gr.goldenbet.domain.PokerGameRules;
-import gr.goldenbet.domain.PlayerApp;
 
 public class PokerPresenter {
     private PokerView view;
@@ -30,10 +29,10 @@ public class PokerPresenter {
         view.showWinResult("Μοιράζει... 🃟");
         bet = new BigDecimal(betamount);
         view.showFlipResult("");
-        playerBalance = PlayerApp.getInstance().getBalance();
+
         new Thread(() -> {
             try {
-                payout = PlayerApp.getInstance().play(gameName, bet);
+               // payout = PlayerApp.getInstance().play(gameName, bet);
                 view.showMessage(payout.toString());
                 multiplier = 0.0;
                 if (payout.compareTo(BigDecimal.ZERO) > 0) {

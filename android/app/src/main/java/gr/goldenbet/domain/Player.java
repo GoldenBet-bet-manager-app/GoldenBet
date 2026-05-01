@@ -57,6 +57,7 @@ public class Player implements Serializable {
         this.isLoggedIn = false;
         this.email = "-";
         this.phone = "-";
+        this.balance = BigDecimal.ZERO;
 
         // Default Address constructor
         // sets all address fields to "-"
