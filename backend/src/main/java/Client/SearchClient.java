@@ -1,7 +1,7 @@
 package Client;
 
 import Player.PlayerApp;
-import gr.goldenbet.domain.Game;
+import Models.Game;
 
 import java.util.ArrayList;
 

@@ -26,6 +26,8 @@ public class Address implements Serializable {
         this.zipCode = zipCode;
     }
 
+    
+
     // --- Getters and Setters ---
 
     public String getStreet() { return street; }

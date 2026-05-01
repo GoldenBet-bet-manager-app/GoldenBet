@@ -3,6 +3,7 @@ package gr.goldenbet.domain;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import gr.goldenbet.utils.Address;
@@ -12,10 +13,9 @@ import gr.goldenbet.utils.Address;
  */
 public class Player implements Serializable {
 
-
-
-    // Personal Credentials
     private String name;
+    private BigDecimal balance;
+
     private String surname;
     private String username;
     private String password;
@@ -94,4 +94,12 @@ public class Player implements Serializable {
 
     public boolean isLoggedIn() { return isLoggedIn; }
     public void setLoggedIn(boolean loggedIn) { isLoggedIn = loggedIn; }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 }

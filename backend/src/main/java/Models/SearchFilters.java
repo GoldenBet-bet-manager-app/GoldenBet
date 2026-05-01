@@ -1,7 +1,6 @@
-package gr.goldenbet.domain;
+package Models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class SearchFilters implements Serializable {
     private String playerId;

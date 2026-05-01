@@ -1,7 +1,7 @@
 package Worker;
 
-import gr.goldenbet.domain.Game;
-import gr.goldenbet.domain.WorkerInfo;
+import Models.Game;
+import Models.WorkerInfo;
 import utils.ConfigLoader;
 
 import java.io.IOException;

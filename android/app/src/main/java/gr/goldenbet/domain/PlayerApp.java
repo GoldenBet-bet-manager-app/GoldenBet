@@ -91,14 +91,14 @@ public class PlayerApp {
         if ( amount.compareTo ( BigDecimal.ZERO ) <= 0 )
             throw new RuntimeException ( "The bet cannot be negative or zero." );
         if ( amount.compareTo ( this.balance) > 0 )
-            throw new RuntimeException ( "You don't have enough FUN." );
+            throw new RuntimeException ( "You don't have enough FUNs." );
 
         Bet bet = new Bet ( amount, currentPlayer.getPlayerId(), gameName );
-        Client playClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.PLAY, bet ) );
+        JsonClient playClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.PLAY, bet ) );
         playClient.start ( );
         playClient.join ();
 
-        Object response = playClient.getResponse ( );
+        String response = playClient.getResponse ( );
         System.out.println ( "\n============ Game Result ==============" );
 
         if ( response instanceof String ) {

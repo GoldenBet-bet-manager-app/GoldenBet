@@ -2,6 +2,7 @@ package Worker;
 
 import gr.goldenbet.domain.*;
 
+import Models.*;
 import utils.ConfigLoader;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 
 import static Worker.Worker.backupPlayersProfits;
 import static Worker.Worker.primaryPlayersProfits;
-import static gr.goldenbet.domain.SHA256Generator.computeSHA256;
+import static Models.SHA256Generator.computeSHA256;
 
 public class WorkerHandler extends Thread {
 

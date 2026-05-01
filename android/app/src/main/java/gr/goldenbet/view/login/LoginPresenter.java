@@ -28,8 +28,8 @@ public class LoginPresenter {
         this.prefs = prefs;
 
         // Set master configurations
-        MASTER_IP = ((RegisterActivity)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((RegisterActivity)view).getResources().getInteger(R.integer.master_port);
+        MASTER_IP = ((LoginActivity)view).getResources().getString(R.string.master_ip);
+        MASTER_PORT = ((LoginActivity)view).getResources().getInteger(R.integer.master_port);
 
     }
     public void initializeSettings() {

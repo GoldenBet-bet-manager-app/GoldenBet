@@ -1,6 +1,6 @@
 package reducer;
 
-import gr.goldenbet.domain.Game;
+import Models.Game;
 
 import java.util.ArrayList;
 

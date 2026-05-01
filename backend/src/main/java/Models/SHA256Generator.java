@@ -1,4 +1,4 @@
-package gr.goldenbet.domain;
+package Models;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

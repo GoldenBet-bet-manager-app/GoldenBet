@@ -4,7 +4,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Map;
-import static gr.goldenbet.domain.SHA256Generator.*;
+import static Models.SHA256Generator.*;
 
 public class GeneratorHandler extends Thread{
 

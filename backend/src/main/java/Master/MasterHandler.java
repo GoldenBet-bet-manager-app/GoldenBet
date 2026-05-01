@@ -2,6 +2,7 @@ package Master;
 
 
 import gr.goldenbet.domain.*;
+import Models.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

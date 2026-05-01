@@ -9,7 +9,7 @@ public class SearchFilters implements Serializable {
     private String betCategory;  // "$", "$$", "$$$"
     private String riskLevel;
 
-    public SearchFilters ( float minstars,float maxstars ,String betCategory, String riskLevel) {
+    public SearchFilters (float minstars,float maxstars ,String betCategory, String riskLevel) {
 
         this.minstars = minstars;
         this.maxstars=maxstars;

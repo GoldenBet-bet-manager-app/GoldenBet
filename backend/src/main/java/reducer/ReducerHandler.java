@@ -1,8 +1,8 @@
 package reducer;
 
-import gr.goldenbet.domain.Game;
-import gr.goldenbet.domain.MasterMessage;
-import gr.goldenbet.domain.MasterMessageType;
+import Models.Game;
+import Models.MasterMessage;
+import Models.MasterMessageType;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

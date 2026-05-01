@@ -5,9 +5,9 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import gr.goldenbet.domain.MasterMessage;
-import gr.goldenbet.domain.Player;
-import gr.goldenbet.domain.WorkerInfo;
+import Models.MasterMessage;
+import Models.Player;
+import Models.WorkerInfo;
 import utils.ConfigLoader;
 
 public class Master{

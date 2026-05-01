@@ -1,4 +1,4 @@
-package gr.goldenbet.domain;
+package Models;
 
 public class Manager {
     private String name;

@@ -1,9 +1,9 @@
-package gr.goldenbet.domain;
+package Models;
+import utils.Address;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import utils.Address;
 
 /**
  * Represents a Player in the system, including personal and contact details.
@@ -52,11 +52,12 @@ public class Player implements Serializable {
         this.username = username;
         this.password = password;
         this.isLoggedIn = false;
+        this.email = "-";
+        this.phone = "-";
 
-        this.address.setZipCode("-");
-        this.address.setStreet("-");
-        this.address.setStreetNumber("-");
-        this.address.setCity("-");
+        // Default Address constructor
+        // sets all address fields to "-"
+        this.address = new Address();
 
         // Generates unique Player ID for the current session
         this.playerId = "Player_" + idCounter.getAndIncrement();
