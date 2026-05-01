@@ -33,6 +33,8 @@
     <string name="register_already_member_signin">Είσοδος.</string>
     <string name="confirm_title">Επιβεβαίωση Εγγραφής</string>
     <string name="confirm_msg">Είστε σίγουροι ότι θέλετε να προχωρήσετε στην εγγραφή με αυτά τα στοιχεία;</string>
+    <string name="register_success">Επιτυχημένη εγγραφή</string>
+
 
 
     <!--activity_settings.xml-->
@@ -117,6 +119,24 @@
     <string name="rate_error_no_game">Παρακαλώ επιλέξτε ένα παιχνίδι από τη λίστα!</string>
     <string name="rate_error_invalid_stars">Η βαθμολογία πρέπει να είναι μεταξύ 1 και 5 αστέρια (με βήμα μισού αστεριού)!</string>
     <string name="rate_success">Επιτυχής Αξιολόγηση!!!!</string>
+
+
+    <!--fragment_stats.xml-->
+    <string name="stats_weekly_activity_header">ΕΒΔΟΜΑΔΙΑΙΑ ΔΡΑΣΤΗΡΙΟΤΗΤΑ</string>
+    <string name="stats_weekly_performance_header">ΕΒΔΟΜΑΔΙΑΙΑ ΑΠΟΔΟΣΗ</string>
+    <string name="stats_records_header">ΡΕΚΟΡ ΚΑΙ ΔΙΑΚΡΙΣΕΙΣ</string>
+    <string name="stats_performance_indexes_header">ΒΑΣΙΚΟΙ ΔΕΙΚΤΕΣ ΑΠΟΔΟΣΗΣ</string>
+    <string name="stats_main_header">ΣΤΑΤΙΣΤΙΚΑ ΠΑΙΚΤΗ</string>
+    <string name="stats_profit_header">ΣΥΝΟΛΙΚΟ ΚΕΡΔΟΣ</string>
+    <string name="stats_win_rate_header">ΠΟΣΟΣΤΟ ΝΙΚΩΝ</string>
+    <string name="stats_profit_per_attempt_header">ΚΕΡΔΟΣ/ΑΠΩΛΕΙΑ ΑΝΑ ΠΡΟΣΠΑΘΕΙΑ</string>
+    <string name="stats_loss_per_loss">ΑΠΩΛΕΙΑ ΑΝΑ ΑΠΩΛΕΙΑ</string>
+    <string name="stats_profit_per_win">ΚΕΡΔΟΣ ΑΝΑ ΝΙΚΗ</string>
+    <string name="stats_most_time">Παιχνίδι με περισσότερο χρόνο:</string>
+    <string name="stats_most_fun">Προσπάθεια με το μεγαλύτερος κέρδος :</string>
+    <string name="stats_biggest_win">Μεγαλύτερη Νίκη: </string>
+
+
 
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>

@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -12,6 +14,7 @@ import gr.goldenbet.R;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.Address;
 import gr.goldenbet.view.utils.ConfigLoader;
 
 public class RegisterPresenter {
@@ -50,33 +53,69 @@ public class RegisterPresenter {
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-                // Send the registration request to Master
-                MasterMessage request = new MasterMessage(MasterMessageType.REGIST, player);
-                out.writeObject(request);
+                // Main JSON creation (MasterMessage)
+                MasterMessage message = new MasterMessage(MasterMessageType.REGIST, player);
+                JSONObject masterJson = new JSONObject();
+                masterJson.put("type", message.getType() != null ? message.getType().name() : "null");
+                masterJson.put("mapId", message.getMapId());
+
+                // if paylod is type of Player, it is converted into nested JSON
+                if (message.getPayload() instanceof Player) {
+                    JSONObject playerJson = new JSONObject();
+
+                    playerJson.put("name", player.getName());
+                    playerJson.put("surname", player.getSurname());
+                    playerJson.put("username", player.getUsername());
+                    playerJson.put("password", player.getPassword());
+                    playerJson.put("email", player.getEmail());
+                    playerJson.put("phone", player.getPhone());
+                    playerJson.put("playerId", player.getPlayerId());
+                    playerJson.put("isLoggedIn", player.isLoggedIn());
+
+                    // Conversion of object Address of Player
+                    JSONObject addressJson = new JSONObject();
+                    Address addr = player.getAddress();
+                    if (addr != null) {
+                        addressJson.put("street", addr.getStreet());
+                        addressJson.put("streetNumber", addr.getStreetNumber());
+                        addressJson.put("city", addr.getCity());
+                        addressJson.put("zipCode", addr.getZipCode());
+                    }
+                    playerJson.put("address", addressJson);
+
+                    // Place player into MasterMessage JSON
+                    masterJson.put("payload", playerJson);
+                }
+
+                // Send JSON as String
+                out.writeUTF(masterJson.toString());
                 out.flush();
 
-                // Wait and read the response from Master
-                Object response = in.readObject();
 
-                // Switch to Main Thread to update the UI
-                new Handler(Looper.getMainLooper()).post(() -> {
+                String masterReply = in.readUTF();
+                JSONObject response = new JSONObject(masterReply);
 
-                    // Successful registration
-                    if (response instanceof Player) {
-                        view.onRegisterSuccess();
-                    } else if (response instanceof String) {
-                        view.onRegisterError((String) response);
-                    }
+                String status = response.getString("status");
+                String masterReplyMessage = response.getString("message");
 
-                });
+
+                // Successful registration
+                // runOnUiThread called by methods to update UI
+                if ("SUCCESS".equals(status)) {
+                    // Successful Registration Attempt
+                    view.onRegisterSuccess();
+                } else {
+                    // Failed Registration Attempt
+                    view.onRegisterError(masterReplyMessage);
+                }
 
             } catch (Exception e) {
-                // Handle connection errors on the Main Thread
-                new Handler(Looper.getMainLooper()).post(() ->
-                        view.onRegisterError("Network Error: " + e.getMessage()));
-                Log.d("FATAL ERROR",e.getMessage());
+
+                // runOnUiThread called by method to update UI
+                view.onRegisterError("Network Error: " + e.getMessage());
             }
         }).start();
+
 
 
     }

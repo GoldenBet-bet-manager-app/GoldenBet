@@ -2,6 +2,8 @@ package Master;
 
 
 import gr.goldenbet.domain.*;
+import org.json.JSONObject;
+import utils.Address;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -40,9 +42,57 @@ public class MasterHandler extends Thread {
     @Override
     public void run ( ) {
 
+
         try {
             MasterMessage message = (MasterMessage) in.readObject ( );
             MasterMessageType type = message.getType ( );
+
+
+
+//            MasterMessage message = null ;
+//            // 1. Διάβασμα του String από το Socket
+//            String receivedJsonString = in.readUTF();
+//            JSONObject masterJson = new JSONObject(receivedJsonString);
+//
+//// 2. Ξετύλιγμα του MasterMessage (Εξωτερικό επίπεδο)
+//            String typeStr = masterJson.getString("type");
+//            MasterMessageType type = MasterMessageType.valueOf(typeStr);
+//            int mapId = masterJson.getInt("mapId");
+//
+//// 3. Ξετύλιγμα του Player (Μεσαίο επίπεδο)
+//            if (masterJson.has("payload")) {
+//                JSONObject playerJson = masterJson.getJSONObject("payload");
+//
+//                // Λήψη στοιχείων Player
+//                String name = playerJson.getString("name");
+//                String surname = playerJson.getString("surname");
+//                String username = playerJson.getString("username");
+//                String password = playerJson.getString("password");
+//                String email = playerJson.getString("email");
+//                String phone = playerJson.getString("phone");
+//                String playerId = playerJson.getString("playerId");
+//                boolean isLoggedIn = playerJson.getBoolean("isLoggedIn");
+//
+//                // 4. Ξετύλιγμα της Address (Εσωτερικό επίπεδο)
+//                JSONObject addressJson = playerJson.getJSONObject("address");
+//                Address address = new Address(
+//                        addressJson.getString("street"),
+//                        addressJson.getString("streetNumber"),
+//                        addressJson.getString("city"),
+//                        addressJson.getString("zipCode")
+//                );
+//
+//                // 5. Ανασύνθεση των Java Objects
+//                Player player = new Player(name, surname, username, password, email, phone, address);
+//                player.setPlayerId(playerId);
+//                player.setLoggedIn(isLoggedIn);
+//
+//                message = new MasterMessage(type, player);
+//                message.setMapId(mapId);
+//
+//                // Τώρα το 'message' είναι έτοιμο για χρήση στο switch/case σας!
+//            }
+
 
             switch (type) {
                 case ADD_GAME:
@@ -74,10 +124,24 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, rating.getGameName ( ), "rate" );
                     break;
                 case REGIST:
-                    System.out.println("Hello from player regist");
-                    Player player=(Player) message.getPayload ();
+                    System.out.println("Hello from MASTER REGIST");
+                    Player player = (Player) message.getPayload();
                     Object regResponse = registplayers(player);
-                    out.writeObject(regResponse);
+
+                    JSONObject responseJson = new JSONObject();
+
+                    if (regResponse instanceof Player) {
+                        // Successful registration attempt
+                        responseJson.put("status", "SUCCESS");
+                        responseJson.put("message", "Registration successful for: " + ((Player) regResponse).getUsername());
+                    } else {
+                        // Failed registration attempt
+                        responseJson.put("status", "FAILED");
+                        responseJson.put("message", (String) regResponse);
+                    }
+
+                    // Αποστολή του String μέσω του TCP Socket
+                    out.writeUTF(responseJson.toString());
                     out.flush();
                     break;
                 case LOGIN:
@@ -139,10 +203,10 @@ public class MasterHandler extends Thread {
     private Object registplayers (Player player) {
 
         synchronized (registedPlayers) {
-            if ( !registedPlayers.containsKey( player.getPlayerId()) ) {
+            if ( registedPlayers.containsKey( player.getUsername()) ) {
                 return "The player with this username already exists.";
             } else {
-                registedPlayers.put (player.getPlayerId(), player);
+                registedPlayers.put (player.getUsername(), player);
             }
         }
 
