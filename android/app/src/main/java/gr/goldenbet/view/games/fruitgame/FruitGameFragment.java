@@ -66,7 +66,7 @@ public class FruitGameFragment extends Fragment implements FruitGameView{
         mockPlayer.setPlayerId("P123");
         PlayerApp.initializeApp(mockPlayer);
         PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
-        presenter=new FruitGamePresenter(this,playerId,currentGameName);
+        presenter=new FruitGamePresenter(this,currentGameName);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
        // presenter.initBalance();

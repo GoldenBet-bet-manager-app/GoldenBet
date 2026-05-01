@@ -3,15 +3,15 @@ package gr.goldenbet.domain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 
-public class Deck {
+
+public class PokerGameRules {
     private final String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9",
             "10", "j", "q", "k", "a"};
     private final String[] suits = {"hearts", "diamonds", "clubs", "spades"};
     private ArrayList<String> cards = new ArrayList<>();
-
-    public Deck() {
+    private String handName ;
+    public PokerGameRules() {
     }
 
     public ArrayList<String> getCards() {
@@ -30,13 +30,16 @@ public class Deck {
         ArrayList<String> hand = new ArrayList<>();
 
         if (multiplier == 40.0) {
-            hand.add("clubs_10");
-            hand.add("clubs_j");
-            hand.add("clubs_q");
-            hand.add("clubs_k");
-            hand.add("clubs_a");
+            handName = "Royal Flush 👑";
+            Collections.shuffle(Arrays.asList(suits));
+            hand.add(suits[0] + "_10");
+            hand.add(suits[0] +"_j");
+            hand.add(suits[0] +"_q");
+            hand.add(suits[0] +"_k");
+            hand.add(suits[0] +"_a");
 
         } else if (multiplier == 6.5) {
+            handName = "Full House";
             Collections.shuffle(Arrays.asList(suits));
             hand.add(suits[0] + "_8");
             hand.add(suits[1] + "_8");
@@ -47,15 +50,14 @@ public class Deck {
             hand.add(suits[1] + "_k");
 
         } else if (multiplier == 4.0) {
-
+            handName = "Flush";
             Collections.shuffle(Arrays.asList(ranks));
-
             for (int i = 0; i < 5; i++) {
                 hand.add("hearts_" + ranks[i]);
             }
 
         } else if (multiplier == 1.0) {
-
+            handName = "Two Pair ️";
             Collections.shuffle(Arrays.asList(ranks));
             String pair1Rank = ranks[0];
             String pair2Rank = ranks[1];
@@ -79,6 +81,10 @@ public class Deck {
         }
 
         return hand;
+    }
+
+    public String getHandName() {
+        return handName;
     }
 }
 

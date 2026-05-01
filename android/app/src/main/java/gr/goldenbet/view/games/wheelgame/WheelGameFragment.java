@@ -19,6 +19,8 @@ import android.widget.Toast;
 import java.math.BigDecimal;
 
 import gr.goldenbet.databinding.FragmentWheelGameBinding;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,74 +69,86 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        presenter = new WheelGamePresenter(this, playerId, currentGameName);
+        Player mockPlayer = new Player("Test", "User", "tester", "1234");
+        mockPlayer.setPlayerId("P123");
+        PlayerApp.initializeApp(mockPlayer);
+        PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
+        presenter = new WheelGamePresenter(this, currentGameName);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
         binding.spinButton.setOnClickListener(v -> {
             betamount=binding.etbetAmount.getText().toString();
-            binding.spinButton.setEnabled(false);
-            binding.etbetAmount.setEnabled(false);
-            binding.tvresult.setText("Γυρίζει ο τροχός...");
-            binding.tvresult.setTextColor(Color.LTGRAY);
             presenter.spinClicked(betamount);
         });
     }
 
 
-
     @Override
     public void showMessage(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-        binding.spinButton.setEnabled(true);
-        binding.etbetAmount.setEnabled(true);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                binding.spinButton.setEnabled(true);
+                binding.etbetAmount.setEnabled(true);
+            });
+        }
     }
 
     @Override
     public void showBalance(BigDecimal balance) {
-        binding.tvbalance.setText("Υπόλοιπο: " + String.valueOf(balance));
-
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvbalance.setText("Υπόλοιπο: " + balance);
+            });
+        }
     }
 
     @Override
-    public void showSpinResult(String result,int color) {
-        binding.tvresult.setText(result);
-        binding.tvresult.setTextColor(color);
-        binding.spinButton.setEnabled(true);
-        binding.etbetAmount.setEnabled(true);
+    public void showSpinResult(String result) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvresult.setText(result);
+                binding.spinButton.setEnabled(true);
+                binding.etbetAmount.setEnabled(true);
+            });
+        }
     }
 
     @Override
     public void setImageBackground(int imageBackgroundId) {
-        binding.imageView.setImageResource(imageBackgroundId);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.imageView.setImageResource(imageBackgroundId);
+            });
+        }
     }
 
     @Override
-    public void spinWheel(int sliceIndex, BigDecimal payout, double multiplier, BigDecimal balance) {
-        float degreesPerSlice = 360f / TOTAL_SLICES;
-        float targetAngle = (sliceIndex * degreesPerSlice) + (degreesPerSlice / 2);
+    public void spinWheel(int sliceIndex) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
 
-        float currentRotation = binding.wheel.getRotation();
-        float totalRotation = currentRotation + (360f * 5) + targetAngle - (currentRotation % 360);
+                float degreesPerSlice = 360f / TOTAL_SLICES;
+                float targetAngle = (sliceIndex * degreesPerSlice) + (degreesPerSlice / 2);
 
-        ObjectAnimator animator = ObjectAnimator.ofFloat(binding.wheel, "rotation", currentRotation, totalRotation);
-        animator.setDuration(4000);
-        animator.setInterpolator(new DecelerateInterpolator());
+                float currentRotation = binding.wheel.getRotation();
+                float totalRotation = currentRotation + (360f * 5) + targetAngle - (currentRotation % 360);
 
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                showBalance(balance);
-                if (multiplier >= 10.0) {
-                    showSpinResult(" 🏆 ΜΕΓΑΛΟ ΤΖΑΚΠΟΤ! ΚΕΡΔΙΣΕΣ " + payout + " FUN! 🏆", Color.parseColor("#FFD700"));
-                } else if (payout.compareTo(BigDecimal.ZERO) > 0) {
-                    showSpinResult(" Κέρδισες " + payout + " FUN! (x" + multiplier + ") 🎉", Color.parseColor("#4CAF50"));
-                } else {
-                    showSpinResult(" Δεν κέρδισες.Καλή τύχη στην επόμενη προσπάθεια!!!", Color.parseColor("#F44336"));
-                }
-            }
-        });
+                ObjectAnimator animator = ObjectAnimator.ofFloat(binding.wheel, "rotation", currentRotation, totalRotation);
+                animator.setDuration(4000);
+                animator.setInterpolator(new DecelerateInterpolator());
 
-        animator.start();
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        presenter.onAnimationEnd();
+                    }
+                });
+
+                animator.start();
+
+            });
+        }
     }
 
     @Override

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentPokerBinding;
+import gr.goldenbet.domain.Player;
+import gr.goldenbet.domain.PlayerApp;
 
 public class PokerFragment extends Fragment implements PokerView {
 
@@ -54,11 +56,12 @@ public class PokerFragment extends Fragment implements PokerView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        presenter = new PokerPresenter(this, playerId, currentGameName);
-
-        if (currentGameName != null) {
-            binding.tvTitle.setText(currentGameName.toUpperCase());
-        }
+        Player mockPlayer = new Player("Test", "User", "tester", "1234");
+        mockPlayer.setPlayerId("P123");
+        PlayerApp.initializeApp(mockPlayer);
+        PlayerApp.getInstance().addBalance(new BigDecimal("100000.0"));
+        presenter = new PokerPresenter(this, currentGameName);
+        binding.tvTitle.setText(currentGameName.toUpperCase());
 
         binding.btnDeal.setOnClickListener(v -> {
             betamount = binding.etbetAmount.getText().toString();
@@ -71,66 +74,88 @@ public class PokerFragment extends Fragment implements PokerView {
 
     @Override
     public void showMessage(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-        binding.btnDeal.setEnabled(true);
-        binding.etbetAmount.setEnabled(true);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                binding.btnDeal.setEnabled(true);
+                binding.etbetAmount.setEnabled(true);
+            });
+        }
     }
 
     @Override
     public void showBalance(BigDecimal balance) {
-        binding.tvbalance.setText("Υπόλοιπο: " + balance);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvbalance.setText("Υπόλοιπο: " + balance);
+            });
+        }
+    }
+
+    @Override
+    public void showWinResult(String result) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvresult.setText(result);
+                binding.btnDeal.setEnabled(true);
+                binding.etbetAmount.setEnabled(true);
+            });
+        }
     }
 
     @Override
     public void showFlipResult(String result) {
-        binding.tvresult.setText(result);
-        binding.btnDeal.setEnabled(true);
-        binding.etbetAmount.setEnabled(true);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.tvHandName.setText(result);
+            });
+        }
     }
+
 
     @Override
     public void showDealtCards(ArrayList<String> hand) {
-        ImageView[] cardViews = {
-                binding.ivCard1, binding.ivCard2, binding.ivCard3,
-                binding.ivCard4, binding.ivCard5
-        };
+        if(getActivity()!=null) {
+            getActivity().runOnUiThread(() -> {
+            ImageView[] cardViews = {
+                    binding.ivCard1, binding.ivCard2, binding.ivCard3,
+                    binding.ivCard4, binding.ivCard5
+            };
 
-        for (int i = 0; i < hand.size(); i++) {
-            ImageView currentCardView = cardViews[i];
-            String imageName = hand.get(i);
+            for (int i = 0; i < hand.size(); i++) {
+                ImageView currentCardView = cardViews[i];
+                String imageName = hand.get(i);
+                int imageResId = getResources().getIdentifier(imageName, "drawable", requireContext().getPackageName());
 
-            int imageResId = getResources().getIdentifier(imageName, "drawable", requireContext().getPackageName());
+                // 2. Υπολογίζουμε την καθυστέρηση και αν είναι η τελευταία κάρτα
+                long delay = i * 400L;
+                boolean isLastCard = (i == hand.size() - 1); // Αν το i είναι 4 (το 5ο φύλλο)
 
-            // 2. Υπολογίζουμε την καθυστέρηση και αν είναι η τελευταία κάρτα
-            long delay = i * 200L;
-            boolean isLastCard = (i == hand.size() - 1); // Αν το i είναι 4 (το 5ο φύλλο)
+                currentCardView.animate()
+                        .rotationY(90f)
+                        .setDuration(250)
+                        .setStartDelay(delay)
+                        .withEndAction(() -> {
+                            if (imageResId != 0) {
+                                currentCardView.setImageResource(imageResId);
+                            } else {
+                                currentCardView.setImageResource(R.drawable.back_dark);
+                            }
 
-            // 3. Ξεκινάμε το 3D Flip
-            currentCardView.animate()
-                    .rotationY(90f)
-                    .setDuration(150)
-                    .setStartDelay(delay)
-                    .withEndAction(() -> {
-                        // Αλλάζουμε την εικόνα στη μέση της περιστροφής
-                        if (imageResId != 0) {
-                            currentCardView.setImageResource(imageResId);
-                        } else {
-                            currentCardView.setImageResource(R.drawable.back_dark);
-                        }
-
-                        currentCardView.setRotationY(-90f);
-                        currentCardView.animate()
-                                .rotationY(0f)
-                                .setDuration(150)
-                                .withEndAction(() -> {
-                                    // ΟΤΑΝ ΟΛΟΚΛΗΡΩΘΕΙ ΤΟ ΓΥΡΙΣΜΑ ΤΟΥ ΤΕΛΕΥΤΑΙΟΥ ΦΥΛΛΟΥ
-                                    if (isLastCard) {
-                                        presenter.onAnimationFinished();
-                                    }
-                                })
-                                .start();
-                    })
-                    .start();
+                            currentCardView.setRotationY(-90f);
+                            currentCardView.animate()
+                                    .rotationY(0f)
+                                    .setDuration(250)
+                                    .withEndAction(() -> {
+                                        if (isLastCard) {
+                                            presenter.onAnimationFinished();
+                                        }
+                                    })
+                                    .start();
+                        })
+                        .start();
+            }
+        });
         }
     }
 
