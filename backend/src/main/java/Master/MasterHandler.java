@@ -2,6 +2,7 @@ package Master;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import Models.*;
 
@@ -18,8 +19,8 @@ import static java.util.UUID.randomUUID;
 public class MasterHandler extends Thread {
 
 
-    DataInputStream in;
-    DataOutputStream out;
+    ObjectInputStream in;
+    ObjectOutputStream out;
     private final ArrayList<WorkerInfo> workers;
     private final HashMap<Integer, ResultBox> sharedResults;
     private HashMap<String, Player> registedPlayers;
@@ -30,8 +31,8 @@ public class MasterHandler extends Thread {
         this.sharedResults = sharedResults;
         this.registedPlayers=registeredPlayers;
         try {
-            out = new DataOutputStream ( connection.getOutputStream ( ) );
-            in = new DataInputStream ( connection.getInputStream ( ) );
+            out = new ObjectOutputStream ( connection.getOutputStream ( ) );
+            in = new ObjectInputStream ( connection.getInputStream ( ) );
         } catch (IOException e) {
             e.printStackTrace ( );
         }
@@ -53,6 +54,7 @@ public class MasterHandler extends Thread {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
 
 
             MasterMessage message = gson.fromJson(receivedJsonString, MasterMessage.class);
@@ -138,8 +140,41 @@ public class MasterHandler extends Thread {
                     out.writeUTF(gson.toJson(responseLoginJson));
                     out.flush();
                     break;
+
                 case LOGOUT:
                     logoutplayers(message.getPayload ());
+                    break;
+
+                case GET_PLAYER_INFO:
+                    String username = (String) message.getPayload();
+                    Player returnedPlayer = registedPlayers.get(username);
+
+                    JsonObject responseGetPlayerJson = new JsonObject();
+
+                    if(returnedPlayer != null){
+                        responseGetPlayerJson.addProperty("status", "SUCCESS");
+                        responseGetPlayerJson.add("requested_player", gson.toJsonTree(returnedPlayer));
+                    }
+                    else{
+                        responseGetPlayerJson.addProperty("status", "FAILED");
+                    }
+
+                    out.writeUTF(gson.toJson(responseGetPlayerJson));
+                    out.flush();
+                    break;
+
+                case MODIFY_PLAYER:
+                    JsonElement jsonElement = gson.toJsonTree(message.getPayload());
+                    Player modifiedPlayer = gson.fromJson(jsonElement, Player.class);
+
+                    registedPlayers.put(modifiedPlayer.getUsername(),modifiedPlayer);
+
+                    JsonObject responseModifyPlayerJson = new JsonObject();
+
+                    responseModifyPlayerJson.addProperty("status", "SUCCESS");
+
+                    out.writeUTF(gson.toJson(responseModifyPlayerJson));
+                    out.flush();
                     break;
             }
 
@@ -165,6 +200,7 @@ public class MasterHandler extends Thread {
         for ( Player p : registedPlayers.values ( ) ) {
             if ( p.getUsername ( ).equals ( credentials.get(0)) && p.getPassword ( ).equals ( credentials.get(1) )
                     && p.isLoggedIn ()){
+                System.out.println("Player \""+credentials.get(0)+"\"Logout");
                 p.setLoggedIn ( false );
             }
         }
@@ -180,6 +216,7 @@ public class MasterHandler extends Thread {
                 if (p.getUsername().equals(credentials.get(0)) && p.getPassword().equals(credentials.get(1))
                         && !p.isLoggedIn()) {
                     p.setLoggedIn(true);
+                    System.out.println("Player \""+p.getUsername()+"\" Logged in");
                     return p;
                 }
 
@@ -195,6 +232,7 @@ public class MasterHandler extends Thread {
             if ( registedPlayers.containsKey( player.getUsername()) ) {
                 return "The player with this username already exists.";
             } else {
+                System.out.println("Player \""+player.getUsername()+"\" Registered");
                 registedPlayers.put (player.getUsername(), player);
             }
         }

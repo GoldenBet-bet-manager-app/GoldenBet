@@ -73,8 +73,12 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
 
 
     @Override
-    public void navigateToAccount(String playerId){
+    public void navigateToAccount(String playerId, String playerUsername, String playerPassword){
         Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
+
+        intent.putExtra("PLAYER_ID", playerId);
+        intent.putExtra("PLAYER_USERNAME", playerUsername);
+        intent.putExtra("PLAYER_PASSWORD", playerPassword);
         startActivity(intent);
     }
 

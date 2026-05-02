@@ -6,5 +6,9 @@ public interface MainMenuView {
     void showProfile();
     void showRate();
 
+    String getPlayerId();
+    String getPlayerUsername();
+    String getPlayerPassword();
+
 
 }

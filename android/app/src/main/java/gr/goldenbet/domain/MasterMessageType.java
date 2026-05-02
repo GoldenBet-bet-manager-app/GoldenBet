@@ -17,5 +17,7 @@ public enum MasterMessageType {
     GET_ALL_GAMES,
     LOGIN,
     LOGOUT,
-    REGIST
+    REGIST,
+    GET_PLAYER_INFO,
+    MODIFY_PLAYER
 }

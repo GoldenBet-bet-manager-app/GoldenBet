@@ -14,6 +14,8 @@ import gr.goldenbet.domain.Player;
 import android.app.AlertDialog;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class RegisterActivity extends AppCompatActivity implements RegisterView {
@@ -62,13 +64,15 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView 
 
     @Override
     public void showConfirmDialog(Player player) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.confirm_title)
                 .setMessage(R.string.confirm_msg)
+                .setIcon(R.drawable.ic_person_add)
                 .setPositiveButton(R.string.common_ok, (dialog, which) -> {
+
                     presenter.sendRegistrationToMaster(player);
                 })
-                .setNegativeButton(R.string.common_cancel, null)
+                .setNegativeButton(R.string.common_cancel, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 

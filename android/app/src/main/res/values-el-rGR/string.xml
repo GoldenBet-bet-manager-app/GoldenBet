@@ -78,6 +78,8 @@
     <string name="profile_city_hint">Πόλη</string>
     <string name="profile_zip_hint">Ταχυδρομικός Κώδικας</string>
     <string name="profile_btn">ΑΠΟΘΗΚΕΥΣΗ ΑΛΛΑΓΩΝ</string>
+    <string name="profile_confirm_save_title">Επιβεβαίωση Αλλαγών</string>
+    <string name="profile_confirm_save_msg">Είστε σίγουροι ότι θέλετε να αποθηκεύσετε τις αλλαγές στο προφίλ σας;</string>
 
 
     <!--HomeFragment.java Toast and dialog messages-->

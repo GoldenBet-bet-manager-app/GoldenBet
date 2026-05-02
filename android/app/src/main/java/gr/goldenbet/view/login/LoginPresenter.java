@@ -2,6 +2,7 @@ package gr.goldenbet.view.login;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -96,20 +97,23 @@ public class LoginPresenter {
 
     public void onLogin(String username, String password) {
 
-
         String[] credentials = new String[]{username, password};
+
         MasterMessage loginMsg = new MasterMessage(MasterMessageType.LOGIN, credentials);
         Gson gson = new Gson();
         String jsonToSend = gson.toJson(loginMsg);
+
 
         new Thread(() -> {
             try (Socket socket = new Socket(MASTER_IP, MASTER_PORT);
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
+
                 // Message sent to Master
                 out.writeUTF(jsonToSend);
                 out.flush();
+
 
                 // Master's response
                 String masterReply = in.readUTF();
@@ -121,7 +125,7 @@ public class LoginPresenter {
                         Player loggedInPlayer = gson.fromJson(responseJson.get("loggedInPlayer"), Player.class);
 
 
-                        view.navigateToAccount(loggedInPlayer.getPlayerId());
+                        view.navigateToAccount(loggedInPlayer.getPlayerId(),username,password);
                     } else {
                         // Σφάλμα από τον Master
                         String errorMsg = responseJson.get("message").getAsString();

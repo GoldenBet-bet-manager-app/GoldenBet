@@ -52,14 +52,8 @@ public class RegisterPresenter {
 
     public void sendRegistrationToMaster(Player player) {
 
-//        PlayerApp.initializeApp(new Player("s","g","g","a"));
         new Thread(() -> {
-//            try {
-//                PlayerApp.getInstance().regist(player);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }).start();
+
             try (Socket socket = new Socket(MASTER_IP, MASTER_PORT);
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {

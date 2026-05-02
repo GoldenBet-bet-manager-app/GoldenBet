@@ -23,6 +23,16 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
     private ActivityMainMenuBinding binding;
     private MainMenuPresenter presenter;
 
+
+    private static final String PLAYER_ID_EXTRA = "PLAYER_ID";
+    private static final String PLAYER_USERNAME_EXTRA = "PLAYER_USERNAME";
+    private static final String PLAYER_PASSWORD_EXTRA = "PLAYER_PASSWORD";
+
+    private String playerId;
+    private String playerUsername;
+    private String playerPassword;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,13 +42,18 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
         setContentView(binding.getRoot());
         showHome();
 
-        presenter = new MainMenuPresenter(this);
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        presenter = new MainMenuPresenter(this);
+
+        playerId = getIntent().getStringExtra(PLAYER_ID_EXTRA);
+        playerUsername = getIntent().getStringExtra(PLAYER_USERNAME_EXTRA);
+        playerPassword = getIntent().getStringExtra(PLAYER_PASSWORD_EXTRA);
+
 
         if (savedInstanceState == null) {
             showHome();
@@ -71,6 +86,20 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
         replaceFragment(new RateFragment());
     }
 
+    @Override
+    public String getPlayerId(){
+        return playerId;
+    }
+
+    @Override
+    public String getPlayerUsername(){
+        return  playerUsername;
+    }
+
+    @Override
+    public String getPlayerPassword(){
+        return playerPassword;
+    }
 
 
 

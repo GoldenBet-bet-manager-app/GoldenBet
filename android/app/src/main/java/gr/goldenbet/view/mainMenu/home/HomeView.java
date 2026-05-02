@@ -1,8 +1,7 @@
 package gr.goldenbet.view.mainMenu.home;
 
 public interface HomeView {
-    void setPlayerName(String name);
-    void setBalance(String balance);
+    void updatePlayerInfo(String name, String balance);
 
     void navigateToDeposit();
     void navigateToHistory();

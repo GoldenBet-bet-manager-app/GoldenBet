@@ -77,7 +77,7 @@
     <string name="profile_btn">SAVE CHANGES</string>
 
 
-    <!--HomeFragment.java Toast and dialog messages-->
+    <!--HomeFragment.java Toast messages-->
     <string name="nav_deposit_msg">Redirecting to Deposit...</string>
     <string name="nav_history_msg">Opening History...</string>
     <string name="nav_stats_msg">Viewing Statistics...</string>
@@ -95,6 +95,8 @@
     <string name="profile_update_success_msg">Your profile details have been updated successfully!</string>
     <string name="profile_update_error_title">Attention</string>
     <string name="profile_update_error_msg">An error occurred: %s</string>
+    <string name="profile_confirm_save_title">Confirm Changes</string>
+    <string name="profile_confirm_save_msg">Are you sure you want to save the changes to your profile?</string>
 
 
     <!--fragment_deposit.xml-->
@@ -105,11 +107,11 @@
     <string name="deposit_method_card">Credit / Debit Card</string>
     <string name="deposit_method_paypal">PayPal</string>
     <string name="deposit_confirm_btn">DEPOSIT NOW</string>
-
     <string name="deposit_error_invalid_amount">Please enter a valid amount (min. 10€).</string>
     <string name="deposit_error_no_method">Please select a payment method.</string>
     <string name="deposit_success_title">Deposit Successful</string>
     <string name="deposit_success_msg">An amount of %s has been added to your balance.</string>
+
 
     <!--fragment_rate.xml-->
     <string name="rate_title">Rate a Game</string>
@@ -140,6 +142,6 @@
     <string name="common_ok">Ok</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_necessary_fields_msg">Please fill all necessary fields</string>
-    <string name="master_ip" translatable="false">10.0.2.2</string>
+    <string name="master_ip" translatable="false">192.168.1.17</string>
     <integer name="master_port" translatable="false">43210</integer>
 </resources>

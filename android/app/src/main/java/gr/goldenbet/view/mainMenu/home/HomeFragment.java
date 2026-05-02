@@ -1,5 +1,7 @@
 package gr.goldenbet.view.mainMenu.home;
 
+import static android.content.Intent.getIntent;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,12 +12,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentHomeBinding;
 import gr.goldenbet.view.login.LoginActivity;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.deposit.DepositFragment;
 import gr.goldenbet.view.mainMenu.home.stats.StatsFragment;
@@ -26,6 +30,8 @@ public class HomeFragment extends Fragment implements HomeView {
     // Binding is used to have access to the IDs of the XML
     private FragmentHomeBinding binding;
     private HomePresenter presenter;
+
+
 
     public HomeFragment() {
     }
@@ -42,12 +48,15 @@ public class HomeFragment extends Fragment implements HomeView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
         // Αρχικοποίηση του Presenter
         presenter = new HomePresenter(this);
 
         setupClickListeners();
 
-        presenter.initData();
+        String playerUsername = ((MainMenuActivity) getActivity()).getPlayerUsername();
+
+        presenter.initData(playerUsername);
     }
 
     private void setupClickListeners() {
@@ -61,13 +70,18 @@ public class HomeFragment extends Fragment implements HomeView {
 
 
     @Override
-    public void setPlayerName(String name) {
-        binding.txtHomePlayerName.setText(name);
-    }
+    public void updatePlayerInfo(String name, String balance) {
+        androidx.fragment.app.FragmentActivity activity = getActivity();
 
-    @Override
-    public void setBalance(String balance) {
-        binding.txtHomeBalance.setText(balance);
+        // Check if Activity and binding are available
+        if (activity != null && binding != null) {
+            activity.runOnUiThread(() -> {
+                if (binding != null) {
+                    binding.txtHomePlayerName.setText(name);
+                    binding.txtHomeBalance.setText(balance);
+                }
+            });
+        }
     }
 
     @Override

@@ -35,7 +35,7 @@ public interface LoginView {
     void navigateToRegister();
 
     /** Navigates to the user's account home screen*/
-    void navigateToAccount(String playerId);
+    void navigateToAccount(String playerId, String playerUsername, String playerPassword);
 
     /** Navigates to the user settings screen. */
     void navigateToSettings();

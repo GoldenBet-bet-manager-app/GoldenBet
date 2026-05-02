@@ -1,8 +1,8 @@
 package gr.goldenbet.domain;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -21,8 +21,8 @@ public class JsonClient extends Thread {
     @Override
     public void run() {
         try (Socket socket = new Socket(ip, port);
-             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-             DataInputStream in = new DataInputStream(socket.getInputStream())) {
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
             out.writeUTF(jsonRequest);
             out.flush();
