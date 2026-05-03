@@ -34,15 +34,12 @@ public class ProfileFragment extends Fragment implements ProfileView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         presenter = new ProfilePresenter(this);
 
-        String playerUsername = ((MainMenuActivity) getActivity()).getPlayerUsername();
-
-        presenter.loadProfile(playerUsername);
+        // Data initialization from MainMenuActivity ViewModel
+        presenter.initData();
 
         binding.btnProfileSave.setOnClickListener(v -> {
-
             presenter.onSaveClicked(
                     binding.etProfileUsername.getText().toString(),
                     binding.etProfilePassword.getText().toString(),
@@ -56,77 +53,51 @@ public class ProfileFragment extends Fragment implements ProfileView {
                     binding.etProfileZip.getText().toString()
             );
         });
-
     }
 
     @Override
-    public void updateProfileInfo(String username, String password, String email, String firstName,
-                                  String lastName, String phone, String street, String houseNo,
-                                  String city, String zip) {
+    public void updateProfileInfo(Player p) {
+        if (binding != null && p != null) {
+            binding.etProfileUsername.setText(p.getUsername());
+            binding.etProfilePassword.setText(p.getPassword());
+            binding.etProfileEmail.setText(p.getEmail());
+            binding.etProfileFirstName.setText(p.getName());
+            binding.etProfileLastName.setText(p.getSurname());
+            binding.etProfilePhone.setText(p.getPhone());
 
-        FragmentActivity activity = getActivity();
-
-        if (activity != null && binding != null) {
-
-            activity.runOnUiThread(() -> {
-                if (binding != null) {
-                    binding.etProfileUsername.setText(username);
-                    binding.etProfilePassword.setText(password);
-                    binding.etProfileEmail.setText(email);
-                    binding.etProfileFirstName.setText(firstName);
-                    binding.etProfileLastName.setText(lastName);
-                    binding.etProfilePhone.setText(phone);
-                    binding.etProfileStreet.setText(street);
-                    binding.etProfileStreetNo.setText(houseNo);
-                    binding.etProfileCity.setText(city);
-                    binding.etProfileZip.setText(zip);
-                }
-            });
-
+            if (p.getAddress() != null) {
+                binding.etProfileStreet.setText(p.getAddress().getStreet());
+                binding.etProfileStreetNo.setText(p.getAddress().getStreetNumber());
+                binding.etProfileCity.setText(p.getAddress().getCity());
+                binding.etProfileZip.setText(p.getAddress().getZipCode());
+            }
         }
+    }
 
+
+    @Override
+    public Player getPlayerFromActivity() {
+        if (getActivity() instanceof MainMenuActivity) {
+            return ((MainMenuActivity) getActivity()).getCurrentPlayer();
+        }
+        return null;
     }
 
     @Override
-    public void updateProfileInfo(Player p){
-
-        FragmentActivity activity = getActivity();
-
-        if (activity != null && binding != null) {
-
-            activity.runOnUiThread(() -> {
-                if (binding != null) {
-                    binding.etProfileUsername.setText(p.getUsername());
-                    binding.etProfilePassword.setText(p.getPassword());
-                    binding.etProfileEmail.setText(p.getEmail());
-                    binding.etProfileFirstName.setText(p.getName());
-                    binding.etProfileLastName.setText(p.getSurname());
-                    binding.etProfilePhone.setText(p.getPhone());
-                    binding.etProfileStreet.setText(p.getAddress().getStreet());
-                    binding.etProfileStreetNo.setText(p.getAddress().getStreetNumber());
-                    binding.etProfileCity.setText(p.getAddress().getCity());
-                    binding.etProfileZip.setText(p.getAddress().getZipCode());
-                }
-            });
-
+    public void syncPlayerWithActivity(Player updatedPlayer) {
+        if (getActivity() instanceof MainMenuActivity) {
+            ((MainMenuActivity) getActivity()).updateLocalPlayer(updatedPlayer);
         }
-
     }
-
 
     @Override
     public void showSaveConfirmation(Player player) {
-        androidx.fragment.app.FragmentActivity activity = getActivity();
-
-        if (activity != null && isAdded()) {
-            new MaterialAlertDialogBuilder(activity)
+        if (getActivity() != null && isAdded()) {
+            new MaterialAlertDialogBuilder(getActivity())
                     .setTitle(R.string.profile_confirm_save_title)
                     .setMessage(R.string.profile_confirm_save_msg)
                     .setIcon(R.drawable.ic_save)
-                    .setPositiveButton(R.string.common_ok, (dialog, which) -> {
-
-                        presenter.performSave(player);
-                    })
+                    .setPositiveButton(R.string.common_ok, (dialog, which) -> presenter.performSave(player))
                     .setNegativeButton(R.string.common_cancel, (dialog, which) -> dialog.dismiss())
                     .show();
         }
@@ -134,11 +105,9 @@ public class ProfileFragment extends Fragment implements ProfileView {
 
     @Override
     public void showUpdateSuccess() {
-        FragmentActivity activity = getActivity();
-
-        if (activity != null && isAdded()) {
-            activity.runOnUiThread(() -> {
-                new MaterialAlertDialogBuilder(activity) // Χρήση της ασφαλούς activity
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(() -> {
+                new MaterialAlertDialogBuilder(getActivity())
                         .setTitle(R.string.profile_update_success_title)
                         .setMessage(R.string.profile_update_success_msg)
                         .setIcon(R.drawable.ic_check_circle)
@@ -150,11 +119,10 @@ public class ProfileFragment extends Fragment implements ProfileView {
 
     @Override
     public void showUpdateError(String message) {
-        androidx.fragment.app.FragmentActivity activity = getActivity();
-        if (activity != null && isAdded()) {
-            activity.runOnUiThread(() -> {
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(() -> {
                 String formattedMessage = getString(R.string.profile_update_error_msg, message);
-                new MaterialAlertDialogBuilder(activity)
+                new MaterialAlertDialogBuilder(getActivity())
                         .setTitle(R.string.profile_update_error_title)
                         .setMessage(formattedMessage)
                         .setIcon(R.drawable.ic_error)

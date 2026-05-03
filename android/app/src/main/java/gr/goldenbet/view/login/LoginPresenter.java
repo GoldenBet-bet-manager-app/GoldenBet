@@ -124,8 +124,7 @@ public class LoginPresenter {
                     if ("SUCCESS".equals(status)) {
                         Player loggedInPlayer = gson.fromJson(responseJson.get("loggedInPlayer"), Player.class);
 
-
-                        view.navigateToAccount(loggedInPlayer.getPlayerId(),username,password);
+                        view.navigateToAccount(loggedInPlayer);
                     } else {
                         // Σφάλμα από τον Master
                         String errorMsg = responseJson.get("message").getAsString();

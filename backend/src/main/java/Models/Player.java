@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
- /**
-  * Represents a Player in the system, including personal and contact details.
-*/
+/**
+ * Represents a Player in the system, including personal and contact details.
+ */
 public class Player implements Serializable {
 
     private String name;
@@ -104,4 +104,9 @@ public class Player implements Serializable {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
+
+    public void addBalance(BigDecimal amount) {
+            this.setBalance(this.getBalance().add(amount));
+    }
+
 }

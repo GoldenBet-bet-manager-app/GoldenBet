@@ -21,8 +21,7 @@ public class HomePresenter {
     private final String MASTER_IP;
     private final int MASTER_PORT;
 
-    private String playerUsername;
-    private String playerPassword;
+    private Player currentPlayer;
 
     public HomePresenter(HomeView view) {
         this.view = view;
@@ -34,84 +33,42 @@ public class HomePresenter {
 
 
     /**
-     * Fetches the latest player profile data from the Master server
-     * and updates the UI accordingly.
+     * Updates the UI instantly using the local object Player from ViewModel of MainMenuActivity.
      */
-    public void initData(String playerUsername) {
-        Gson gson = new Gson();
-
-        // Master Message creation
-        MasterMessage infoReq = new MasterMessage(MasterMessageType.GET_PLAYER_INFO, playerUsername);
-        String jsonRequest = gson.toJson(infoReq);
-
-        // Initialize the network client: Set up the socket worker with the
-        // server's IP, Port, and our specific request.
-        JsonClient client = new JsonClient(MASTER_IP, MASTER_PORT, jsonRequest);
-
-
-        // Run network operations on background thread to prevent freezing
-        new Thread(() -> {
-            client.start();
-            try {
-
-                // We use 'join()' to pause this background thread until the network
-                // communication is complete.
-                client.join();
-
-                //  It ensures we don't process a 'null' response.
-                String response = client.getJsonResponse();
-                if (response != null) {
-
-                    // Parsing the result
-                    JsonObject responseJson = gson.fromJson(response, JsonObject.class);
-                    String status = responseJson.get("status").getAsString();
-
-                    if ("SUCCESS".equals(status)) {
-                        // Extract the Player object from the "requested_player" field
-                        Player p = gson.fromJson(responseJson.get("requested_player"), Player.class);
-
-                        // update playerUserName and playerPassword attributes
-
-                        this.playerUsername = p.getUsername();
-                        this.playerPassword = p.getPassword();
-
-                        // We must hop back onto the Main Thread (MainMenuActivity) to update names and balances.
-                        view.updatePlayerInfo(p.getUsername(), p.getBalance() + " €");
-
-                    }
-                }
-
-            } catch (InterruptedException e) {
-
-                e.printStackTrace();
-            }
-
-        }).start();
-
+    public void initData(Player player) {
+        if (player != null) {
+            this.currentPlayer = player;
+            // Ενημέρωση του View αμέσως από τη μνήμη
+            view.updatePlayerInfo(player.getUsername(), player.getBalance() + " €");
+        }
     }
 
     public void onDepositClicked() { view.navigateToDeposit(); }
     public void onHistoryClicked() { view.navigateToHistory(); }
     public void onStatsClicked() { view.navigateToStats(); }
     public void onRatingsClicked() { view.navigateToRatings(); }
+    public void onSettingsClicked() {view.navigateToSettings();}
 
 
-    public void onLogoutCLicked() {
 
-        Gson gson = new Gson();
+    public void onLogoutClicked() {
+        if (currentPlayer == null) return;
 
-        ArrayList<String> credentials = new ArrayList<>();
-        credentials.add(this.playerUsername);
-        credentials.add(this.playerPassword);
+        // Εκτέλεση Logout στον Master σε background thread
+        new Thread(() -> {
+            Gson gson = new Gson();
+            ArrayList<String> credentials = new ArrayList<>();
+            credentials.add(currentPlayer.getUsername());
+            credentials.add(currentPlayer.getPassword());
 
-        MasterMessage message = new MasterMessage(MasterMessageType.LOGOUT, credentials);
-        String jsonToSend = gson.toJson(message);
-
-        JsonClient client = new JsonClient(MASTER_IP,MASTER_PORT, jsonToSend);
-        client.start();
+            MasterMessage message = new MasterMessage(MasterMessageType.LOGOUT, credentials);
+            JsonClient client = new JsonClient(MASTER_IP, MASTER_PORT, gson.toJson(message));
+            client.start();
+            // Δεν περιμένουμε απάντηση για το logout, προχωράμε στο UI
+        }).start();
 
         view.navigateToLogin();
     }
-    public void onSettingsClicked() {view.navigateToSettings();}
+
 
 }

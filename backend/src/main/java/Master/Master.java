@@ -32,6 +32,11 @@ public class Master{
     final HashMap<String, Player> registeredPlayers = new HashMap<>();
 
     void openServer() {
+        synchronized (this.registeredPlayers){
+            registeredPlayers.put("gpap123",new Player("Giorgos", "Papadopoulos",
+                    "gpap123",
+                    "pass1234"));
+        }
 
         ArrayList<WorkerInfo> loadedWorkers = ConfigLoader.getAllWorkers();
         if (loadedWorkers != null) {

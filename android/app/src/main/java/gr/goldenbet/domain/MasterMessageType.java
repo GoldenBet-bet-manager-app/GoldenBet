@@ -19,5 +19,6 @@ public enum MasterMessageType {
     LOGOUT,
     REGIST,
     GET_PLAYER_INFO,
-    MODIFY_PLAYER
+    MODIFY_PLAYER,
+    DEPOSIT
 }

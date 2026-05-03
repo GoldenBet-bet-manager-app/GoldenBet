@@ -2,6 +2,8 @@ package gr.goldenbet.view.login;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import gr.goldenbet.domain.Player;
+
 public interface LoginView {
 
     /**
@@ -35,7 +37,7 @@ public interface LoginView {
     void navigateToRegister();
 
     /** Navigates to the user's account home screen*/
-    void navigateToAccount(String playerId, String playerUsername, String playerPassword);
+    void navigateToAccount(Player player);
 
     /** Navigates to the user settings screen. */
     void navigateToSettings();

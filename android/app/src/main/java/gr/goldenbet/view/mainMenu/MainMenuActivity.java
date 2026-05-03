@@ -10,9 +10,11 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.ActivityMainMenuBinding;
+import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.HomeFragment;
 import gr.goldenbet.view.mainMenu.profile.ProfileFragment;
@@ -22,94 +24,64 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
 
     private ActivityMainMenuBinding binding;
     private MainMenuPresenter presenter;
-
-
-    private static final String PLAYER_ID_EXTRA = "PLAYER_ID";
-    private static final String PLAYER_USERNAME_EXTRA = "PLAYER_USERNAME";
-    private static final String PLAYER_PASSWORD_EXTRA = "PLAYER_PASSWORD";
-
-    private String playerId;
-    private String playerUsername;
-    private String playerPassword;
-
+    private MainMenuViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-
         binding = ActivityMainMenuBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        showHome();
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        // ViewModel initialization
+        viewModel = new ViewModelProvider(this).get(MainMenuViewModel.class);
+
+        // If ViewModel player in null, it means we just logged in
+        // If not, it means that rotation happened and the player was saved by ViewModel
+        if (viewModel.getCurrentPlayer() == null) {
+            Player playerFromIntent = (Player) getIntent().getSerializableExtra("PLAYER_DATA");
+            viewModel.setCurrentPlayer(playerFromIntent);
+        }
 
         presenter = new MainMenuPresenter(this);
 
-        playerId = getIntent().getStringExtra(PLAYER_ID_EXTRA);
-        playerUsername = getIntent().getStringExtra(PLAYER_USERNAME_EXTRA);
-        playerPassword = getIntent().getStringExtra(PLAYER_PASSWORD_EXTRA);
-
+        // UI Setup
+        setupNavigation();
 
         if (savedInstanceState == null) {
             showHome();
         }
+    }
 
+    // When we want to change Fragment
+    private void setupNavigation() {
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             presenter.onNavigationItemSelected(item.getItemId());
             return true;
         });
+    }
 
+
+    // --- Implementation of MainMenuView ---
+    @Override
+    public void updateLocalPlayer(Player player) {
+        viewModel.setCurrentPlayer(player);
     }
 
     @Override
-    public void showHome() {
-        replaceFragment(new HomeFragment());
-    }
-
-    @Override
-    public void showSearch() {
-        replaceFragment(new SearchFragment());
-    }
-
-    @Override
-    public void showProfile() {
-        replaceFragment(new ProfileFragment());
-    }
-
-    @Override
-    public void showRate() {
-        replaceFragment(new RateFragment());
-    }
-
-    @Override
-    public String getPlayerId(){
-        return playerId;
-    }
-
-    @Override
-    public String getPlayerUsername(){
-        return  playerUsername;
-    }
-
-    @Override
-    public String getPlayerPassword(){
-        return playerPassword;
+    public Player getCurrentPlayer() {
+        return viewModel.getCurrentPlayer();
     }
 
 
+    // Fragments Logic
+    @Override public void showHome() { replaceFragment(new HomeFragment()); }
+    @Override public void showSearch() { replaceFragment(new SearchFragment()); }
+    @Override public void showProfile() { replaceFragment(new ProfileFragment()); }
+    @Override public void showRate() { replaceFragment(new RateFragment()); }
 
-    private void replaceFragment(Fragment fragment){
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, fragment);
-        fragmentTransaction.commit();
-
+    private void replaceFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
-
 }

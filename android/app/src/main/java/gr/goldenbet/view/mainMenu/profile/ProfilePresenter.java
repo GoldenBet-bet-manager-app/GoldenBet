@@ -24,57 +24,16 @@ public class ProfilePresenter {
         MASTER_PORT = ((ProfileFragment)view).getResources().getInteger(R.integer.master_port);
     }
 
-    public void loadProfile(String playerUsername) {
-
-
-        Gson gson = new Gson();
-
-        // Master Message creation
-        MasterMessage infoReq = new MasterMessage(MasterMessageType.GET_PLAYER_INFO, playerUsername);
-        String jsonRequest = gson.toJson(infoReq);
-
-        // Initialize the network client: Set up the socket worker with the
-        // server's IP, Port, and our specific request.
-        JsonClient client = new JsonClient(MASTER_IP, MASTER_PORT, jsonRequest);
-
-
-        // Run network operations on background thread to prevent freezing
-        new Thread(() -> {
-            client.start();
-            try {
-
-                // We use 'join()' to pause this background thread until the network
-                // communication is complete.
-                client.join();
-
-                //  It ensures we don't process a 'null' response.
-                String response = client.getJsonResponse();
-                if (response != null) {
-
-                    // Parsing the result
-                    JsonObject responseJson = gson.fromJson(response, JsonObject.class);
-                    String status = responseJson.get("status").getAsString();
-
-                    if ("SUCCESS".equals(status)) {
-                        // Extract the Player object from the "requested_player" field
-                        Player p = gson.fromJson(responseJson.get("requested_player"), Player.class);
-
-
-                        // We must hop back onto the Main Thread (MainMenuActivity) to update profile data.
-                        view.updateProfileInfo(p);
-
-                    }
-                }
-
-            } catch (InterruptedException e) {
-
-                e.printStackTrace();
-            }
-
-        }).start();
-
-
+    /**
+     * Loads player's data instantly from MainMenuActivity's ViewModel
+     */
+    public void initData() {
+        Player p = view.getPlayerFromActivity();
+        if (p != null) {
+            view.updateProfileInfo(p);
+        }
     }
+
 
     public void onSaveClicked(String username, String password, String email, String fName,
                               String lName, String phone, String street, String no,
@@ -85,12 +44,26 @@ public class ProfilePresenter {
             return;
         }
 
-        Address updatedAddress = new Address(street, no, city, zip);
+        Player playerToUpdate = view.getPlayerFromActivity();
 
-        Player updatedPlayer = new Player(fName, lName, username,
-                password, email, phone, updatedAddress);
+        if (playerToUpdate != null) {
 
-        view.showSaveConfirmation(updatedPlayer);
+
+            playerToUpdate.setUsername(username);
+            playerToUpdate.setPassword(password);
+            playerToUpdate.setEmail(email);
+            playerToUpdate.setName(fName);
+            playerToUpdate.setSurname(lName);
+            playerToUpdate.setPhone(phone);
+
+            Address addr = playerToUpdate.getAddress();
+            addr.setStreet(street);
+            addr.setStreetNumber(no);
+            addr.setCity(city);
+            addr.setZipCode(zip);
+
+            view.showSaveConfirmation(playerToUpdate);
+        }
     }
 
     public void performSave(Player player) {
@@ -116,7 +89,11 @@ public class ProfilePresenter {
                     String status = responseJson.get("status").getAsString();
 
                     if ("SUCCESS".equals(status)) {
+
+                        // Update MainMenuActivity ViewModel local player
+                        view.syncPlayerWithActivity(player);
                         view.showUpdateSuccess();
+
                     } else {
 
                         // If player info modification fails
@@ -125,17 +102,17 @@ public class ProfilePresenter {
                         view.showUpdateError(errorMsg);
 
                     }
-
                 }
                 else {
-
                     view.showUpdateError("No response from server");
                 }
 
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-                view.showUpdateError("Connection interrupted");
+                view.showUpdateError("Connection error");
             }
         }).start();
     }
+
+
 }

@@ -47,18 +47,13 @@ public class MasterHandler extends Thread {
         Gson gson = new Gson();
 
         try {
-            String receivedJsonString = null;
 
-            try {
-                receivedJsonString = in.readUTF();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-
-
+            String receivedJsonString = in.readUTF();
             MasterMessage message = gson.fromJson(receivedJsonString, MasterMessage.class);
             MasterMessageType type = message.getType();
+
+            JsonElement payloadJsonElement = gson.toJsonTree(message.getPayload());
+            JsonObject response = new JsonObject();
 
 
 
@@ -164,8 +159,8 @@ public class MasterHandler extends Thread {
                     break;
 
                 case MODIFY_PLAYER:
-                    JsonElement jsonElement = gson.toJsonTree(message.getPayload());
-                    Player modifiedPlayer = gson.fromJson(jsonElement, Player.class);
+                    payloadJsonElement = gson.toJsonTree(message.getPayload());
+                    Player modifiedPlayer = gson.fromJson(payloadJsonElement, Player.class);
 
                     registedPlayers.put(modifiedPlayer.getUsername(),modifiedPlayer);
 
@@ -174,6 +169,33 @@ public class MasterHandler extends Thread {
                     responseModifyPlayerJson.addProperty("status", "SUCCESS");
 
                     out.writeUTF(gson.toJson(responseModifyPlayerJson));
+                    out.flush();
+                    break;
+
+                case DEPOSIT:
+                    payloadJsonElement = gson.toJsonTree(message.getPayload());
+                    Transaction tx = gson.fromJson(payloadJsonElement, Transaction.class);
+                    Player depositPlayer = registedPlayers.get(tx.getUsername());
+
+                    JsonObject responseDeposit = new JsonObject();
+                    if (tx != null) {
+                        depositPlayer = registedPlayers.get(tx.getUsername());
+                        if (depositPlayer != null) {
+
+                            // Balance update
+                            BigDecimal currentBal = depositPlayer.getBalance();
+                            depositPlayer.addBalance(tx.getAmount());
+
+
+                            //depositPlayer.addTransaction(tx);
+
+
+                            responseDeposit.addProperty("status", "SUCCESS");
+                            responseDeposit.addProperty("new_balance", depositPlayer.getBalance());
+                        }
+                    }
+
+                    out.writeUTF(gson.toJson(responseDeposit));
                     out.flush();
                     break;
             }
@@ -280,7 +302,12 @@ public class MasterHandler extends Thread {
             BigDecimal payout = (BigDecimal) response;
             Bet originalBet = (Bet) message.getPayload ( );
             Player player=registedPlayers.get (originalBet.getPlayerId ());
-         //edo enimeroneis to ipoloipo!!!!!!!!!!!!!!!!
+
+            // Profit/Loss balance player's update
+            BigDecimal profit_loss = payout;
+            profit_loss = profit_loss.subtract(originalBet.getAmount());
+            player.addBalance(profit_loss);
+
             PlayBackUp playBackUp = new PlayBackUp ( payout, originalBet );
             sendRequestToWorker ( backupTarget, new MasterMessage ( MasterMessageType.PLAYBACKUP, playBackUp ), false, false );
         }

@@ -103,4 +103,9 @@ public class Player implements Serializable {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
+
+    public void addBalance(BigDecimal amount) {
+        this.setBalance(this.getBalance().add(amount));
+    }
+
 }

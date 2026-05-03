@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import gr.goldenbet.R;
+import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.register.RegisterActivity;
 import gr.goldenbet.view.settings.settingsMenu.SettingsMenuActivity;
@@ -73,13 +74,14 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
 
 
     @Override
-    public void navigateToAccount(String playerId, String playerUsername, String playerPassword){
-        Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
+    public void navigateToAccount(Player player){
+        runOnUiThread(()->{
+            Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
 
-        intent.putExtra("PLAYER_ID", playerId);
-        intent.putExtra("PLAYER_USERNAME", playerUsername);
-        intent.putExtra("PLAYER_PASSWORD", playerPassword);
-        startActivity(intent);
+            intent.putExtra("PLAYER_DATA", player);
+            startActivity(intent);
+        });
+
     }
 
     @Override
@@ -120,7 +122,9 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
 
     @Override
     public void showErrorMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        runOnUiThread(()-> {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentHomeBinding;
+import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.login.LoginActivity;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
@@ -47,16 +48,15 @@ public class HomeFragment extends Fragment implements HomeView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-        // Αρχικοποίηση του Presenter
         presenter = new HomePresenter(this);
 
         setupClickListeners();
 
-        String playerUsername = ((MainMenuActivity) getActivity()).getPlayerUsername();
-
-        presenter.initData(playerUsername);
+        // Get player from ViewModel of MainMenuActivity
+        if (getActivity() instanceof MainMenuActivity) {
+            Player player = ((MainMenuActivity) getActivity()).getCurrentPlayer();
+            presenter.initData(player);
+        }
     }
 
     private void setupClickListeners() {
@@ -64,110 +64,73 @@ public class HomeFragment extends Fragment implements HomeView {
         binding.homeCardHistory.setOnClickListener(v -> presenter.onHistoryClicked());
         binding.homeCardStats.setOnClickListener(v -> presenter.onStatsClicked());
         binding.homeCardRatings.setOnClickListener(v -> presenter.onRatingsClicked());
-        binding.homeBtnLogout.setOnClickListener( v -> presenter.onLogoutCLicked());
+        binding.homeBtnLogout.setOnClickListener( v -> presenter.onLogoutClicked());
         binding.homeBtnSettings.setOnClickListener(v -> presenter.onSettingsClicked());
     }
 
 
     @Override
     public void updatePlayerInfo(String name, String balance) {
-        androidx.fragment.app.FragmentActivity activity = getActivity();
+        FragmentActivity activity = getActivity();
 
-        // Check if Activity and binding are available
-        if (activity != null && binding != null) {
-            activity.runOnUiThread(() -> {
-                if (binding != null) {
-                    binding.txtHomePlayerName.setText(name);
-                    binding.txtHomeBalance.setText(balance);
-                }
-            });
+        // Check if binding is available
+        if (binding != null) {
+            binding.txtHomePlayerName.setText(name);
+            binding.txtHomeBalance.setText(balance);
         }
+
     }
 
     @Override
     public void navigateToDeposit() {
-
-
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        R.anim.slide_in_right,  // enter
-                        R.anim.slide_out_left,  // exit
-                        R.anim.slide_in_left,   // popEnter
-                        R.anim.slide_out_right  // popExit
-                )
-                .replace(R.id.fragment_container, new DepositFragment())
-                .addToBackStack(null)
-                .commit();
+        replaceFragmentWithAnimation(new DepositFragment());
     }
 
     @Override
     public void navigateToHistory() {
-
-
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        R.anim.slide_in_right,  // enter
-                        R.anim.slide_out_left,  // exit
-                        R.anim.slide_in_left,   // popEnter
-                        R.anim.slide_out_right  // popExit
-                )
-                .replace(R.id.fragment_container, new StatsFragment())
-                .addToBackStack(null)
-                .commit();
-        Toast.makeText(getContext(), R.string.nav_history_msg, Toast.LENGTH_SHORT).show();
+        replaceFragmentWithAnimation(new StatsFragment());
     }
-
-    @Override
-    public void navigateToStats() {
-        Toast.makeText(getContext(), R.string.nav_stats_msg, Toast.LENGTH_SHORT).show();    }
-
 
     @Override
     public void navigateToRatings() {
-
-        Toast.makeText(getContext(), R.string.nav_ratings_msg, Toast.LENGTH_SHORT).show();
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_left,
-                        R.anim.slide_in_left,
-                        R.anim.slide_out_right
-                )
-                .replace(R.id.fragment_container, new RateFragment())
-                .addToBackStack(null)
-                .commit();
+        replaceFragmentWithAnimation(new RateFragment());
     }
 
     @Override
-    public void navigateToLogin(){
+    public void navigateToLogin() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.nav_logout_dialog_title)
                 .setMessage(R.string.nav_logout_dialog_msg)
                 .setIcon(R.drawable.ic_logout)
                 .setPositiveButton(R.string.common_ok, (dialog, which) -> {
+
                     Intent intent = new Intent(requireContext(), LoginActivity.class);
-
-                    // clean back stack not to return with back button
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
                     startActivity(intent);
-
                     requireActivity().finish();
-                })
-                .setNegativeButton(R.string.common_cancel, (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
 
+                })
+                .setNegativeButton(R.string.common_cancel, (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     @Override
-    public void navigateToSettings(){
-        // requireContext() is used to retrieve the context of the host activity
-        Intent intent = new Intent(requireContext(), SettingsMenuActivity.class);
-        startActivity(intent);
-        Toast.makeText(getContext(), R.string.nav_settings_msg, Toast.LENGTH_SHORT).show();
+    public void navigateToSettings() {
+        startActivity(new Intent(requireContext(), SettingsMenuActivity.class));
+    }
 
+    @Override
+    public void navigateToStats() {
+        Toast.makeText(getContext(), R.string.nav_stats_msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private void replaceFragmentWithAnimation(Fragment fragment) {
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
+                        R.anim.slide_in_left, R.anim.slide_out_right)
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
