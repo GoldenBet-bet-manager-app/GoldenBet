@@ -59,7 +59,16 @@ public class SettingsMenuFragment extends Fragment implements SettingsMenuView {
     @Override
     public void showTheme(boolean isDark) {
         if (binding != null) {
+
+            // Remove temporarily the listener not to have loop
+            binding.SettingsswitchDarkMode.setOnCheckedChangeListener(null);
+
             binding.SettingsswitchDarkMode.setChecked(isDark);
+
+            // Restore the listener
+            binding.SettingsswitchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                presenter.onThemeToggled(isChecked);
+            });
         }
     }
 
@@ -72,14 +81,22 @@ public class SettingsMenuFragment extends Fragment implements SettingsMenuView {
 
     @Override
     public void applyThemeChange(boolean isDark) {
-        AppCompatDelegate.setDefaultNightMode(isDark ?
-                AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        int mode = isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+
+        // Check to avoid Framework bug
+        if (AppCompatDelegate.getDefaultNightMode() != mode) {
+            AppCompatDelegate.setDefaultNightMode(mode);
+        }
     }
 
     @Override
     public void applyLanguageChange(String langCode) {
         LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(langCode);
-        AppCompatDelegate.setApplicationLocales(appLocales);
+
+        // Apply only when the new language differs from the previous
+        if (!AppCompatDelegate.getApplicationLocales().toLanguageTags().equals(langCode)) {
+            AppCompatDelegate.setApplicationLocales(appLocales);
+        }
     }
 
     @Override

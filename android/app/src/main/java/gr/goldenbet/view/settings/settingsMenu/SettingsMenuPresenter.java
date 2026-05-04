@@ -19,8 +19,13 @@ public class SettingsMenuPresenter {
     }
 
     public void onThemeToggled(boolean isDark) {
-        prefs.edit().putBoolean("is_dark_mode", isDark).apply();
-        view.applyThemeChange(isDark);
+        boolean currentPref = prefs.getBoolean("is_dark_mode", !isDark);
+
+        // Aplly only when it changed value
+        if (currentPref != isDark) {
+            prefs.edit().putBoolean("is_dark_mode", isDark).apply();
+            view.applyThemeChange(isDark);
+        }
     }
 
     public void onLanguageSelected(String langCode) {
