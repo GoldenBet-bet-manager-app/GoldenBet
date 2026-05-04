@@ -2,12 +2,15 @@ package Master;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import Models.*;
+import com.google.gson.reflect.TypeToken;
 
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.Socket;
 import java.time.LocalTime;
@@ -44,7 +47,9 @@ public class MasterHandler extends Thread {
 //        MasterMessage message = (MasterMessage) in.readObject ( );
 //        MasterMessageType type = message.getType ( );
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
 
         try {
 
@@ -67,12 +72,16 @@ public class MasterHandler extends Thread {
                     break;
 
                 case REMOVE_GAME:
-                    Game gameToDelete = (Game) message.getPayload ( );
+                    String removeJson = gson.toJson(message.getPayload());
+                    Game gameToDelete = gson.fromJson(removeJson, Game.class);
+                    message.setPayload(gameToDelete);
                     routeToSingleWorker ( message, gameToDelete.getGameName ( ), "remove" );
                     break;
 
                 case MODIFY_GAME:
-                    Game gameToModify = (Game) message.getPayload ( );
+                    String modifyJson = gson.toJson(message.getPayload());
+                    Game gameToModify = gson.fromJson(modifyJson, Game.class);
+                    message.setPayload(gameToModify);
                     routeToSingleWorker ( message, gameToModify.getGameName ( ), "modify" );
                     break;
 
@@ -119,7 +128,11 @@ public class MasterHandler extends Thread {
                     out.flush();
                     break;
                 case LOGIN:
-                    Object loginResponse = loginplayers(message.getPayload());
+                    // Ensure that payload (loginCredentials) is of type ArrayList<String>
+                    Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+                    ArrayList<String> loginCredentials = gson.fromJson(gson.toJson(message.getPayload()), listType);
+
+                    Object loginResponse = loginplayers(loginCredentials);
 
                     JsonObject responseLoginJson = new JsonObject();
 
@@ -137,7 +150,11 @@ public class MasterHandler extends Thread {
                     break;
 
                 case LOGOUT:
-                    logoutplayers(message.getPayload ());
+                    // Ensure that payload (logoutCredentials) is of type ArrayList<String>
+                    Type logoutType = new TypeToken<ArrayList<String>>(){}.getType();
+                    ArrayList<String> logoutCredentials = gson.fromJson(gson.toJson(message.getPayload()), logoutType);
+
+                    logoutplayers(logoutCredentials);
                     break;
 
                 case GET_PLAYER_INFO:
@@ -264,7 +281,10 @@ public class MasterHandler extends Thread {
 
 
     private void routeToSingleWorker (MasterMessage message, String gameName, String actionLog) throws IOException, ClassNotFoundException {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+
         int numOfWorkers = workers.size ( );
         int gameWorkerIndex = hashGameToWorker ( gameName, numOfWorkers );
         WorkerInfo target = workers.get ( gameWorkerIndex );
@@ -314,7 +334,7 @@ public class MasterHandler extends Thread {
         else if (message.getType ( ).equals ( MasterMessageType.PLAY ) && response instanceof String){
             System.out.println ( "Error message returned from betting. Canceling Backup Data." );
         }
-        ;
+
         String jsonResponse = gson.toJson(response);
         out.writeUTF(jsonResponse);
         out.flush();

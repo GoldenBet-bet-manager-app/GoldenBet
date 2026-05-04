@@ -3,6 +3,7 @@ package Manager;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,9 @@ import java.nio.file.Files;
 
 import Models.Game;
 import Models.MasterMessage;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.json.JSONException;
 import org.json.JSONObject;
 import Client.*;
@@ -159,7 +163,7 @@ public class ManagerApp {
                     break;
             }
 
-            System.out.println("Επιτυχής αντιστοίχιση! Το παιχνίδι μπήκε στην κατηγορία: " + selectedGame.getGameCategory ());
+            System.out.println("Successful mapping! The game was added into category: " + selectedGame.getGameCategory ());
         } catch (IOException e) {
             System.err.println("Error reading JSON file: " + e.getMessage());
         } catch (JSONException e) {
@@ -170,7 +174,10 @@ public class ManagerApp {
             try {
                 MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
 
-                com.google.gson.Gson gson = new com.google.gson.Gson();
+                Gson gson = new GsonBuilder()
+                        .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                        .create();
+
                 String jsonMessage = gson.toJson(message);
                 JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
                 client.start();
@@ -189,21 +196,26 @@ public class ManagerApp {
     public static void removeGame() {
 
         // Query for the active games of all workers
-        ArrayList<Game> activeGames = getAndDisplayActiveGames();
+       ArrayList<Game> activeGames = getAndDisplayActiveGames();
 
-        if(activeGames == null || activeGames.isEmpty()) return;
-        int index = validateGameSelectionInput(activeGames);
+       if(activeGames == null || activeGames.isEmpty()) return;
+       int index = validateGameSelectionInput(activeGames);
 
-        Game gameToDelete = activeGames.get(index);
+       Game gameToDelete = activeGames.get(index);
 
        MasterMessage removalMessage = new MasterMessage(REMOVE_GAME, gameToDelete);
 
-       Client client = new Client(masterIp, masterPort, removalMessage);
+       Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+       String jsonMessage = gson.toJson(removalMessage);
+       JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
+
        client.start();
 
         try {
             client.join();
-            String responseToGameRemoval = (String) client.getResponse();
+            String responseToGameRemoval = (String) client.getJsonResponse();
             System.out.println(responseToGameRemoval);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -291,14 +303,19 @@ public class ManagerApp {
 
         MasterMessage modificationMessage = new MasterMessage(MODIFY_GAME, gameToModify);
 
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+        String jsonMessage = gson.toJson(modificationMessage);
+        JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
 
-        Client client = new Client(masterIp, masterPort, modificationMessage);
+
         client.start();
 
         String responseToGameModification = null;
         try {
             client.join();
-            responseToGameModification = (String) client.getResponse();
+            responseToGameModification = (String) client.getJsonResponse();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -307,58 +324,35 @@ public class ManagerApp {
 
     }
 
-    public static void profitsPerProvider(){
-        System.out.print("Please, type provider's name: ");
-        String providerName = ManagerApp.scanner.nextLine();
-
-        MasterMessage providerAggregationMessage = new MasterMessage(PROVIDER_GAME_PROFITS,providerName);
-        Client client = new Client(masterIp, masterPort, providerAggregationMessage);
-        client.start();
-
-        HashMap<String,BigDecimal> providerGameProfits = null;
-
-        try {
-            client.join();
-            providerGameProfits = (HashMap<String, BigDecimal>) client.getResponse() ;
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        if(providerGameProfits != null && !providerGameProfits.isEmpty()){
-            int i=0;
-            System.out.printf("*******************PROFITS OF PROVIDER \"%s\" *******************\n",providerName);
-            System.out.println("--------------------------------------------------------------------");
-
-            String gameFormat = "%-8s | %-20s | %-15s%n";
-            System.out.printf(gameFormat, "Number", "Name", "Profit/Loss");
-
-            for (String gameName : providerGameProfits.keySet()){
-                String profitStr = providerGameProfits.get(gameName) + " FUN";
-                System.out.printf(gameFormat, ++i, gameName, profitStr);
-            }
-        }
-        else{
-            System.out.println("No games were found for provider's Name: \"" + providerName +"\"");
-        }
-
-    }
-
 
     public static void profitsPerGame(){
         MasterMessage gameAggregationMessage = new MasterMessage(GAMES_PROFITS,null);
-        Client client = new Client(masterIp, masterPort, gameAggregationMessage);
+
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+        String jsonMessage = gson.toJson(gameAggregationMessage);
+        JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
+
+
         client.start();
 
-        HashMap<String,BigDecimal> gameProfits = null;
+        String responseGameProfits = null;
 
         try {
             client.join();
-            gameProfits = (HashMap<String, BigDecimal>) client.getResponse() ;
+            responseGameProfits =  client.getJsonResponse() ;
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        // type object that describes HashMap<String,BigDecimal>
+        Type listType = new TypeToken<HashMap<String,BigDecimal>>(){}.getType();
+
+        // Use of this type to convert JSON String to HashMap<String,BigDecimal>
+        HashMap<String,BigDecimal> gameProfits = gson.fromJson(responseGameProfits, listType);
+
 
         if(gameProfits != null && !gameProfits.isEmpty()){
             int i=0;
@@ -379,20 +373,37 @@ public class ManagerApp {
 
     }
 
+
     public static void profitsPerPlayer(String choice){
         MasterMessage playerAggregationMessage = new MasterMessage(PLAYERS_PROFITS,null);
-        Client client = new Client(masterIp, masterPort, playerAggregationMessage);
+
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+        String jsonMessage = gson.toJson(playerAggregationMessage);
+        JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
+
+
         client.start();
 
-        HashMap<String,BigDecimal> playersProfits = null;
+        String responsePlayersProfits = null;
 
         try {
             client.join();
-            playersProfits = (HashMap<String, BigDecimal>) client.getResponse() ;
+
+            responsePlayersProfits = client.getJsonResponse();
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+
+        // type object that describes HashMap<String,BigDecimal>
+        Type listType = new TypeToken<HashMap<String,BigDecimal>>(){}.getType();
+
+        // Use of this type to convert JSON String to HashMap<String,BigDecimal>
+        HashMap<String,BigDecimal> playersProfits = gson.fromJson(responsePlayersProfits, listType);
+
 
         if(playersProfits != null && !playersProfits.isEmpty()){
             String format;
@@ -435,6 +446,59 @@ public class ManagerApp {
     }
 
 
+    public static void profitsPerProvider(){
+        System.out.print("Please, type provider's name: ");
+        String providerName = ManagerApp.scanner.nextLine();
+
+        MasterMessage providerAggregationMessage = new MasterMessage(PROVIDER_GAME_PROFITS,providerName);
+
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+        String jsonMessage = gson.toJson(providerAggregationMessage);
+        JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
+
+
+        client.start();
+
+        String responseProviderGameProfits = null;
+
+        try {
+            client.join();
+            responseProviderGameProfits =  client.getJsonResponse() ;
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        // type object that describes HashMap<String,BigDecimal>
+        Type listType = new TypeToken<HashMap<String,BigDecimal>>(){}.getType();
+
+        // Use of this type to convert JSON String to HashMap<String,BigDecimal>
+        HashMap<String,BigDecimal> providerGameProfits = gson.fromJson(responseProviderGameProfits, listType);
+
+
+        if(providerGameProfits != null && !providerGameProfits.isEmpty()){
+            int i=0;
+            System.out.printf("*******************PROFITS OF PROVIDER \"%s\" *******************\n",providerName);
+            System.out.println("--------------------------------------------------------------------");
+
+            String gameFormat = "%-8s | %-20s | %-15s%n";
+            System.out.printf(gameFormat, "Number", "Name", "Profit/Loss");
+
+            for (String gameName : providerGameProfits.keySet()){
+                String profitStr = providerGameProfits.get(gameName) + " FUN";
+                System.out.printf(gameFormat, ++i, gameName, profitStr);
+            }
+        }
+        else{
+            System.out.println("No games were found for provider's Name: \"" + providerName +"\"");
+        }
+
+    }
+
+
     private static int validateGameSelectionInput(ArrayList<?> list){
         System.out.printf("\n Please select one of the above games (from 1 to %d): ",list.size());
         String gameChoiceStr = scanner.nextLine();
@@ -465,21 +529,30 @@ public class ManagerApp {
     private static ArrayList<Game> getAndDisplayActiveGames(){
         MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
 
-        Client client = new Client(masterIp,masterPort,message);
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+        String jsonMessage = gson.toJson(message);
+        JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
 
         client.start();
 
-        Object responseActiveGames = null;
+        String responseActiveGames = null;
         // Wait for the client thread to finish remove game before returning to manager's main menu
         try {
             client.join();
 
-            responseActiveGames = client.getResponse();
+            responseActiveGames = client.getJsonResponse();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        ArrayList<Game> activeGames = (ArrayList<Game>) responseActiveGames;
+        // type object that describes ArrayList<Game>
+        Type listType = new TypeToken<ArrayList<Game>>(){}.getType();
+
+        // Use of this type to convert JSON String to ArrayList<Game>
+        ArrayList<Game> activeGames = gson.fromJson(responseActiveGames, listType);
+
 
         if (activeGames != null && !activeGames.isEmpty()) {
             System.out.println("\t\t\t\t\t ACTIVE GAMES");
@@ -507,21 +580,31 @@ public class ManagerApp {
     private static ArrayList<Game> getAndDisplayAllGames(){
         MasterMessage message = new MasterMessage(GET_ALL_GAMES, null);
 
-        Client client = new Client(masterIp,masterPort,message);
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
+                .create();
+
+        String jsonMessage = gson.toJson(message);
+        JsonClient client = new JsonClient (masterIp, masterPort, jsonMessage);
 
         client.start();
 
-        Object responseAllGames = null;
+        String responseAllGames = null;
         // Wait for the client thread to finish remove game before returning to manager's main menu
         try {
             client.join();
 
-            responseAllGames = client.getResponse();
+            responseAllGames = client.getJsonResponse();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        ArrayList<Game> allGames = (ArrayList<Game>) responseAllGames;
+        // type object that describes ArrayList<Game>
+        Type listType = new TypeToken<ArrayList<Game>>(){}.getType();
+
+        // Use of this type to convert JSON String to ArrayList<Game>
+        ArrayList<Game> allGames = gson.fromJson(responseAllGames, listType);
+
 
         if (allGames != null && !allGames.isEmpty()) {
             System.out.println("\t\t\t\t\t ALL GAMES STORED");
