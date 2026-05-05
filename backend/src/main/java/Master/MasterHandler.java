@@ -53,7 +53,7 @@ public class MasterHandler extends Thread {
 
         try {
 
-            String receivedJsonString = in.readUTF();
+            String receivedJsonString = (String) in.readObject();
             MasterMessage message = gson.fromJson(receivedJsonString, MasterMessage.class);
             MasterMessageType type = message.getType();
 
@@ -124,7 +124,7 @@ public class MasterHandler extends Thread {
                         responseJson.addProperty("message", (String) regResponse);
                     }
 
-                    out.writeUTF(gson.toJson(responseJson));
+                    out.writeObject(gson.toJson(responseJson));
                     out.flush();
                     break;
                 case LOGIN:
@@ -145,7 +145,7 @@ public class MasterHandler extends Thread {
                         responseLoginJson.addProperty("message", "Incorrect username or password");
                     }
 
-                    out.writeUTF(gson.toJson(responseLoginJson));
+                    out.writeObject(gson.toJson(responseLoginJson));
                     out.flush();
                     break;
 
@@ -171,7 +171,7 @@ public class MasterHandler extends Thread {
                         responseGetPlayerJson.addProperty("status", "FAILED");
                     }
 
-                    out.writeUTF(gson.toJson(responseGetPlayerJson));
+                    out.writeObject(gson.toJson(responseGetPlayerJson));
                     out.flush();
                     break;
 
@@ -185,7 +185,7 @@ public class MasterHandler extends Thread {
 
                     responseModifyPlayerJson.addProperty("status", "SUCCESS");
 
-                    out.writeUTF(gson.toJson(responseModifyPlayerJson));
+                    out.writeObject(gson.toJson(responseModifyPlayerJson));
                     out.flush();
                     break;
 
@@ -212,7 +212,7 @@ public class MasterHandler extends Thread {
                         }
                     }
 
-                    out.writeUTF(gson.toJson(responseDeposit));
+                    out.writeObject(gson.toJson(responseDeposit));
                     out.flush();
                     break;
             }
@@ -304,7 +304,7 @@ public class MasterHandler extends Thread {
 
             response = sendRequestToWorker(backupTarget, message, true, true);
             String jsonResponse = gson.toJson(response);
-            out.writeUTF(jsonResponse);
+            out.writeObject(jsonResponse);
             out.flush();
         }
 
@@ -336,7 +336,7 @@ public class MasterHandler extends Thread {
         }
 
         String jsonResponse = gson.toJson(response);
-        out.writeUTF(jsonResponse);
+        out.writeObject(jsonResponse);
         out.flush();
     }
 
@@ -398,7 +398,7 @@ public class MasterHandler extends Thread {
 
         Gson localGsonMapRed = new Gson();
         String finalGamesJson = localGsonMapRed.toJson(finalGames);
-        out.writeUTF(finalGamesJson);
+        out.writeObject(finalGamesJson);
         out.flush();
     }
 

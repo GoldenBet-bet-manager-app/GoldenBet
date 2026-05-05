@@ -5,10 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 import java.nio.file.Files;
 
 import Models.Game;
@@ -163,7 +160,6 @@ public class ManagerApp {
                     break;
             }
 
-            System.out.println("Successful mapping! The game was added into category: " + selectedGame.getGameCategory ());
         } catch (IOException e) {
             System.err.println("Error reading JSON file: " + e.getMessage());
         } catch (JSONException e) {
@@ -172,6 +168,22 @@ public class ManagerApp {
 
         if(selectedGame != null) {
             try {
+
+                String imagePath = selectedGame.getGameLogoPath();
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+
+                    byte[] imageBytes = Files.readAllBytes(imageFile.toPath());
+                    String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
+                    selectedGame.setBase64Image(encodedImage);
+                    System.out.println("logo of game '"+selectedGame.getGameName()+"' found and encoded successfully.");
+
+                } else {
+                    System.out.println("Warning: Logo file not found at '" + imagePath + "'");
+                    return;
+                }
+
                 MasterMessage message = new MasterMessage(ADD_GAME, selectedGame);
 
                 Gson gson = new GsonBuilder()
@@ -193,6 +205,8 @@ public class ManagerApp {
             }
         }
     }
+
+
     public static void removeGame() {
 
         // Query for the active games of all workers
@@ -238,7 +252,7 @@ public class ManagerApp {
             System.out.println("2. Risk level (Current: " + gameToModify.getRiskLevel() + ")");
             System.out.println("3. Min Bet (Current: " + gameToModify.getMinBet() + ")");
             System.out.println("4. Max Bet (Current: " + gameToModify.getMaxBet() + ")");
-            System.out.println("5. Logo Path (Path: " + gameToModify.getGameLogo() + ")");
+            System.out.println("5. Logo Path (Path: " + gameToModify.getGameLogoPath() + ")");
             System.out.println("6. Save changes and return to menu");
             System.out.println("0. Cancel changes and return to menu");
             System.out.print("Select field to modify: ");
@@ -285,7 +299,7 @@ public class ManagerApp {
 
                 case "5":
                     System.out.print("New logo path: ");
-                    gameToModify.setGameLogo(scanner.nextLine());
+                    gameToModify.setGameLogoPath(scanner.nextLine());
                     break;
                 case "6":
                     endModify = true;

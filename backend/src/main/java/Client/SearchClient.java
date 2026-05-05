@@ -30,7 +30,7 @@ public class SearchClient extends Client {
                 playerApp.setSearchedGames ( foundgames );
                 for ( Game g : foundgames ) {
                     i++;
-                    System.out.println ( i + ") " + g.getGameName ( ) + " | Stars: " + g.getDisplayStars ( ) +
+                    System.out.println ( i + ") " + g.getGameName ( ) + " | Stars: " + g.getStars ( ) +
                             " | Bet from " + g.getMinBet ( ) + " FUN to " + g.getMaxBet ( ) + " FUN" +
                             " | Risk Level: " + g.getRiskLevel ( ) +
                             " | Bet Limits: " + g.getBetCategory ());
