@@ -237,10 +237,8 @@ public class MasterHandler extends Thread {
     private void logoutplayers (Object payload) {
         ArrayList<String> credentials = (ArrayList<String>) payload;
         for ( Player p : registedPlayers.values ( ) ) {
-            if ( p.getUsername ( ).equals ( credentials.get(0)) && p.getPassword ( ).equals ( credentials.get(1) )
-                    && p.isLoggedIn ()){
+            if ( p.getUsername ( ).equals ( credentials.get(0)) && p.getPassword ( ).equals ( credentials.get(1) )){
                 System.out.println("Player \""+credentials.get(0)+"\"Logout");
-                p.setLoggedIn ( false );
             }
         }
     }
@@ -252,9 +250,7 @@ public class MasterHandler extends Thread {
         synchronized (registedPlayers) {
             for (Player p : registedPlayers.values()) {
 
-                if (p.getUsername().equals(credentials.get(0)) && p.getPassword().equals(credentials.get(1))
-                        && !p.isLoggedIn()) {
-                    p.setLoggedIn(true);
+                if (p.getUsername().equals(credentials.get(0)) && p.getPassword().equals(credentials.get(1))) {
                     System.out.println("Player \""+p.getUsername()+"\" Logged in");
                     return p;
                 }

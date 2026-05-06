@@ -27,7 +27,6 @@ public class Player implements Serializable {
 
     // System Attributes
     private String playerId;
-    private boolean isLoggedIn;
     private static final AtomicInteger idCounter = new AtomicInteger(1);
 
     /**
@@ -42,7 +41,6 @@ public class Player implements Serializable {
         this.email = email;
         this.phone = phone;
         this.address = address;
-        this.isLoggedIn = false;
 
         // Generates unique Player ID for the current session
         this.playerId = "Player_" + idCounter.getAndIncrement();
@@ -54,7 +52,6 @@ public class Player implements Serializable {
         this.surname = surname;
         this.username = username;
         this.password = password;
-        this.isLoggedIn = false;
         this.email = "-";
         this.phone = "-";
         this.balance = BigDecimal.ZERO;
@@ -93,8 +90,7 @@ public class Player implements Serializable {
     public String getPlayerId() { return playerId; }
     public void setPlayerId(String playerId) { this.playerId = playerId; }
 
-    public boolean isLoggedIn() { return isLoggedIn; }
-    public void setLoggedIn(boolean loggedIn) { isLoggedIn = loggedIn; }
+
 
     public BigDecimal getBalance() {
         return balance;
