@@ -1,13 +1,7 @@
 package gr.goldenbet.view.register;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
-import org.json.JSONObject;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,9 +11,6 @@ import gr.goldenbet.R;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
-
-import gr.goldenbet.utils.Address;
-import gr.goldenbet.view.utils.ConfigLoader;
 
 public class RegisterPresenter {
     private RegisterView view;

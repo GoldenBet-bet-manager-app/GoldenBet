@@ -1,12 +1,8 @@
 package gr.goldenbet.domain;
 
-import android.util.Log;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import gr.goldenbet.utils.Address;
 
 /**
  * Represents a Player in the system, including personal and contact details.

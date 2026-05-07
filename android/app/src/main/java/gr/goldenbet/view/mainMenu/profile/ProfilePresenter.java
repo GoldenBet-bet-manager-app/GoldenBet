@@ -8,8 +8,7 @@ import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.utils.Address;
-import gr.goldenbet.view.mainMenu.home.HomeFragment;
+import gr.goldenbet.domain.Address;
 
 public class ProfilePresenter {
     private ProfileView view;

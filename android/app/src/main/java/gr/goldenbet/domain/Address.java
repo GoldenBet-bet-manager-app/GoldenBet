@@ -1,4 +1,4 @@
-package gr.goldenbet.utils;
+package gr.goldenbet.domain;
 
 
 import java.io.Serializable;
