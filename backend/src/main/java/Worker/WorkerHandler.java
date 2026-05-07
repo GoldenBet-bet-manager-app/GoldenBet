@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.net.Socket;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -326,12 +327,7 @@ public class WorkerHandler extends Thread {
 
     private BigDecimal CalculateProfit (Bet bet) throws IOException, ClassNotFoundException {
         BigDecimal payout = BigDecimal.ZERO;
-        if ( bet == null ) throw new IllegalArgumentException ( "The Bet cannot be null." );
         Game game = myGames.get ( bet.getGameName ( ) );
-        if ( game == null ) {
-            throw new IllegalArgumentException ( "The game '" + bet.getGameName ( ) + "' was not found on this Worker." );
-        }
-
         if ( bet.getAmount ( ).compareTo ( game.getMinBet ( ) ) < 0 || bet.getAmount ( ).compareTo ( game.getMaxBet ( ) ) > 0 ) {
             throw new IllegalArgumentException ( "Cancelled: The bet must be between "
                     + game.getMinBet ( ) + " and " + game.getMaxBet ( ) + " tokens." );
@@ -385,9 +381,9 @@ public class WorkerHandler extends Thread {
 
     // auxiliary method to update player profits maps after play
     private void updatePlayerProfitsMap(HashMap<String, BigDecimal> map, Bet bet, BigDecimal payout) {
-        BigDecimal playerProfit = map.getOrDefault(bet.getPlayerId(), BigDecimal.ZERO);
+        BigDecimal playerProfit = map.getOrDefault(bet.getPlayerid (), BigDecimal.ZERO);
         playerProfit = playerProfit.subtract(bet.getAmount()).add(payout);
-        map.put(bet.getPlayerId(), playerProfit);
+        map.put(bet.getPlayerid (), playerProfit);
     }
 
 

@@ -33,22 +33,19 @@ public class WheelGameRules {
 
     public int determineSliceIndex(double multiplier) {
         ArrayList<Integer> matchingIndices = new ArrayList<>();
-
-        // Ψάχνει ποιο/ποια slices (από το 0 έως το 10) έχουν αυτόν τον πολλαπλασιαστή
         for (int i = 0; i < slices.length; i++) {
             if (slices[i] == multiplier) {
                 matchingIndices.add(i);
             }
-            // Αν βρήκε παραπάνω από ένα slices (π.χ. τα πολλά 0.0),
-            // διαλέγει ένα στην τύχη για να είναι ρεαλιστικό το γύρισμα.
-            // Αν βρήκε μόνο ένα (όπως το Jackpot στη θέση 10), θα επιστρέψει κατευθείαν αυτό!
-            if (!matchingIndices.isEmpty()) {
-                Random random = new Random();
-                int randomIndex = random.nextInt(matchingIndices.size());
-                return matchingIndices.get(randomIndex);
-            }
         }
-        return 0; // Ασφάλεια σε περίπτωση λάθους
+
+        if (!matchingIndices.isEmpty()) {
+            Random random = new Random();
+            int randomIndex = random.nextInt(matchingIndices.size());
+            return matchingIndices.get(randomIndex);
+        }
+
+        return 0;
     }
 
     public int getLogoResId() {

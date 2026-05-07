@@ -99,7 +99,7 @@ public class PlayerApp {
         if ( amount.compareTo ( this.tokenBalance ) > 0 )
             throw new IllegalArgumentException ( "Warning: You don't have enough FUN." );
 
-        Bet bet = new Bet ( amount, currentPlayer.getPlayerId(), gameName );
+        Bet bet = new Bet ( amount, currentPlayer.getSurname ( ),currentPlayer.getPlayerId(), gameName );
         Client playClient = new Client ( masterIp, masterPort, new MasterMessage ( MasterMessageType.PLAY, bet ) );
         playClient.start ( );
         playClient.join ();

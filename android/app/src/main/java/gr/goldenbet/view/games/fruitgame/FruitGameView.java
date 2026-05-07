@@ -8,8 +8,10 @@ public interface FruitGameView {
     void showSpinResult(String result);
     void randomizeGrid(String [] symbols);
     void setImageBackground(int imageBackgroundId);
-    void setCellsToSymbol(int[] indices, String symbol, int textcolor);
+    void setCellsToSymbol(int[] indices, String[] symbols, int textcolor);
     void clearFruitGrid();
     void lock(Boolean flag);
+    void playSound(boolean isWin);
+    void showErrorDialog(String title, String message);
 }
 

@@ -1,5 +1,8 @@
 package gr.goldenbet.view.games.poker;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,21 +19,23 @@ import java.util.ArrayList;
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentPokerBinding;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
+import gr.goldenbet.view.mainMenu.search.SearchFragment;
 
 
 public class PokerFragment extends Fragment implements PokerView {
 
     private PokerPresenter presenter;
     private FragmentPokerBinding binding;
-    private String playerId, currentGameName, betamount;
+    private String  currentGameName, betamount;
+    private Player player;
 
     public PokerFragment() {
         // Required empty public constructor
     }
 
-    public static PokerFragment newInstance(String playerId, String gameName) {
+    public static PokerFragment newInstance( String gameName) {
         Bundle args = new Bundle();
-        args.putString("PLAYER_ID", playerId);
         args.putString("GAME_NAME", gameName);
         PokerFragment fragment = new PokerFragment();
         fragment.setArguments(args);
@@ -41,7 +46,6 @@ public class PokerFragment extends Fragment implements PokerView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            playerId = getArguments().getString("PLAYER_ID");
             currentGameName = getArguments().getString("GAME_NAME");
         }
     }
@@ -56,16 +60,25 @@ public class PokerFragment extends Fragment implements PokerView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-        presenter = new PokerPresenter(this, currentGameName);
+        player=((MainMenuActivity) getActivity()).getCurrentPlayer();
+        String ip = getString(R.string.master_ip);
+        int port = getResources().getInteger(R.integer.master_port);
+        presenter=new PokerPresenter(this,currentGameName,ip,port,player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
+        presenter.initializedata();
+
+        binding.btnBack.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, SearchFragment.newInstance())
+                    .commit();
+        });
 
         binding.btnDeal.setOnClickListener(v -> {
+            SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
+            prefs.edit().putBoolean("PLAYED_" + currentGameName, true).apply();
             betamount = binding.etbetAmount.getText().toString();
             binding.btnDeal.setEnabled(false);
             binding.etbetAmount.setEnabled(false);
-
             presenter.onDealClicked(betamount);
         });
     }
@@ -75,12 +88,38 @@ public class PokerFragment extends Fragment implements PokerView {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                binding.btnDeal.setEnabled(true);
-                binding.etbetAmount.setEnabled(true);
+                lock(false);
             });
         }
     }
-
+    @Override
+    public void showErrorDialog(String title, String message) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                new android.app.AlertDialog.Builder(requireContext())
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setPositiveButton("ΟΚ", (dialog, which) -> dialog.dismiss())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
+                        .show();
+            });
+        }
+    }
+    @Override
+    public void lock(Boolean flag) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.btnDeal.setEnabled(!flag);
+                binding.etbetAmount.setEnabled(!flag);
+                if (flag) {
+                    binding.btnDeal.setAlpha(0.5f);
+                } else {
+                    binding.btnDeal.setAlpha(1.0f);
+                }
+            });
+        }
+    }
     @Override
     public void showBalance(BigDecimal balance) {
         if (getActivity() != null) {
@@ -89,14 +128,29 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+    @Override
+    public void playSound(boolean isWin) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                int soundResource;
+                if (isWin)
+                    soundResource = R.raw.win_sound;
+                else
+                    soundResource = R.raw.lose_sound;
 
+                MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), soundResource);
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(mp -> mp.release());
+
+            });
+        }
+    }
     @Override
     public void showWinResult(String result) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 binding.tvresult.setText(result);
-                binding.btnDeal.setEnabled(true);
-                binding.etbetAmount.setEnabled(true);
+                lock(false);
             });
         }
     }
@@ -125,9 +179,8 @@ public class PokerFragment extends Fragment implements PokerView {
                 String imageName = hand.get(i);
                 int imageResId = getResources().getIdentifier(imageName, "drawable", requireContext().getPackageName());
 
-                // 2. Υπολογίζουμε την καθυστέρηση και αν είναι η τελευταία κάρτα
                 long delay = i * 400L;
-                boolean isLastCard = (i == hand.size() - 1); // Αν το i είναι 4 (το 5ο φύλλο)
+                boolean isLastCard = (i == hand.size() - 1);
 
                 currentCardView.animate()
                         .rotationY(90f)
