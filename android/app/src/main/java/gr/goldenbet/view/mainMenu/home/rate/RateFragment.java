@@ -1,5 +1,6 @@
 package gr.goldenbet.view.mainMenu.home.rate;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
+import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentRateBinding;
 import gr.goldenbet.domain.Player;
 
@@ -24,17 +28,6 @@ public class RateFragment extends Fragment implements RateView {
     private FragmentRateBinding binding;
     private float currentstars;
     private String currentGameName;
-    private String[] games = {
-            "Pharaoh's Dynasty",
-            "Dragon's Lair",
-            "Gates of Olympus",
-            "Pirate's Bounty",
-            "High Roller Poker",
-            "Fruit Fiesta",
-            "Lucky Seven",
-            "Pharaoh's Dynasty"
-    };
-
     public RateFragment() {
     }
 
@@ -48,14 +41,11 @@ public class RateFragment extends Fragment implements RateView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        String ip = getString(R.string.master_ip);
+        int port = getResources().getInteger(R.integer.master_port);
         SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
-        presenter = new RatePresenter(this,prefs);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_dropdown_item_1line, games
-        );
-        binding.autoCompleteGameName.setAdapter(adapter);
-
+        presenter = new RatePresenter(this,prefs,ip,port);
+        presenter.initializedata();
         binding.btnBack.setOnClickListener(v -> {
             if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                 getParentFragmentManager().popBackStack();
@@ -82,10 +72,27 @@ public class RateFragment extends Fragment implements RateView {
     public void showMessage(String message) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             });
         }
     }
+    @Override
+    public void showErrorDialog(int titleResId, int messageResId, String gameName) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                String title = getString(titleResId);
+                String message = getString(messageResId, gameName);
+                new AlertDialog.Builder(requireContext())
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setPositiveButton("ΟΚ", (dialog, which) -> dialog.dismiss())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
+                        .show();
+            });
+        }
+    }
+
 
     @Override
     public void clearRateForm() {
@@ -94,6 +101,18 @@ public class RateFragment extends Fragment implements RateView {
                 binding.ratingBar.setRating(0.0f);
                 binding.autoCompleteGameName.setText("");
 
+            });
+        }
+    }
+
+    @Override
+    public void setActiveGames(ArrayList<String> gameNames) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                        android.R.layout.simple_dropdown_item_1line, gameNames
+                );
+                binding.autoCompleteGameName.setAdapter(adapter);
             });
         }
     }

@@ -121,7 +121,8 @@
     <string name="rate_error_no_game">Παρακαλώ επιλέξτε ένα παιχνίδι από τη λίστα!</string>
     <string name="rate_error_invalid_stars">Η βαθμολογία πρέπει να είναι μεταξύ 1 και 5 αστέρια (με βήμα μισού αστεριού)!</string>
     <string name="rate_success">Επιτυχής Αξιολόγηση!!!!</string>
-
+    <string name="rate_error_not_played_title">Αδύνατη Αξιολόγηση</string>
+    <string name="rate_error_not_played_message">Δεν μπορείς να αξιολογήσεις το παιχνίδι \'%1$s\' επειδή δεν το έχεις παίξει ακόμα!</string>
 
     <!--fragment_stats.xml-->
     <string name="stats_weekly_activity_header">ΕΒΔΟΜΑΔΙΑΙΑ ΔΡΑΣΤΗΡΙΟΤΗΤΑ</string>
