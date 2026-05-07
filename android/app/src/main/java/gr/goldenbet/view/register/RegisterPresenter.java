@@ -63,10 +63,10 @@ public class RegisterPresenter {
                 MasterMessage message = new MasterMessage(MasterMessageType.REGIST, player);
                 String jsonToSend = gson.toJson(message);
 
-                out.writeUTF(jsonToSend);
+                out.writeObject(jsonToSend);
                 out.flush();
 
-                String masterReply = in.readUTF();
+                String masterReply = (String) in.readObject();
                 JsonObject response = gson.fromJson(masterReply, JsonObject.class);
 
                 String status = response.get("status").getAsString();

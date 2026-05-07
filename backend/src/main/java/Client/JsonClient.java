@@ -22,15 +22,21 @@ public class JsonClient extends Thread {
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-            out.writeUTF(jsonRequest);
+            // Use of write/readObject instead of write/readUTF
+            // to handle bigger messages since game Objects contain png files
+
+            out.writeObject(jsonRequest);
             out.flush();
-            jsonResponse = in.readUTF();
+
+            jsonResponse = (String) in.readObject();
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException e) {
             System.err.println("Σφάλμα I/O στην επικοινωνία με την πόρτα " + port);
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

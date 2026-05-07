@@ -204,7 +204,7 @@ public class WorkerHandler extends Thread {
             if (existingGame != null) {
 
                 existingGame.setProviderName(gameUpdate.getProviderName());
-                existingGame.setGameLogo(gameUpdate.getGameLogo());
+                existingGame.setGameLogoPath(gameUpdate.getGameLogoPath());
                 existingGame.setMaxBet(gameUpdate.getMaxBet());
 
                 existingGame.setRiskLevel(gameUpdate.getRiskLevel());

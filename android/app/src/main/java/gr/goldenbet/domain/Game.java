@@ -9,7 +9,7 @@ public class Game implements Serializable {
     private String providerName;
     private float stars;
     private int votes;
-    private String gameLogo;
+    private String gameLogoPath;
     private BigDecimal minBet;
     private BigDecimal maxBet;
     private String riskLevel;
@@ -20,17 +20,18 @@ public class Game implements Serializable {
     private boolean active = true;
     private boolean backUp = false;
     private String gameCategory;
+    private String base64Image;
 
 
     public Game(String gameName, String providerName, float stars, int votes,
-                String gameLogo, BigDecimal minBet, BigDecimal maxBet,
+                String gameLogoPath, BigDecimal minBet, BigDecimal maxBet,
                 String riskLevel, String hashKey) {
         super();
         this.gameName = gameName;
         this.providerName = providerName;
         this.stars = stars;
         this.votes = votes;
-        this.gameLogo = gameLogo;
+        this.gameLogoPath = gameLogoPath;
         this.minBet = minBet;
         this.maxBet = maxBet;
         this.riskLevel = riskLevel;
@@ -82,9 +83,6 @@ public class Game implements Serializable {
         }
     }
 
-    public void setGameCategory(String gameCategory) {
-        this.gameCategory = gameCategory;
-    }
 
     public String getGameName() {
         return gameName;
@@ -118,12 +116,12 @@ public class Game implements Serializable {
         this.votes = votes;
     }
 
-    public String getGameLogo() {
-        return gameLogo;
+    public String getGameLogoPath() {
+        return gameLogoPath;
     }
 
-    public void setGameLogo(String gameLogo) {
-        this.gameLogo = gameLogo;
+    public void setGameLogoPath(String gameLogoPath) {
+        this.gameLogoPath = gameLogoPath;
     }
 
     public BigDecimal getMinBet() {
@@ -194,6 +192,22 @@ public class Game implements Serializable {
 
     public void setBackUp(boolean backUp) {
         this.backUp = backUp;
+    }
+
+    public String getGameCategory ( ) {
+        return gameCategory;
+    }
+
+    public void setGameCategory (String gameCategory) {
+        this.gameCategory = gameCategory;
+    }
+
+    public String getBase64Image() {
+        return base64Image;
+    }
+
+    public void setBase64Image(String base64Image) {
+        this.base64Image = base64Image;
     }
 
     @Override

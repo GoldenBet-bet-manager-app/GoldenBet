@@ -3,7 +3,7 @@
   "ProviderName": "MythicBet",
   "Stars": 4.5,
   "NoOfVotes": 19,
-  "GameLogo": "images/dragon's_lair_logo.png",
+  "GameLogo": "src/main/resources/logos/dragons_lair_logo.png",
   "MinBet": 5.0,
   "MaxBet": 100,
   "RiskLevel": "high",

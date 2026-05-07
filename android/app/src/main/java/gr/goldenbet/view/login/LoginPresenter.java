@@ -111,12 +111,12 @@ public class LoginPresenter {
 
 
                 // Message sent to Master
-                out.writeUTF(jsonToSend);
+                out.writeObject(jsonToSend);
                 out.flush();
 
 
                 // Master's response
-                String masterReply = in.readUTF();
+                String masterReply = (String) in.readObject();
                 JsonObject responseJson = gson.fromJson(masterReply, JsonObject.class);
                 String status = responseJson.get("status").getAsString();
 
@@ -134,6 +134,8 @@ public class LoginPresenter {
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }).start();
