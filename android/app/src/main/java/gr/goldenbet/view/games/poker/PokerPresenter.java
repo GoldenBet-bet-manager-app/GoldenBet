@@ -54,8 +54,6 @@ public class PokerPresenter {
             return;
         }
 
-        player.setBalance(player.getBalance().subtract(bet));
-        view.showBalance(player.getBalance());
         if (betamount == null || betamount.trim().isEmpty()) {
             view.showMessage("Παρακαλώ εισάγετε ποσό πονταρίσματος!");
             return;
@@ -99,24 +97,21 @@ public class PokerPresenter {
                     String serverMessage = response.replace("\"", "");
                     view.showWinResult(serverMessage);
                     view.showBalance(player.getBalance());
+                    view.lock(false);
                     return;
                 }
-
 
                 multiplier = 0.0;
                 if (payout.compareTo(BigDecimal.ZERO) > 0) {
                     multiplier = payout.doubleValue() / bet.doubleValue();
                 }
                 showcards(multiplier);
-                if (payout.compareTo(BigDecimal.ZERO) > 0) {
-                    player.addBalance(payout);
-                }
-                view.showBalance(player.getBalance());
 
             } catch (Exception e) {
                 view.showMessage(e.getMessage());
                 player.addBalance(bet);
                 view.showBalance(player.getBalance());
+                view.lock(false);
             }
 
         }).start();
@@ -126,8 +121,9 @@ public class PokerPresenter {
 
     public void onAnimationFinished() {
         if (payout.compareTo(BigDecimal.ZERO) > 0) {
-            view.showWinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! 🎉\nΠολλαπλασιαστής: x" + multiplier);
+            view.showWinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! \nΠολλαπλασιαστής: x" + multiplier);
             view.playSound(true);
+            player.addBalance(payout);
         } else {
             view.showWinResult("Δεν κέρδισες. Δοκίμασε ξανά!");
             view.playSound(false);

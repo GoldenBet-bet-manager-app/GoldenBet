@@ -72,7 +72,19 @@ public class PokerFragment extends Fragment implements PokerView {
                     .replace(R.id.fragment_container, SearchFragment.newInstance())
                     .commit();
         });
+        binding.btnIncreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            binding.etbetAmount.setText(String.valueOf(currentVal+5));
 
+        });
+        binding.btnDecreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            if(currentVal>=5) {
+                binding.etbetAmount.setText(String.valueOf(currentVal - 5));
+            }
+        });
         binding.btnDeal.setOnClickListener(v -> {
             SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
             prefs.edit().putBoolean("PLAYED_" + currentGameName, true).apply();
