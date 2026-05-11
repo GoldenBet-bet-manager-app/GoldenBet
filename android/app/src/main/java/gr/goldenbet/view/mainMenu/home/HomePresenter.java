@@ -48,6 +48,10 @@ public class HomePresenter {
         }
     }
 
+    public void onLeaderboardClicked() {
+        // Στέλνουμε τα τελευταία δεδομένα που έχουμε στη μνήμη
+        view.showLeaderboard(lastSortedData);
+    }
 
     /**
      * Fetches live profits data for players leaderboard/.
@@ -83,6 +87,7 @@ public class HomePresenter {
             e.printStackTrace();
         }
     }
+
 
     public List<Map.Entry<String, BigDecimal>> getLastData() { return lastSortedData; }
 

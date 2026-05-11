@@ -82,6 +82,7 @@ public class HomeFragment extends Fragment implements HomeView {
         binding.homeCardRatings.setOnClickListener(v -> presenter.onRatingsClicked());
         binding.homeBtnLogout.setOnClickListener( v -> presenter.onLogoutClicked());
         binding.homeBtnSettings.setOnClickListener(v -> presenter.onSettingsClicked());
+        binding.homeCardLeaderboardPreview.setOnClickListener(v -> presenter.onLeaderboardClicked());
     }
 
 
@@ -98,17 +99,21 @@ public class HomeFragment extends Fragment implements HomeView {
     }
 
     @Override
+    public void showLeaderboard(List<Map.Entry<String, BigDecimal>> data) {
+        LeaderboardBottomSheet leaderboard = new LeaderboardBottomSheet(presenter,data);
+
+        leaderboard.show(getChildFragmentManager(), "LeaderboardSheet");
+    }
+
+    @Override
     public void onLeaderboardUpdated(List<Map.Entry<String, BigDecimal>> sortedData) {
-        // Ψάχνουμε αν το BottomSheet είναι αυτή τη στιγμή ορατό
         LeaderboardBottomSheet fragment = (LeaderboardBottomSheet) getChildFragmentManager().findFragmentByTag("LeaderboardSheet");
 
         if (fragment != null) {
-            // Καλούμε τη μέθοδο ενημέρωσης του BottomSheet
             fragment.onLeaderboardUpdated(sortedData);
         }
 
-        // Επίσης ενημερώνουμε το Preview Card (Top 5) που βρίσκεται στο HomeFragment
-        // Preview Card (Top 5) in HomeFragment is also updated
+
         getActivity().runOnUiThread(() -> {
             updateLeaderboardPreview(sortedData.subList(0, Math.min(5, sortedData.size())));
         });

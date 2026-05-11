@@ -16,4 +16,6 @@ public interface HomeView {
 
     void onLeaderboardUpdated(List<Map.Entry<String, BigDecimal>> sortedData);
     void updateLeaderboardPreview(List<Map.Entry<String, BigDecimal>> topFive);
+
+    void showLeaderboard(List<Map.Entry<String, BigDecimal>> data);
 }

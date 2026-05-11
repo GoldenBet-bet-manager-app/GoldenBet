@@ -6,44 +6,71 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.BottomSheetLeaderboardBinding;
-import gr.goldenbet.databinding.BottomSheetLeaderboardBinding;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.utils.LeaderboardAdapter;
 
 public class LeaderboardBottomSheet extends BottomSheetDialogFragment {
 
     private BottomSheetLeaderboardBinding binding;
-    private final HomePresenter presenter;
-    private final String currentUsername;
+    private HomePresenter presenter;
+    private String currentUsername;
     private LeaderboardAdapter adapter;
+    private List<Map.Entry<String, BigDecimal>> initialData;
 
-    // Χρήση Raw Thread και ενός flag για τον έλεγχο
     private Thread liveUpdateThread;
     private volatile boolean isRunning = true;
 
-    public LeaderboardBottomSheet(HomePresenter presenter, String currentUsername) {
+    public LeaderboardBottomSheet(HomePresenter presenter, List<Map.Entry<String, BigDecimal>> initialData) {
         this.presenter = presenter;
+        this.initialData = initialData;
+
+
+        if (getActivity() instanceof MainMenuActivity) {
+            MainMenuActivity activity = (MainMenuActivity) getActivity();
+            if (activity.getCurrentPlayer() != null) {
+                this.currentUsername = activity.getCurrentPlayer().getUsername();
+            }
+        }
+    }
+
+    public LeaderboardBottomSheet() {
+    }
+
+    public void setPresenter(HomePresenter presenter) {
+        this.presenter = presenter;
+    }
+
+    public void setCurrentUsername(String currentUsername) {
         this.currentUsername = currentUsername;
+    }
+
+    public void setInitialData(List<Map.Entry<String, BigDecimal>> data) {
+        this.initialData = data;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // toggle to Full Screen
         Dialog dialog = getDialog();
         if (dialog != null) {
             FrameLayout bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
+                // Toggle to full screen
                 BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED);
                 bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
             }
@@ -52,7 +79,7 @@ public class LeaderboardBottomSheet extends BottomSheetDialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = BottomSheetLeaderboardBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -65,6 +92,10 @@ public class LeaderboardBottomSheet extends BottomSheetDialogFragment {
         binding.rvFullLeaderboard.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvFullLeaderboard.setAdapter(adapter);
 
+        if (initialData != null) {
+            updateUI(initialData);
+        }
+
         startManualLoop();
     }
 
@@ -72,13 +103,11 @@ public class LeaderboardBottomSheet extends BottomSheetDialogFragment {
         isRunning = true;
         liveUpdateThread = new Thread(() -> {
             while (isRunning) {
-
-                // players stats fetch
-                presenter.fetchLiveLeaderboard();
-
+                if (presenter != null) {
+                    presenter.fetchLiveLeaderboard();
+                }
                 try {
-                    // Wait for 15 seconds to update stats again
-                    Thread.sleep(15000);
+                    Thread.sleep(15000); // waiting for 15 seconds
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -88,41 +117,60 @@ public class LeaderboardBottomSheet extends BottomSheetDialogFragment {
         liveUpdateThread.start();
     }
 
+    // Method that is called from HomeFragment for live update
     public void onLeaderboardUpdated(List<Map.Entry<String, BigDecimal>> sortedData) {
         if (getActivity() == null || binding == null) return;
+        getActivity().runOnUiThread(() -> updateUI(sortedData));
+    }
 
-        getActivity().runOnUiThread(() -> {
-            // Update Podium
-            updatePodium(sortedData);
+    // Central method that updates UI
+    private void updateUI(List<Map.Entry<String, BigDecimal>> data) {
+        if (binding == null || data == null) return;
 
-            // Update list (Top 4-30)
-            if (sortedData.size() > 3) {
-                adapter.setItems(sortedData.subList(3, Math.min(30, sortedData.size())));
-            }
-        });
+        // Update of the Podium (Top 3)
+        updatePodium(data);
+
+        // Update list (Rank 4-30)
+        if (data.size() > 3) {
+            adapter.setItems(data.subList(3, Math.min(30, data.size())));
+        } else {
+            adapter.setItems(new ArrayList<>());
+        }
     }
 
     private void updatePodium(List<Map.Entry<String, BigDecimal>> data) {
-        if (data.isEmpty()) return;
+        if (data == null || data.isEmpty()) return;
 
-        // First (Gold)
+        // first
         binding.txtRank1Name.setText(data.get(0).getKey());
-        if (data.get(0).getKey().equals(currentUsername)) {
-            binding.txtRank1Name.setTextColor(getResources().getColor(R.color.gold_classic));
-            binding.txtRank1Name.append(" (YOU)");
-        }
         binding.txtRank1Profit.setText(String.format("%.2f €", data.get(0).getValue()));
+        if (data.get(0).getKey().equals(currentUsername)) {
+            binding.txtRank1Name.append(" (YOU)");
+            binding.txtRank1Name.setTextColor(getResources().getColor(R.color.gold_classic));
+        } else {
+            binding.txtRank1Name.setTextColor(getResources().getColor(R.color.text_dark));
+        }
 
-        // second and third
-        if (data.size() >= 2) binding.txtRank2Name.setText(data.get(1).getKey());
-        if (data.size() >= 3) binding.txtRank3Name.setText(data.get(2).getKey());
+        // second
+        if (data.size() >= 2) {
+            binding.txtRank2Name.setText(data.get(1).getKey());
+            if (data.get(1).getKey().equals(currentUsername)) binding.txtRank2Name.append(" (YOU)");
+        }
+
+        // third
+        if (data.size() >= 3) {
+            binding.txtRank3Name.setText(data.get(2).getKey());
+            if (data.get(2).getKey().equals(currentUsername)) binding.txtRank3Name.append(" (YOU)");
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        isRunning = false; // Stops loop
-        if (liveUpdateThread != null) liveUpdateThread.interrupt();
-        binding = null;
+        isRunning = false;
+        if (liveUpdateThread != null) {
+            liveUpdateThread.interrupt();
+        }
+        binding = null; // To avoid memory leaks
     }
 }
