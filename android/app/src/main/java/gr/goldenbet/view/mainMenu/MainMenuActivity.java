@@ -84,10 +84,14 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
 
 
     // Fragments Logic
-    @Override public void showHome() { replaceFragment(new HomeFragment()); }
-    @Override public void showSearch() { replaceFragment(new SearchFragment()); }
-    @Override public void showProfile() { replaceFragment(new ProfileFragment()); }
-    @Override public void showRate() { replaceFragment(new RateFragment()); }
+    @Override
+    public void showHome() { replaceFragment(new HomeFragment()); }
+    @Override
+    public void showSearch() { replaceFragment(new SearchFragment()); }
+    @Override
+    public void showProfile() { replaceFragment(new ProfileFragment()); }
+    @Override
+    public void showRate() { replaceFragment(new RateFragment()); }
 
     private void replaceFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()

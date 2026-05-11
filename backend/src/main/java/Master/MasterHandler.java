@@ -44,8 +44,6 @@ public class MasterHandler extends Thread {
 
     @Override
     public void run ( ) {
-//        MasterMessage message = (MasterMessage) in.readObject ( );
-//        MasterMessageType type = message.getType ( );
 
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences

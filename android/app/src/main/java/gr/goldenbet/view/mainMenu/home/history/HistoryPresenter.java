@@ -1,5 +1,6 @@
 package gr.goldenbet.view.mainMenu.home.history;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,15 +11,9 @@ public class HistoryPresenter {
     public HistoryPresenter(HistoryView view) {
         this.view = view;
         this.allItems = new ArrayList<>();
-        loadDummyData();
     }
 
-    private void loadDummyData() {
-        allItems.add(new HistoryEntry(HistoryEntry.Type.BET, "Football: Real vs Barca", "24 Oct, 15:30", 50.0));
-        allItems.add(new HistoryEntry(HistoryEntry.Type.WIN, "Big Win: Slot Machine", "24 Oct, 16:00", 250.0));
-        allItems.add(new HistoryEntry(HistoryEntry.Type.DEPOSIT, "Card Deposit", "23 Oct, 10:00", 100.0));
-        allItems.add(new HistoryEntry(HistoryEntry.Type.BET, "Tennis: Nadal vs Federer", "22 Oct, 12:00", 30.0));
-    }
+
 
     public void start() {
         view.showHistory(allItems);
