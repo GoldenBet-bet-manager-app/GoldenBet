@@ -1,4 +1,4 @@
-package gr.goldenbet.utils;
+package Models;
 
 
 import java.io.Serializable;

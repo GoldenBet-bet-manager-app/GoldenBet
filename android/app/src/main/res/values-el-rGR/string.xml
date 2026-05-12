@@ -140,6 +140,15 @@
     <string name="stats_biggest_win">Μεγαλύτερη Νίκη: </string>
 
 
+    <!--bottom_sheet_leaderboard.xml-->
+    <string name="leaderboard_main_title">ΕΛΙΤ ΠΡΩΤΑΤΛΗΤΕΣ</string>
+    <string name="leaderboard_live_status">ΖΩΝΤΑΝΟΣ ΠΙΝΑΚΑΣ</string>
+    <string name="leaderboard_view_all">Προβολή όλων</string>
+    <string name="leaderboard_you_tag">(Εσείς)</string>
+    <string name="leaderboard_top_30">Πρώτοι 30 Παίκτες</string>
+    <string name="leaderboard_rank_prefix">#</string>
+    <string name="leaderboard_empty_msg">Δεν βρέθηκαν ενεργοί παίκτες</string>
+
 
     <!--Common messages throughout the application-->
     <string name="common_ok">OK</string>

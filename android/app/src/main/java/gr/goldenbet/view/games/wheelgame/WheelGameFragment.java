@@ -95,9 +95,7 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
             }
         });
         binding.btnBack.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                getActivity().onBackPressed();
-            }
+            getParentFragmentManager().popBackStack();
         });
 
         binding.spinButton.setOnClickListener(v -> {

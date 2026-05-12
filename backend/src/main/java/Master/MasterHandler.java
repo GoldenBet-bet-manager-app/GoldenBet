@@ -44,8 +44,6 @@ public class MasterHandler extends Thread {
 
     @Override
     public void run ( ) {
-//        MasterMessage message = (MasterMessage) in.readObject ( );
-//        MasterMessageType type = message.getType ( );
 
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
@@ -59,8 +57,6 @@ public class MasterHandler extends Thread {
 
             JsonElement payloadJsonElement = gson.toJsonTree(message.getPayload());
             JsonObject response = new JsonObject();
-
-
 
             switch (type) {
 
@@ -85,8 +81,16 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, gameToModify.getGameName ( ), "modify" );
                     break;
 
-                case SEARCH, GET_ACTIVE_GAMES,GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
+                case SEARCH:
+                    String searchJson = gson.toJson(message.getPayload());
+                    SearchFilters filters = gson.fromJson(searchJson, SearchFilters.class);
+                    message.setPayload(filters);
+
                     executeMapReducePhase ( message );
+                    break;
+
+                case GET_ACTIVE_GAMES, GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS, GET_HISTORY:
+                    executeMapReducePhase(message);
                     break;
 
                 case PLAY:
@@ -200,15 +204,24 @@ public class MasterHandler extends Thread {
                         if (depositPlayer != null) {
 
                             // Balance update
-                            BigDecimal currentBal = depositPlayer.getBalance();
                             depositPlayer.addBalance(tx.getAmount());
 
 
-                            //depositPlayer.addTransaction(tx);
+                            synchronized (Master.depositTransactions) {
+                                ArrayList<Transaction> userList = Master.depositTransactions.get(tx.getUsername());
+
+                                if (userList == null) {
+                                    userList = new ArrayList<>();
+                                    Master.depositTransactions.put(tx.getUsername(), userList);
+                                }
+
+                                userList.add(tx);
+                            }
 
 
                             responseDeposit.addProperty("status", "SUCCESS");
                             responseDeposit.addProperty("new_balance", depositPlayer.getBalance());
+                            System.out.println("Master stored DEPOSIT for: " + tx.getUsername());
                         }
                     }
 
@@ -223,6 +236,9 @@ public class MasterHandler extends Thread {
         catch (ClassNotFoundException e){
             System.err.println ( "Client Communication Error (Class not found): " + e.getMessage() );
 
+        }catch (Exception e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         finally {
             try {
@@ -337,7 +353,19 @@ public class MasterHandler extends Thread {
     }
 
 
+    /**
+     * Orchestrates the MapReduce phase for distributed queries (Games, Stats, History).
+     * It manages worker health, request distribution, backup failover, and data aggregation.
+     */
     private void executeMapReducePhase (MasterMessage message) throws IOException, ClassNotFoundException {
+
+        // Re-map the generic GSON LinkedHashMap back to concrete class types to avoid ClassCastExceptions on Workers
+        Gson gson = new Gson();
+        if (message.getType() == MasterMessageType.GET_HISTORY) {
+            message.setPayload(gson.fromJson(gson.toJsonTree(message.getPayload()), HistoryFilters.class));
+        } else if (message.getType() == MasterMessageType.SEARCH) {
+            message.setPayload(gson.fromJson(gson.toJsonTree(message.getPayload()), SearchFilters.class));
+        }
 
 
         // Workers Health check before map reduce query
@@ -384,18 +412,65 @@ public class MasterHandler extends Thread {
             }
         }
 
+        // Reduce/Finalize Phase: Retrieve the aggregated payload from the Reducer
         MasterMessage finalResultMsg = myBox.getFinalMessage();
-        Object finalGames = null;
+        Object finalPayload = finalResultMsg.getPayload();
 
-        if(finalResultMsg.getPayload() instanceof ArrayList<?>)
-            finalGames = (ArrayList<Game>) finalResultMsg.getPayload();
-        else if (finalResultMsg.getPayload() instanceof HashMap<?,?>)
-            finalGames = (HashMap<String, BigDecimal>) finalResultMsg.getPayload();
+        // SPECIAL CASE: GET_HISTORY
+        // If the request is for activity history, we must merge Worker-side data with Master-side deposits.
+        if (message.getType() == MasterMessageType.GET_HISTORY) {
+            ArrayList<Transaction> workerTransactions = (ArrayList<Transaction>) finalPayload;
 
+            // Re-parse the payload to access HistoryFilters
+            Gson tempGson = new Gson();
+            HistoryFilters filters = tempGson.fromJson(tempGson.toJson(message.getPayload()), HistoryFilters.class);
+
+            // Fetch and filter local deposit transactions stored exclusively on the Master
+            ArrayList<Transaction> masterDeposits = filterLocalDeposits(filters);
+
+            // Merge Master and Worker data sources
+            workerTransactions.addAll(masterDeposits);
+
+            // Sort: Ensure the client receives a unified chronological timeline (most recent first)
+            // Sorting by TransactionID works because it is prefixed with currentTimeMillis
+            workerTransactions.sort((t1, t2) -> t2.getTransactionId().compareTo(t1.getTransactionId()));
+
+            finalPayload = workerTransactions;
+        }
+
+        // Final Response: Serialize the merged/aggregated result to JSON and send it to the Android client
         Gson localGsonMapRed = new Gson();
-        String finalGamesJson = localGsonMapRed.toJson(finalGames);
+        String finalGamesJson = localGsonMapRed.toJson(finalPayload);
         out.writeObject(finalGamesJson);
         out.flush();
+    }
+
+
+    /**
+     * Auxiliary method that filters deposit transactions stored locally on the Master.
+     * This ensures only relevant deposits are injected into the unified history list.
+     */
+    private ArrayList<Transaction> filterLocalDeposits(HistoryFilters filters) {
+        ArrayList<Transaction> filtered = new ArrayList<>();
+
+        // Process deposits only if the user requested "All" or specifically "Deposits"
+        if (filters.getSelectedTypes().contains("All") || filters.getSelectedTypes().contains("Deposits")) {
+            synchronized (Master.depositTransactions) {
+                ArrayList<Transaction> allUserDeposits = Master.depositTransactions.get(filters.getUsername());
+
+                if (allUserDeposits != null) {
+                    String query = (filters.getSearchQuery() != null) ? filters.getSearchQuery().toLowerCase().trim() : "";
+
+                    for (Transaction tx : allUserDeposits) {
+                        // Apply textual search filter if a query is provided
+                        if (query.isEmpty() || tx.getDescription().toLowerCase().contains(query)) {
+                            filtered.add(tx);
+                        }
+                    }
+                }
+            }
+        }
+        return filtered;
     }
 
     private Object sendRequestToWorker(WorkerInfo target, MasterMessage message, boolean expectResponse, boolean includeBackUps) throws IOException, ClassNotFoundException {

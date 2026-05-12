@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="300dp"
+    android:layout_height="match_parent"
+    android:layout_gravity="end"
+    android:background="?attr/colorSurface"
+    android:clickable="true"
+    android:focusable="true">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomActionContainer"
+        android:clipToPadding="false"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Φίλτρα Αναζήτησης"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="32dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Δημοτικότητα"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/txtStarRange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0 - 5.0"
+                    android:textColor="?attr/colorFilterActive"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/sliderStars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:valueFrom="0.0"
+                android:valueTo="5.0"
+                android:stepSize="0.5"
+                app:values="@array/initial_slider_values"
+                app:thumbColor="?attr/colorFilterActive"
+                app:trackColorActive="?attr/colorFilterActive"
+                app:trackColorInactive="?attr/colorFilterUnselected"
+                app:labelBehavior="floating"
+                app:haloColor="?attr/colorFilterActive"
+                app:labelStyle="@style/Widget.Material3.Tooltip" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Όρια Πονταρίσματος"
+                android:layout_marginBottom="12dp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/linearGroupBet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBetLow"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$ (0.1 FUN)"
+                    app:checkedIconTint="?attr/colorOnSurface"
+                    app:chipBackgroundColor="@color/chip_background_color" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBetMedium"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$$ (1.0 FUN)"
+                    app:checkedIconTint="?attr/colorOnSurface"
+                    app:chipBackgroundColor="@color/chip_background_color" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBetHigh"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$$$ (5.0 FUN)"
+                    app:checkedIconTint="?attr/colorOnSurface"
+                    app:chipBackgroundColor="@color/chip_background_color" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Επίπεδο Ρίσκου"
+                android:layout_marginBottom="12dp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/linearGroupRisk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRiskLow"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Low Risk"
+                    app:checkedIconTint="?attr/colorOnSurface"
+                    app:chipBackgroundColor="@color/chip_background_color" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRiskMedium"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Medium Risk"
+                    app:checkedIconTint="?attr/colorOnSurface"
+                    app:chipBackgroundColor="@color/chip_background_color" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRiskHigh"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="High Risk"
+                    app:checkedIconTint="?attr/colorOnSurface"
+                    app:chipBackgroundColor="@color/chip_background_color" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottomActionContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="?attr/colorSurface"
+        android:elevation="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClearFilters"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Reset"
+            app:strokeColor="?attr/colorFilterActive"
+            android:textColor="?attr/colorOnSurface" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApplyFilters"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1.5"
+            android:text="Apply"
+            android:textStyle="bold"
+            app:backgroundTint="?attr/colorFilterActive"
+            android:textColor="?attr/colorOnSurface" />
+    </LinearLayout>
+
+</RelativeLayout>

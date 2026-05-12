@@ -1,39 +1,89 @@
 package gr.goldenbet.view.mainMenu.home.history;
 
+import android.app.Activity;
+import androidx.fragment.app.Fragment;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import gr.goldenbet.R;
+import gr.goldenbet.domain.HistoryFilters;
+import gr.goldenbet.domain.MasterMessage;
+import gr.goldenbet.domain.MasterMessageType;
+import gr.goldenbet.domain.Transaction;
+import gr.goldenbet.domain.JsonClient;
+import gr.goldenbet.view.mainMenu.home.HomeFragment;
+
 public class HistoryPresenter {
     private HistoryView view;
-    private List<HistoryEntry> allItems; // Η πλήρης λίστα
+    private String username;
+    private Gson gson = new Gson();
 
-    public HistoryPresenter(HistoryView view) {
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
+
+    public HistoryPresenter(HistoryView view, String username) {
         this.view = view;
-        this.allItems = new ArrayList<>();
-        loadDummyData();
-    }
+        this.username = username;
 
-    private void loadDummyData() {
-        allItems.add(new HistoryEntry(HistoryEntry.Type.BET, "Football: Real vs Barca", "24 Oct, 15:30", 50.0));
-        allItems.add(new HistoryEntry(HistoryEntry.Type.WIN, "Big Win: Slot Machine", "24 Oct, 16:00", 250.0));
-        allItems.add(new HistoryEntry(HistoryEntry.Type.DEPOSIT, "Card Deposit", "23 Oct, 10:00", 100.0));
-        allItems.add(new HistoryEntry(HistoryEntry.Type.BET, "Tennis: Nadal vs Federer", "22 Oct, 12:00", 30.0));
+        MASTER_IP = ((HistoryFragment)view).getResources().getString(R.string.master_ip);
+        MASTER_PORT = ((HistoryFragment)view).getResources().getInteger(R.integer.master_port);
     }
 
     public void start() {
-        view.showHistory(allItems);
+        loadHistory("All", "");
     }
 
     public void filterData(String query, String filterType) {
-        List<HistoryEntry> filtered = new ArrayList<>();
-        for (HistoryEntry item : allItems) {
-            boolean matchesQuery = item.getTitle().toLowerCase().contains(query.toLowerCase());
-            boolean matchesType = filterType.equals("All") || item.getType().name().equalsIgnoreCase(filterType.substring(0, filterType.length()-1));
+        loadHistory(filterType, query);
+    }
 
-            if (matchesQuery && matchesType) {
-                filtered.add(item);
+    private void loadHistory(String filterType, String query) {
+        new Thread(() -> {
+            ArrayList<String> types = new ArrayList<>();
+            types.add(filterType);
+
+            HistoryFilters filters = new HistoryFilters(username, types, query);
+            MasterMessage request = new MasterMessage(MasterMessageType.GET_HISTORY, filters);
+            String requestJson = gson.toJson(request);
+
+            JsonClient client = new JsonClient(MASTER_IP, MASTER_PORT, requestJson);
+            client.start();
+
+            try {
+                client.join();
+                String responseJson = client.getJsonResponse();
+
+                if (responseJson != null) {
+                    Type listType = new TypeToken<ArrayList<Transaction>>(){}.getType();
+                    ArrayList<Transaction> transactions = gson.fromJson(responseJson, listType);
+
+                    List<HistoryEntry> uiEntries = new ArrayList<>();
+                    for (Transaction tx : transactions) {
+                        uiEntries.add(mapToUI(tx));
+                    }
+
+                    if (view instanceof Fragment) {
+                        Activity activity = ((Fragment) view).getActivity();
+                        if (activity != null) {
+                            activity.runOnUiThread(() -> view.showHistory(uiEntries));
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }
-        view.showHistory(filtered);
+        }).start();
+    }
+
+    private HistoryEntry mapToUI(Transaction tx) {
+        HistoryEntry.Type uiType;
+        if (tx.getType().equals("GAME_RESULT")) uiType = HistoryEntry.Type.WIN;
+        else if (tx.getType().equals("GAME_BET")) uiType = HistoryEntry.Type.BET;
+        else uiType = HistoryEntry.Type.DEPOSIT;
+
+        return new HistoryEntry(uiType, tx.getDescription(), tx.getTimestamp(), tx.getAmount());
     }
 }

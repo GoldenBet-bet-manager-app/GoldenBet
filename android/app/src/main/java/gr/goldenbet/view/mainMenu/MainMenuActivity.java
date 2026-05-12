@@ -8,8 +8,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import gr.goldenbet.R;
@@ -84,10 +82,14 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
 
 
     // Fragments Logic
-    @Override public void showHome() { replaceFragment(new HomeFragment()); }
-    @Override public void showSearch() { replaceFragment(new SearchFragment()); }
-    @Override public void showProfile() { replaceFragment(new ProfileFragment()); }
-    @Override public void showRate() { replaceFragment(new RateFragment()); }
+    @Override
+    public void showHome() { replaceFragment(new HomeFragment()); }
+    @Override
+    public void showSearch() { replaceFragment(new SearchFragment()); }
+    @Override
+    public void showProfile() { replaceFragment(new ProfileFragment()); }
+    @Override
+    public void showRate() { replaceFragment(new RateFragment()); }
 
     private void replaceFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()

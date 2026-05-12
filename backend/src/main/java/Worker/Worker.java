@@ -1,6 +1,7 @@
 package Worker;
 
 import Models.Game;
+import Models.Transaction;
 import Models.WorkerInfo;
 import utils.ConfigLoader;
 
@@ -47,6 +48,8 @@ public class Worker {
     private  HashMap<String, Game> myGames = new HashMap<>();
     static HashMap<String, BigDecimal> primaryPlayersProfits = new HashMap<>();
     static HashMap<String, BigDecimal> backupPlayersProfits = new HashMap<>();
+    public static HashMap<String, ArrayList<Transaction>> primaryTransactions = new HashMap<>();
+    public static HashMap<String, ArrayList<Transaction>> backupTransactions = new HashMap<>();
 
 
     private int workerPort;

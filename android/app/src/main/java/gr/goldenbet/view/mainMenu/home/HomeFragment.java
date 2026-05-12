@@ -4,9 +4,13 @@ import static android.content.Intent.getIntent;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,11 +20,16 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentHomeBinding;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.login.LoginActivity;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
+import gr.goldenbet.view.mainMenu.home.history.HistoryFragment;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.deposit.DepositFragment;
 import gr.goldenbet.view.mainMenu.home.stats.StatsFragment;
@@ -57,6 +66,14 @@ public class HomeFragment extends Fragment implements HomeView {
             Player player = ((MainMenuActivity) getActivity()).getCurrentPlayer();
             presenter.initData(player);
         }
+
+        // Leader board red dot animation
+        View liveDot = view.findViewById(R.id.liveDot);
+        AlphaAnimation pulse = new AlphaAnimation(1.0f, 0.2f);
+        pulse.setDuration(800);
+        pulse.setRepeatCount(Animation.INFINITE);
+        pulse.setRepeatMode(Animation.REVERSE);
+        liveDot.startAnimation(pulse);
     }
 
     private void setupClickListeners() {
@@ -66,6 +83,7 @@ public class HomeFragment extends Fragment implements HomeView {
         binding.homeCardRatings.setOnClickListener(v -> presenter.onRatingsClicked());
         binding.homeBtnLogout.setOnClickListener( v -> presenter.onLogoutClicked());
         binding.homeBtnSettings.setOnClickListener(v -> presenter.onSettingsClicked());
+        binding.homeCardLeaderboardPreview.setOnClickListener(v -> presenter.onLeaderboardClicked());
     }
 
 
@@ -82,13 +100,80 @@ public class HomeFragment extends Fragment implements HomeView {
     }
 
     @Override
+    public void showLeaderboard(List<Map.Entry<String, BigDecimal>> data) {
+        LeaderboardBottomSheet leaderboard = new LeaderboardBottomSheet(presenter,data);
+
+        leaderboard.show(getChildFragmentManager(), "LeaderboardSheet");
+    }
+
+    @Override
+    public void onLeaderboardUpdated(List<Map.Entry<String, BigDecimal>> sortedData) {
+        LeaderboardBottomSheet fragment = (LeaderboardBottomSheet) getChildFragmentManager().findFragmentByTag("LeaderboardSheet");
+
+        if (fragment != null) {
+            fragment.onLeaderboardUpdated(sortedData);
+        }
+
+
+        getActivity().runOnUiThread(() -> {
+            updateLeaderboardPreview(sortedData.subList(0, Math.min(5, sortedData.size())));
+        });
+    }
+
+    @Override
+    public void updateLeaderboardPreview(List<Map.Entry<String, BigDecimal>> topFive) {
+        // Clean layout from previous updates not to double up
+        binding.layoutTopFive.removeAllViews();
+
+        // Display top 5 players profits
+        int rank = 1;
+        for (Map.Entry<String, BigDecimal> entry : topFive) {
+
+            View row = getLayoutInflater().inflate(R.layout.item_leaderboard, binding.layoutTopFive, false);
+
+            // Βρίσκουμε τα Views μέσα στη γραμμή (χωρίς binding εδώ για απλότητα)
+            TextView txtRank = row.findViewById(R.id.txtRowRank);
+            TextView txtUsername = row.findViewById(R.id.txtRowUsername);
+            TextView txtProfit = row.findViewById(R.id.txtRowProfit);
+            TextView txtYou = row.findViewById(R.id.txtYouTag);
+
+            // Ανάθεση δεδομένων
+            txtRank.setText("#" + rank);
+            txtUsername.setText(entry.getKey());
+            txtProfit.setText(String.format("%.2f €", entry.getValue()));
+
+            // Έλεγχος αν είναι ο τρέχων παίκτης για το "YOU" tag
+            Player currentPlayer = ((MainMenuActivity) getActivity()).getCurrentPlayer();
+            if (currentPlayer != null &&
+                    entry.getKey().equals(currentPlayer.getUsername())) {
+                txtYou.setVisibility(View.VISIBLE);
+                row.setBackgroundColor(getResources().getColor(R.color.gold_classic_transparent));
+            } else {
+                txtYou.setVisibility(View.GONE);
+            }
+
+            // Προσθήκη της γραμμής στο κεντρικό layout της κάρτας
+            binding.layoutTopFive.addView(row);
+            rank++;
+        }
+
+        // Αν η λίστα είναι άδεια, μπορείς να εμφανίσεις ένα μήνυμα
+        if (topFive.isEmpty()) {
+            TextView emptyTxt = new TextView(getContext());
+            emptyTxt.setText(R.string.leaderboard_empty_msg);
+            emptyTxt.setGravity(Gravity.CENTER);
+            binding.layoutTopFive.addView(emptyTxt);
+        }
+    }
+
+    @Override
     public void navigateToDeposit() {
         replaceFragmentWithAnimation(new DepositFragment());
     }
 
     @Override
     public void navigateToHistory() {
-        replaceFragmentWithAnimation(new StatsFragment());
+        replaceFragmentWithAnimation(new HistoryFragment());
     }
 
     @Override
@@ -121,7 +206,7 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToStats() {
-        Toast.makeText(getContext(), R.string.nav_stats_msg, Toast.LENGTH_SHORT).show();
+        replaceFragmentWithAnimation(new StatsFragment());
     }
 
     private void replaceFragmentWithAnimation(Fragment fragment) {

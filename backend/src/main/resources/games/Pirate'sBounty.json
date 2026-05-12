@@ -3,7 +3,7 @@
   "ProviderName": "MythicBet",
   "Stars": 3,
   "NoOfVotes": 25,
-  "GameLogo": "src/main/resources/logos/pirates_bounty_logo.png",
+  "GameLogo": "src/main/resources/logos/pirate's_bounty_logo.webp",
   "MinBet": 1.0,
   "MaxBet": 50,
   "RiskLevel": "medium",

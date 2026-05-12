@@ -97,9 +97,7 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         });
 
         binding.btnBack.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, SearchFragment.newInstance())
-                    .commit();
+            requireActivity().getSupportFragmentManager().popBackStack();
         });
 
     }

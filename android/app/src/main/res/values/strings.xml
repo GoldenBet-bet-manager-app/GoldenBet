@@ -140,10 +140,20 @@
     <string name="stats_biggest_win">Largest win: </string>
 
 
+    <!--bottom_sheet_leaderboard.xml-->
+    <string name="leaderboard_main_title">ELITE CHAMPIONS</string>
+    <string name="leaderboard_live_status">LIVE LEADERBOARD</string>
+    <string name="leaderboard_view_all">View All</string>
+    <string name="leaderboard_you_tag">(YOU)</string>
+    <string name="leaderboard_top_30">TOP 30 PLAYERS</string>
+    <string name="leaderboard_rank_prefix">#</string>
+    <string name="leaderboard_empty_msg">No active players found</string>
+
+
     <!--Common messages and settings throughout the application-->
     <string name="common_ok">Ok</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_necessary_fields_msg">Please fill all necessary fields</string>
-    <string name="master_ip" translatable="false">192.168.1.6</string>
+    <string name="master_ip" translatable="false">192.168.1.24</string>
     <integer name="master_port" translatable="false">43210</integer>
 </resources>

@@ -6,4 +6,5 @@ public interface RegisterView {
     void showConfirmDialog(Player player);
     void onRegisterSuccess();
     void onRegisterError(String message);
+    void navigateToLogin();
 }

@@ -68,10 +68,9 @@ public class PokerFragment extends Fragment implements PokerView {
         presenter.initializedata();
 
         binding.btnBack.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, SearchFragment.newInstance())
-                    .commit();
+            requireActivity().getSupportFragmentManager().popBackStack();
         });
+
         binding.btnIncreaseBet.setOnClickListener(v -> {
             String currentbet=binding.etbetAmount.getText().toString();
             double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
