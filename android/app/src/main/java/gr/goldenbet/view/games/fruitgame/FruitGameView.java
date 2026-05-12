@@ -12,5 +12,6 @@ public interface FruitGameView {
     void lock(Boolean flag);
     void playSound(boolean isWin);
     void showErrorDialog(String title, String message);
+
 }
 

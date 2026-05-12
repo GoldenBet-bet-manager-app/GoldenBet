@@ -193,6 +193,8 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         }
     }
 
+
+
     @Override
     public void showMessage(String message) {
         if (getActivity() != null) {

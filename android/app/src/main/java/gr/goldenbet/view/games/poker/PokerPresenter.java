@@ -95,7 +95,7 @@ public class PokerPresenter {
                 } catch (Exception e) {
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showWinResult(serverMessage);
+                    view.showErrorDialog("",serverMessage);
                     view.showBalance(player.getBalance());
                     view.lock(false);
                     return;

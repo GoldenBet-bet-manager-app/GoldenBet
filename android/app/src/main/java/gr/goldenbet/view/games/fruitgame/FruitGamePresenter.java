@@ -1,12 +1,6 @@
 package gr.goldenbet.view.games.fruitgame;
-
-import android.graphics.Color;
-
 import com.google.gson.Gson;
-
 import java.math.BigDecimal;
-
-
 import gr.goldenbet.domain.Bet;
 import gr.goldenbet.domain.FruitGameFactory;
 import gr.goldenbet.domain.FruitGameRules;
@@ -65,6 +59,7 @@ public class FruitGamePresenter {
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());
         }
+        view.showErrorDialog("Όρια Πονταρίσματος","πονταρισμα απο εδω εωσ εκει");
     }
 
     public void spinClicked(String betamount) {
@@ -114,7 +109,7 @@ public class FruitGamePresenter {
                     //edo tha balo ton periorismo gia to bet . tha pernao to game sta fragment
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showSpinResult(serverMessage);
+                    view.showErrorDialog("Όρια Πονταρίσματος",serverMessage);
                     view.showBalance(player.getBalance());
                     view.lock(false);
                     return;
@@ -130,15 +125,7 @@ public class FruitGamePresenter {
                 }
 
                 showPattern(multiplier);
-                if (payout.compareTo(BigDecimal.ZERO) > 0) {
-                    player.addBalance(payout);
-                    view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! \nΠολλαπλασιαστής: x" + multiplier);
-                    view.playSound(true);
-                } else {
-                    view.showSpinResult("Δεν κέρδισες. Δοκίμασε ξανά!");
-                    view.playSound(false);
-                }
-                view.showBalance(player.getBalance());
+                finalResult();
 
             } catch (Exception e) {
                 view.showMessage(e.getMessage());
@@ -150,6 +137,17 @@ public class FruitGamePresenter {
 
         }).start();
 
+    }
+    private void finalResult() {
+        if (payout.compareTo(BigDecimal.ZERO) > 0) {
+            player.addBalance(payout);
+            view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! \nΠολλαπλασιαστής: x" + multiplier);
+            view.playSound(true);
+        } else {
+            view.showSpinResult("Δεν κέρδισες. Δοκίμασε ξανά!");
+            view.playSound(false);
+        }
+        view.showBalance(player.getBalance());
     }
 
 }

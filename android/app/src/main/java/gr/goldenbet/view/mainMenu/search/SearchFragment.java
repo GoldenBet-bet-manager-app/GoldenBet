@@ -42,7 +42,7 @@ public class SearchFragment extends Fragment implements SearchView {
         super.onViewCreated(view, savedInstanceState);
 
         if (savedInstanceState == null) {
-            PokerFragment fragment = PokerFragment.newInstance( "High Roller Poker");
+            FruitGameFragment fragment = FruitGameFragment.newInstance( "Fruit Fiesta");
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .commit();
