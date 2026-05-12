@@ -1,132 +1,155 @@
 package gr.goldenbet.view.games.fruitgame;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.graphics.Color;
 
 import com.google.gson.Gson;
 
 import java.math.BigDecimal;
+
+
 import gr.goldenbet.domain.Bet;
+import gr.goldenbet.domain.FruitGameFactory;
 import gr.goldenbet.domain.FruitGameRules;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
+import gr.goldenbet.domain.Player;
+
 
 public class FruitGamePresenter {
     private FruitGameView view;
-    private String gameName,playerId;
-    private BigDecimal payout,bet,playerBalance;
+    private String gameName;
+    private BigDecimal payout, bet;
+    private  Player player;
     private String[] symbols;
     private double multiplier;
-    private static final String MASTER_IP = "10.0.2.2";
-    private static final int MASTER_PORT = 43210;
-    private SharedPreferences prefs;
-    Gson gson=new Gson();
 
-    public FruitGamePresenter(FruitGameView view, String gameName, String playerId, SharedPreferences prefs) {
+    Gson gson = new Gson();
+    private static String MASTER_IP;
+    private static int MASTER_PORT;
+    private FruitGameFactory factory;
+    private  FruitGameRules rules;
+
+
+    public FruitGamePresenter(FruitGameFragment view, String currentGameName, String ip, int port, Player player) {
         this.view = view;
-        this.gameName = gameName;
-        this.playerId = playerId;
-        this.prefs = prefs;
+        this.gameName = currentGameName;
+        this.MASTER_IP=ip;
+        this.MASTER_PORT=port;
+        this.player=player;
+        this.factory=new FruitGameFactory();
     }
 
     private void showPattern(double multiplier) {
-        view.clearFruitGrid();
-        FruitGameRules rules= FruitGameRules.getFruitGraphics(gameName);
-        if(rules.getWinPatterns().containsKey(multiplier)){
-            view.setCellsToSymbol(rules.getWinPatterns().get(multiplier),rules.getDefaultSymbol(),rules.getColor());
-        }
+        rules = factory.getFruitGraphics(gameName);
+        String[] allSymbols = rules.getSymbols();
 
-    }
-   public void initializedata(String currentGameName) {
-            FruitGameRules rules= FruitGameRules.getFruitGraphics(currentGameName);
-            if(rules!=null){
-                view.setImageBackground(rules.getLogoResId());
-                symbols=rules.getSymbols();
-                view.setCellsToSymbol(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8},rules.getDefaultSymbol(),rules.getColor());
+        if (multiplier > 0.0) {
+            int[] winIndices = rules.getWinPatterns().get(multiplier);
+
+            if (winIndices != null) {
+                view.showFinalGrid(winIndices, allSymbols[0], allSymbols, rules.getColor());
+            } else {
+                view.showFinalGrid(null, null, allSymbols, rules.getColor());
             }
-
-
-
+        } else {
+            view.showFinalGrid(null, null, allSymbols, rules.getColor());
+        }
     }
+
+    public void initializedata(String currentGameName) {
+        rules = factory.getFruitGraphics(currentGameName);
+        if (rules != null) {
+            view.setImageBackground(rules.getLogoResId());
+            symbols = rules.getSymbols();
+            view.showFinalGrid(null, null, symbols, rules.getColor());
+            view.showBalance(player.getBalance());
+        }
+    }
+
     public void spinClicked(String betamount) {
 
         if (betamount == null || betamount.trim().isEmpty()) {
             view.showMessage("Παρακαλώ εισάγετε ποσό πονταρίσματος!");
             return;
         }
-        bet=new BigDecimal(betamount);
-        if(bet.compareTo ( BigDecimal.ZERO ) <= 0){
-            view.showMessage("The bet cannot be negative or zero.");
+        bet = new BigDecimal(betamount);
+        if (bet.compareTo(BigDecimal.ZERO) <= 0) {
+            view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα δεν μπορεί να είναι μηδέν ή αρνητικό ποσό. Δοκίμασε ξανά!");
             return;
         }
-//        playerBalance=PlayerApp.getInstance().getBalance();
-//        if ( amount.compareTo ( this.balance) > 0 )
-//            throw new RuntimeException ( "You don't have enough FUNs." );
 
+        if (bet.compareTo(player.getBalance()) > 0) {
+            view.showErrorDialog("Ανεπαρκές Υπόλοιπο", "Δεν έχεις αρκετά FUNs για αυτό το ποντάρισμα. Το τρέχον υπόλοιπό σου είναι " + player.getBalance() + " FUN.");
+            return;
+        }
+        //tha balo alterdialog gia ta oria toy pontarismatos!!!!!!!!!!!!!!
+        player.setBalance(player.getBalance().subtract(bet));
+        view.showBalance(player.getBalance());
         view.showSpinResult("Γυρίζουν...🎰...\nΑναμόνη για το αποτέλεσμα!!");
 
         view.lock(true);
-        FruitGameRules rules= FruitGameRules.getFruitGraphics(gameName);
-        symbols=rules.getSymbols();
+        symbols = rules.getSymbols();
 
 
         new Thread(() -> {
             try {
-                Bet myBet = new Bet(bet, playerId, gameName);
+                Bet myBet = new Bet(bet, player.getUsername(),player.getPlayerId(), gameName);
 
                 MasterMessage requestMessage = new MasterMessage(MasterMessageType.PLAY, myBet);
-                String jsonMessage=gson.toJson(requestMessage);
+                String jsonMessage = gson.toJson(requestMessage);
                 JsonClient betClient = new JsonClient(MASTER_IP, MASTER_PORT, jsonMessage);
 
                 betClient.start();
                 betClient.join();
                 String response = betClient.getJsonResponse();
+
                 if (response == null) {
                     throw new RuntimeException("No response received from the Master.");
                 }
-                if ( response instanceof String ) {
-                    view.showMessage(response);
-                    return;
-                }
+
                 try {
                     payout = gson.fromJson(response, BigDecimal.class);
-                    prefs.edit().putBoolean("PLAYED_" + gameName, true).apply();
-                    //  this.balance = this.balance.subtract ( amount );
-//                    if ( payout.compareTo ( BigDecimal.ZERO ) > 0 ) {
-//                        addBalance(payout);
-//                    }
                 } catch (Exception e) {
-                    view.showMessage(e.getMessage());
+                    //edo tha balo ton periorismo gia to bet . tha pernao to game sta fragment
+                    player.addBalance(bet);
+                    String serverMessage = response.replace("\"", "");
+                    view.showSpinResult(serverMessage);
+                    view.showBalance(player.getBalance());
+                    view.lock(false);
+                    return;
                 }
 
-                view.showMessage(payout.toString());
-                 multiplier=0.0;
+                multiplier = 0.0;
                 if (payout.compareTo(BigDecimal.ZERO) > 0) {
                     multiplier = payout.doubleValue() / bet.doubleValue();
                 }
-                for(int i=0;i<40;i++) {
+                for (int i = 0; i < 40; i++) {
                     view.randomizeGrid(symbols);
                     Thread.sleep(100);
                 }
 
                 showPattern(multiplier);
                 if (payout.compareTo(BigDecimal.ZERO) > 0) {
-                    view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! 🎉");
+                    player.addBalance(payout);
+                    view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! \nΠολλαπλασιαστής: x" + multiplier);
+                    view.playSound(true);
                 } else {
                     view.showSpinResult("Δεν κέρδισες. Δοκίμασε ξανά!");
+                    view.playSound(false);
                 }
-                //view.showBalance(PlayerApp.getInstance().getBalance());
+                view.showBalance(player.getBalance());
 
             } catch (Exception e) {
                 view.showMessage(e.getMessage());
                 view.showSpinResult("Προέκυψε σφάλμα.");
+                player.addBalance(bet);
+                view.showBalance(player.getBalance());
+                view.lock(false);
             }
 
         }).start();
 
     }
-    public void initBalance() {
 
-    }
 }

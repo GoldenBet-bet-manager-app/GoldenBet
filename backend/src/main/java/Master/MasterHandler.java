@@ -315,7 +315,7 @@ public class MasterHandler extends Thread {
         else if ( response instanceof BigDecimal ) {
             BigDecimal payout = (BigDecimal) response;
             Bet originalBet = (Bet) message.getPayload ( );
-            Player player=registedPlayers.get (originalBet.getPlayerId ());
+            Player player=registedPlayers.get (originalBet.getPlayerusername ());
 
             // Profit/Loss balance player's update
             BigDecimal profit_loss = payout;

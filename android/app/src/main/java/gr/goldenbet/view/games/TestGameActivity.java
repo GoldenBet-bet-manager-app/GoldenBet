@@ -15,11 +15,6 @@ public class TestGameActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main_menu);
 
-        if (savedInstanceState == null) {
-            FruitGameFragment fragment = FruitGameFragment.newInstance("P123", "Gates of Olympus");
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .commit();
-        }
+
     }
 }

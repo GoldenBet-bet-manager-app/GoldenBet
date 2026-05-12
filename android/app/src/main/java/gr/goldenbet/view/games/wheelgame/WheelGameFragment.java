@@ -3,7 +3,10 @@ package gr.goldenbet.view.games.wheelgame;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,8 +21,11 @@ import android.widget.Toast;
 
 import java.math.BigDecimal;
 
+import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentWheelGameBinding;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
+import gr.goldenbet.view.mainMenu.search.SearchFragment;
 
 
 /**
@@ -30,7 +36,8 @@ import gr.goldenbet.domain.Player;
 public class WheelGameFragment extends Fragment implements WheelGameView {
 
     private FragmentWheelGameBinding binding;
-    private String playerId, currentGameName,betamount;
+    private String currentGameName,betamount;
+    private Player player;
     private WheelGamePresenter presenter;
 
     private final int TOTAL_SLICES = 11;
@@ -40,10 +47,9 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     }
 
 
-    public static WheelGameFragment newInstance(String playerId, String gameName) {
+    public static WheelGameFragment newInstance( String gameName) {
         WheelGameFragment fragment = new WheelGameFragment();
         Bundle args = new Bundle();
-        args.putString("PLAYER_ID", playerId);
         args.putString("GAME_NAME", gameName);
         fragment.setArguments(args);
         return fragment;
@@ -53,7 +59,6 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            playerId = getArguments().getString("PLAYER_ID");
             currentGameName = getArguments().getString("GAME_NAME");
         }
     }
@@ -69,24 +74,63 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        presenter = new WheelGamePresenter(this, currentGameName);
+        player=((MainMenuActivity) getActivity()).getCurrentPlayer();
+        String ip = getString(R.string.master_ip);
+        int port = getResources().getInteger(R.integer.master_port);
+        presenter = new WheelGamePresenter(this, currentGameName,ip,port,player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
+
+        binding.btnIncreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            binding.etbetAmount.setText(String.valueOf(currentVal+5));
+
+        });
+        binding.btnDecreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            if(currentVal>=5) {
+                binding.etbetAmount.setText(String.valueOf(currentVal - 5));
+            }
+        });
+        binding.btnBack.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
+
         binding.spinButton.setOnClickListener(v -> {
+            SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
+            prefs.edit().putBoolean("PLAYED_" + currentGameName, true).apply();
             betamount=binding.etbetAmount.getText().toString();
             presenter.spinClicked(betamount);
         });
     }
 
+    @Override
+    public void playSound(boolean isWin) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                int soundResource;
+                if (isWin)
+                    soundResource = R.raw.win_sound;
+                else
+                    soundResource = R.raw.lose_sound;
 
+                MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), soundResource);
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(mp -> mp.release());
+
+            });
+        }
+    }
     @Override
     public void showMessage(String message) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                binding.spinButton.setEnabled(true);
-                binding.etbetAmount.setEnabled(true);
+                lock(false);
             });
         }
     }
@@ -105,17 +149,44 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 binding.tvresult.setText(result);
-                binding.spinButton.setEnabled(true);
-                binding.etbetAmount.setEnabled(true);
+                lock(false);
+            });
+        }
+    }
+    @Override
+    public void showErrorDialog(String title, String message) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                new android.app.AlertDialog.Builder(requireContext())
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setPositiveButton("ΟΚ", (dialog, which) -> dialog.dismiss())
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
+                        .show();
+            });
+        }
+    }
+    @Override
+    public void lock(Boolean flag) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                binding.spinButton.setEnabled(!flag);
+                binding.etbetAmount.setEnabled(!flag);
+                if (flag) {
+                    binding.spinButton.setColorFilter(android.graphics.Color.argb(128, 0, 0, 0));
+                } else {
+                    binding.spinButton.clearColorFilter();
+                }
             });
         }
     }
 
     @Override
-    public void setImageBackground(int imageBackgroundId) {
+    public void setWheelImage(int imageId) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-                binding.imageView.setImageResource(imageBackgroundId);
+                binding.wheel.setImageResource(imageId);
             });
         }
     }
@@ -124,12 +195,10 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     public void spinWheel(int sliceIndex) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-
                 float degreesPerSlice = 360f / TOTAL_SLICES;
-                float targetAngle = (sliceIndex * degreesPerSlice) + (degreesPerSlice / 2);
-
+                float targetAngle = -(sliceIndex * degreesPerSlice);
                 float currentRotation = binding.wheel.getRotation();
-                float totalRotation = currentRotation + (360f * 5) + targetAngle - (currentRotation % 360);
+                float totalRotation = currentRotation - (360f * 5) + (targetAngle - (currentRotation % 360));
 
                 ObjectAnimator animator = ObjectAnimator.ofFloat(binding.wheel, "rotation", currentRotation, totalRotation);
                 animator.setDuration(4000);
@@ -143,7 +212,6 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
                 });
 
                 animator.start();
-
             });
         }
     }

@@ -3,7 +3,7 @@
   "ProviderName": "MythicBet",
   "Stars": 5,
   "NoOfVotes": 23,
-  "GameLogo": "src/main/resources/logos/pharaoh's_dynasty_logo.png",
+  "GameLogo": "src/main/resources/logos/pharaohs_dynasty_logo.png",
   "MinBet": 0.1,
   "MaxBet": 30,
   "RiskLevel": "medium",

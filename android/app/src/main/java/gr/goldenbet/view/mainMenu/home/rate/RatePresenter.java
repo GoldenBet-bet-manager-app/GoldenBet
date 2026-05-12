@@ -1,34 +1,37 @@
 package gr.goldenbet.view.mainMenu.home.rate;
 
+import static gr.goldenbet.domain.MasterMessageType.GET_ACTIVE_GAMES;
+
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import gr.goldenbet.R;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
-import gr.goldenbet.domain.Player;
 
 import gr.goldenbet.domain.Rating;
-import gr.goldenbet.view.mainMenu.MainMenuActivity;
-import gr.goldenbet.view.register.RegisterActivity;
-
 
 public class RatePresenter {
 
     private RateView rateView;
 
-    private static final String MASTER_IP = "10.0.2.2";
-    private static final int MASTER_PORT = 43210;
+    private static  String MASTER_IP;
+    private static  int MASTER_PORT ;
     private SharedPreferences prefs;
 
      Gson gson = new Gson();
-    public RatePresenter(RateView rateView,SharedPreferences prefs) {
+    public RatePresenter(RateView rateView, SharedPreferences prefs, String ip, int port) {
         this.rateView = rateView;
         this.prefs=prefs;
-        //MASTER_IP = ((MainMenuActivity)rateView).getResources().getString(R.string.master_ip);
-        //MASTER_PORT = ((MainMenuActivity)rateView).getResources().getInteger(R.integer.master_port);
+        this.MASTER_IP = ip;
+        this.MASTER_PORT = port;
 
     }
 
@@ -45,8 +48,7 @@ public class RatePresenter {
         }
         boolean hasPlayed = prefs.getBoolean("PLAYED_" + currentGameName, false);
         if (!hasPlayed) {
-            rateView.showMessage("Δεν μπορείς να αξιολογήσεις το παιχνίδι επειδή δεν το έχεις παίξει ακόμα!");
-            return;
+            rateView.showErrorDialog(R.string.rate_error_not_played_title, R.string.rate_error_not_played_message, currentGameName);            return;
         }
 
         new Thread(() -> {
@@ -68,5 +70,35 @@ public class RatePresenter {
             }
 
         }).start();
+    }
+
+    public void initializedata() {
+        ArrayList<String> gameNames = new ArrayList<>();
+        new Thread(() -> {
+            try {
+                MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
+                String jsonMessage = gson.toJson(message);
+                JsonClient jsonClient = new JsonClient(MASTER_IP, MASTER_PORT, jsonMessage);
+                jsonClient.start();
+                jsonClient.join();
+                String responseString = jsonClient.getJsonResponse();
+                if(responseString==null){
+                    throw new RuntimeException("Δεν υπήρξε απάντηση από τον Server.");
+                }
+                Type listType = new TypeToken<ArrayList<Game>>(){}.getType();
+                ArrayList<Game> activeGames = gson.fromJson(responseString, listType);
+                if(activeGames!=null) {
+                    for (Game g : activeGames) {
+                        if (g != null) gameNames.add(g.getGameName());
+                    }
+                }
+                rateView.setActiveGames(gameNames);
+            } catch (Exception e) {
+                rateView.showMessage(e.getMessage());
+                rateView.showMessage("Αποτυχία φόρτωσης παιχνιδιών: " + e.getMessage());
+            }
+
+        }).start();
+
     }
 }

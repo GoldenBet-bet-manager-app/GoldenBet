@@ -120,6 +120,8 @@
     <string name="rate_error_no_game">Please select a game from the list!</string>
     <string name="rate_error_invalid_stars">The rating must be between 1 and 5 stars (in half-star increments)!</string>
     <string name="rate_success">Successful review!!!!</string>
+    <string name="rate_error_not_played_title">Cannot Rate</string>
+    <string name="rate_error_not_played_message">You cannot rate the game \'%1$s\' because you haven\'t played it yet!</string>
 
 
     <!--fragment_stats.xml-->
@@ -152,6 +154,6 @@
     <string name="common_ok">Ok</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_necessary_fields_msg">Please fill all necessary fields</string>
-    <string name="master_ip" translatable="false">192.168.1.17</string>
+    <string name="master_ip" translatable="false">192.168.1.6</string>
     <integer name="master_port" translatable="false">43210</integer>
 </resources>
