@@ -44,8 +44,6 @@ public class MasterHandler extends Thread {
 
     @Override
     public void run ( ) {
-//        MasterMessage message = (MasterMessage) in.readObject ( );
-//        MasterMessageType type = message.getType ( );
 
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping() // to appear normally escape character and not their Unicode sequences
@@ -59,8 +57,6 @@ public class MasterHandler extends Thread {
 
             JsonElement payloadJsonElement = gson.toJsonTree(message.getPayload());
             JsonObject response = new JsonObject();
-
-
 
             switch (type) {
 
@@ -90,10 +86,9 @@ public class MasterHandler extends Thread {
                     SearchFilters filters = gson.fromJson(searchJson, SearchFilters.class);
                     message.setPayload(filters);
 
-                    System.out.println("elaaaaaaaaa ");
                     executeMapReducePhase ( message );
-                    System.out.println("erxomaiiiiiii ");
                     break;
+
                 case GET_ACTIVE_GAMES, GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
                     executeMapReducePhase(message);
                     break;
@@ -232,6 +227,9 @@ public class MasterHandler extends Thread {
         catch (ClassNotFoundException e){
             System.err.println ( "Client Communication Error (Class not found): " + e.getMessage() );
 
+        }catch (Exception e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         finally {
             try {

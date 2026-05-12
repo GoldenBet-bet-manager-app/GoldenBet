@@ -12,5 +12,6 @@ public interface SearchView {
     void showLoading();
     void hideLoading();
     void showMessage(String string);
+    void clearSearchBar();
     void updateGameList(List<Game> gamesToShow);
 }
