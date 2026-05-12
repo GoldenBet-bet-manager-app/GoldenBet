@@ -26,11 +26,8 @@ public class Address implements Serializable {
         this.zipCode = zipCode;
     }
 
-    public Address(){
-        zipCode = "-";
-        street = "-";
-        streetNumber = "-";
-        city = "-";
+    public Address ( ) {
+
     }
 
 

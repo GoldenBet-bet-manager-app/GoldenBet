@@ -94,8 +94,12 @@ public class WorkerHandler extends Thread {
                     case SEARCH, GET_ACTIVE_GAMES, GET_ALL_GAMES:
                         executeMapReduceTask(message);
                         break;
+                    case GET_HISTORY:
+                        executeHistoryMapReduceTask(message);
+                        break;
                     case PLAYBACKUP:
                         PlayBackUp backUpPayout=(PlayBackUp) message.getPayload ();
+                        handleTransactionStorage(backUpPayout.getBet(), backUpPayout.getPayout(), true);
                         updateProfits ( backUpPayout.getBet (),backUpPayout.getPayout () );
                         break;
                     case WORKER_FAILURE:
@@ -235,6 +239,68 @@ public class WorkerHandler extends Thread {
         sendToReducer(message.getType(), gamesToReducer, message.getMapId());
     }
 
+
+    private void executeHistoryMapReduceTask(MasterMessage message) throws IOException {
+        HistoryFilters filters = (HistoryFilters) message.getPayload();
+        ArrayList<Transaction> matchedTxs = new ArrayList<>();
+
+        synchronized (Worker.primaryTransactions) {
+            ArrayList<Transaction> primary = Worker.primaryTransactions.get(filters.getUsername());
+            if (primary != null) {
+                matchedTxs.addAll(applyHistoryFilters(primary, filters));
+            }
+        }
+
+        if (Worker.includeBackUps()) {
+            synchronized (Worker.backupTransactions) {
+                ArrayList<Transaction> backup = Worker.backupTransactions.get(filters.getUsername());
+                if (backup != null) {
+                    matchedTxs.addAll(applyHistoryFilters(backup, filters));
+                }
+            }
+        }
+
+        sendToReducer(message.getType(), matchedTxs, message.getMapId());
+
+        System.out.println("Worker " + workerId + " sent " + matchedTxs.size() + " filtered transactions to Reducer.");
+    }
+
+    private ArrayList<Transaction> applyHistoryFilters(ArrayList<Transaction> list, HistoryFilters filters) {
+        ArrayList<Transaction> result = new ArrayList<>();
+        ArrayList<String> selected = filters.getSelectedTypes();
+        String query = (filters.getSearchQuery() != null) ? filters.getSearchQuery().toLowerCase() : "";
+
+        for (Transaction tx : list) {
+            boolean typeMatch = false;
+
+            // Filters logic
+            if (selected.contains("All")) {
+                typeMatch = true;
+            } else {
+
+                // Check for Wins
+                if (selected.contains("Wins") && tx.getType().equals("GAME_RESULT")
+                        && tx.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                    typeMatch = true;
+                }
+
+                // Check for Bets
+                if (selected.contains("Bets") && tx.getType().equals("GAME_BET")) {
+                    typeMatch = true;
+                }
+
+            }
+
+            // Search Query Logic
+            boolean searchMatch = query.isEmpty() || tx.getDescription().toLowerCase().contains(query);
+
+            if (typeMatch && searchMatch) {
+                result.add(tx);
+            }
+        }
+        return result;
+    }
+
     private void executeProviderGamesProfits(MasterMessage message){
         HashMap<String,BigDecimal> providerGamesProfits = new HashMap<>();
         String providerName = (String) message.getPayload();
@@ -346,6 +412,10 @@ public class WorkerHandler extends Thread {
             gameMultiplies = game.getMultipliers ( );
             payout = bet.getAmount ( ).multiply ( gameMultiplies[ index ] );
         }
+
+        // Save primary Transactions
+        handleTransactionStorage(bet, payout, false);
+
         updateProfits ( bet, payout );
         System.out.print ( payout );
         return payout;
@@ -379,7 +449,30 @@ public class WorkerHandler extends Thread {
         }
     }
 
-    // auxiliary method to update player profits maps after play
+    // Auxiliary method to save 2 Transaction types (Bet & Payout)
+    private void handleTransactionStorage(Bet bet, BigDecimal payout, boolean isBackup) {
+        HashMap<String, ArrayList<Transaction>> targetMap = isBackup ? Worker.backupTransactions : Worker.primaryTransactions;
+
+        synchronized (targetMap) {
+            ArrayList<Transaction> userTxs = targetMap.computeIfAbsent(bet.getPlayerid(), k -> new ArrayList<>());
+
+            userTxs.add(new Transaction(
+                    bet.getPlayerid(),
+                    "GAME_BET",
+                    bet.getAmount().negate(),
+                    "Bet on " + bet.getGameName()
+            ));
+
+            userTxs.add(new Transaction(
+                    bet.getPlayerid(),
+                    "GAME_RESULT",
+                    payout,
+                    "Payout from " + bet.getGameName()
+            ));
+        }
+    }
+
+    // Auxiliary method to update player profits maps after play
     private void updatePlayerProfitsMap(HashMap<String, BigDecimal> map, Bet bet, BigDecimal payout) {
         BigDecimal playerProfit = map.getOrDefault(bet.getPlayerid (), BigDecimal.ZERO);
         playerProfit = playerProfit.subtract(bet.getAmount()).add(payout);

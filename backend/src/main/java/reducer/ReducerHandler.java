@@ -3,6 +3,7 @@ package reducer;
 import Models.Game;
 import Models.MasterMessage;
 import Models.MasterMessageType;
+import Models.Transaction;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -84,6 +85,9 @@ public class ReducerHandler extends Thread{
                 switch (type){
                     case PROVIDER_GAME_PROFITS,GAMES_PROFITS,PLAYERS_PROFITS:
                         currentBox = new StatsMapBox((HashMap<String, BigDecimal>) message.getPayload());
+                        break;
+                    case GET_HISTORY:
+                        currentBox = new TransactionListBox((ArrayList<Transaction>) message.getPayload());
                         break;
                     default:
                         currentBox = new GameListBox((ArrayList<Game>) message.getPayload());

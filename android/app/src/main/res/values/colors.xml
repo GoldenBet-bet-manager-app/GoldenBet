@@ -18,6 +18,7 @@
     <color name="gold_classic">#C6930A</color>
     <color name="gold_glow">#FFE45E</color>
     <color name="white_alpha_80">#CCFFFFFF</color>
+    <color name="gold_classic_transparent">#33FFD700</color>
     <color name="white_alpha_20">#33FFFFFF</color>
     <color name="filter_active_light">#D4AF37</color>
     <color name="filter_active_dark">#FFC107</color>

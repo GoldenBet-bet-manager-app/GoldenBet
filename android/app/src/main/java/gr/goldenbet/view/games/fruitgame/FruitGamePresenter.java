@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 
 import gr.goldenbet.domain.Bet;
+import gr.goldenbet.domain.FruitGameFactory;
 import gr.goldenbet.domain.FruitGameRules;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
@@ -26,6 +27,8 @@ public class FruitGamePresenter {
     Gson gson = new Gson();
     private static String MASTER_IP;
     private static int MASTER_PORT;
+    private FruitGameFactory factory;
+    private  FruitGameRules rules;
 
 
     public FruitGamePresenter(FruitGameFragment view, String currentGameName, String ip, int port, Player player) {
@@ -34,30 +37,34 @@ public class FruitGamePresenter {
         this.MASTER_IP=ip;
         this.MASTER_PORT=port;
         this.player=player;
+        this.factory=new FruitGameFactory();
     }
 
     private void showPattern(double multiplier) {
-        FruitGameRules rules = FruitGameRules.getFruitGraphics(gameName);
+        rules = factory.getFruitGraphics(gameName);
+        String[] allSymbols = rules.getSymbols();
+
         if (multiplier > 0.0) {
-            view.clearFruitGrid();
-            if (multiplier == 10.0 && gameName.equals("Fruit Fiesta")) {
-                view.setCellsToSymbol(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8}, new String[]{"🍋"}, Color.parseColor("#FFFFFF"));
-            } else if (rules.getWinPatterns().containsKey(multiplier)) {
-                view.setCellsToSymbol(rules.getWinPatterns().get(multiplier), rules.getSymbols(), rules.getColor());
+            int[] winIndices = rules.getWinPatterns().get(multiplier);
+
+            if (winIndices != null) {
+                view.showFinalGrid(winIndices, allSymbols[0], allSymbols, rules.getColor());
+            } else {
+                view.showFinalGrid(null, null, allSymbols, rules.getColor());
             }
+        } else {
+            view.showFinalGrid(null, null, allSymbols, rules.getColor());
         }
     }
 
     public void initializedata(String currentGameName) {
-        FruitGameRules rules = FruitGameRules.getFruitGraphics(currentGameName);
+        rules = factory.getFruitGraphics(currentGameName);
         if (rules != null) {
             view.setImageBackground(rules.getLogoResId());
             symbols = rules.getSymbols();
-            view.setCellsToSymbol(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8}, rules.getSymbols(), rules.getColor());
+            view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());
         }
-
-
     }
 
     public void spinClicked(String betamount) {
@@ -76,12 +83,12 @@ public class FruitGamePresenter {
             view.showErrorDialog("Ανεπαρκές Υπόλοιπο", "Δεν έχεις αρκετά FUNs για αυτό το ποντάρισμα. Το τρέχον υπόλοιπό σου είναι " + player.getBalance() + " FUN.");
             return;
         }
+        //tha balo alterdialog gia ta oria toy pontarismatos!!!!!!!!!!!!!!
         player.setBalance(player.getBalance().subtract(bet));
         view.showBalance(player.getBalance());
         view.showSpinResult("Γυρίζουν...🎰...\nΑναμόνη για το αποτέλεσμα!!");
 
         view.lock(true);
-        FruitGameRules rules = FruitGameRules.getFruitGraphics(gameName);
         symbols = rules.getSymbols();
 
 
@@ -125,7 +132,7 @@ public class FruitGamePresenter {
                 showPattern(multiplier);
                 if (payout.compareTo(BigDecimal.ZERO) > 0) {
                     player.addBalance(payout);
-                    view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! 🎉\nΠολλαπλασιαστής: x" + multiplier);
+                    view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! \nΠολλαπλασιαστής: x" + multiplier);
                     view.playSound(true);
                 } else {
                     view.showSpinResult("Δεν κέρδισες. Δοκίμασε ξανά!");

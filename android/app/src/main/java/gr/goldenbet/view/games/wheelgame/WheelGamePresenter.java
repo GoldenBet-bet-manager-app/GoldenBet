@@ -34,7 +34,7 @@ public class WheelGamePresenter {
 
     public void initializedata(String currentGameName) {
         rules = WheelGameRules.getWheelGraphics(currentGameName);
-        if (rules != null) view.setImageBackground(rules.getLogoResId());
+        if (rules != null) view.setWheelImage(rules.getLogoResId());
         view.showBalance(player.getBalance());
     }
 
@@ -91,7 +91,6 @@ public class WheelGamePresenter {
                 }
                 int targetSliceIndex = rules.determineSliceIndex(multiplier);
                 view.spinWheel(targetSliceIndex);
-                view.showBalance(player.getBalance());
             } catch (Exception e) {
                 view.showMessage(e.getMessage());
                 player.addBalance(bet);
@@ -102,7 +101,8 @@ public class WheelGamePresenter {
     }
    public void onAnimationEnd(){
        if (payout.compareTo(BigDecimal.ZERO) > 0) {
-           view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! 🎉\nΠολλαπλασιαστής: x" + multiplier);
+           player.addBalance(payout);
+           view.showSpinResult("ΚΕΡΔΙΣΕΣ " + payout + " FUN! \nΠολλαπλασιαστής: x" + multiplier);
            view.playSound(true);
        } else {
            view.showSpinResult("Δεν κέρδισες. Δοκίμασε ξανά!");

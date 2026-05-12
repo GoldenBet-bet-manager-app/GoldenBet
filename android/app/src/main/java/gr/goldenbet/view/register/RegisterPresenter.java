@@ -75,9 +75,7 @@ public class RegisterPresenter {
                 view.onRegisterError("Network Error: " + e.getMessage());
             }
         }).start();
-
-
-
-
     }
+
+
 }

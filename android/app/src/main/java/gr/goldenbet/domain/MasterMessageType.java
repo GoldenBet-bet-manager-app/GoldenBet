@@ -20,5 +20,6 @@ public enum MasterMessageType {
     REGIST,
     GET_PLAYER_INFO,
     MODIFY_PLAYER,
-    DEPOSIT
+    DEPOSIT,
+    GET_HISTORY
 }

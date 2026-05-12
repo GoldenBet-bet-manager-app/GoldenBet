@@ -1,5 +1,6 @@
 package gr.goldenbet.view.register;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,7 @@ import gr.goldenbet.domain.Player;
 
 import android.app.AlertDialog;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -50,6 +52,8 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView 
         edtZipCode = findViewById(R.id.edtRegisterZip);
 
         Button btnRegister = findViewById(R.id.btnRegister);
+        TextView btnLogin = findViewById(R.id.registerSignInTextView);
+
 
         btnRegister.setOnClickListener(v -> {
             presenter.onRegisterClick(
@@ -60,6 +64,12 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView 
                     edtCity.getText().toString(), edtZipCode.getText().toString()
             );
         });
+
+
+        btnLogin.setOnClickListener(v->{
+            this.navigateToLogin();
+        });
+
     }
 
     @Override
@@ -92,5 +102,10 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView 
         runOnUiThread(() -> {
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         });
+    }
+
+    @Override
+    public void navigateToLogin(){
+        finish();
     }
 }

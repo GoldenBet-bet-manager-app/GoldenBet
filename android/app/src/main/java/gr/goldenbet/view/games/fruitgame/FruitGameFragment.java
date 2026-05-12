@@ -73,17 +73,31 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
 
-        binding.btnBack.setOnClickListener(v -> {
-            //requireActivity().getSupportFragmentManager().beginTransaction()
-                   // .replace(R.id.fragment_container, SearchFragment.newInstance())
-                   // .commit();
+        binding.btnIncreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            binding.etbetAmount.setText(String.valueOf(currentVal+5));
+
         });
+        binding.btnDecreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            if(currentVal>=5) {
+                binding.etbetAmount.setText(String.valueOf(currentVal - 5));
+            }
+        });
+
+
 
         binding.spinButton.setOnClickListener(v -> {
             SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
             prefs.edit().putBoolean("PLAYED_" + currentGameName, true).apply();
             betamount = binding.etbetAmount.getText().toString();
             presenter.spinClicked(betamount);
+        });
+
+        binding.btnBack.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager().popBackStack();
         });
 
     }
@@ -94,7 +108,16 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
             getActivity().runOnUiThread(() -> {
                 for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
                     TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-                    cell.setText(symbols[random.nextInt(symbols.length)]);
+                    String symbol=symbols[random.nextInt(symbols.length)];
+                    cell.setText(symbol);
+                    cell.setBackgroundColor(Color.TRANSPARENT);
+                    if (symbol.equals("7")) {
+                        cell.setTextColor(Color.parseColor("#E70614"));
+                    } else {
+                        cell.setTextColor(Color.WHITE);
+                    }
+                    cell.setAlpha(1.0f);
+                    cell.setTextSize(40f);
                 }
             });
         }
@@ -103,6 +126,54 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
     @Override
     public void setImageBackground(int imageBackgroundId) {
         binding.imageView.setImageResource(imageBackgroundId);
+    }
+
+    @Override
+    public void showFinalGrid(int[] winIndices, String winSymbol, String[] allSymbols, int winColor) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                boolean isWin = (winIndices != null && winIndices.length > 0);
+                for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
+                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
+                    boolean isWinningCell = false;
+                    if (isWin) {
+                        for (int idx : winIndices) {
+                            if (idx == i) {
+                                isWinningCell = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isWinningCell) {
+                        cell.setText(winSymbol);
+                        cell.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                        if (winSymbol.equals("7")) {
+                            cell.setTextColor(Color.parseColor("#E70614"));
+                        } else {
+                            cell.setTextColor(winColor);
+                        }
+                        cell.setAlpha(1.0f);
+                        cell.setTextSize(50f);
+
+                    } else {
+                        String randomSymbol = allSymbols[random.nextInt(allSymbols.length)];
+                        while (isWin && randomSymbol.equals(winSymbol)) {
+                            randomSymbol = allSymbols[random.nextInt(allSymbols.length)];
+                        }
+                        cell.setText(randomSymbol);
+                        cell.setBackgroundColor(Color.TRANSPARENT);
+                        if (randomSymbol.equals("7")) {
+                            cell.setTextColor(Color.parseColor("#E70614"));
+                        } else {
+                            cell.setTextColor(Color.WHITE);
+                        }
+                        cell.setAlpha(1.0f);
+                        cell.setTextSize(40f);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -149,34 +220,24 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         }
     }
 
-    @Override
-    public void setCellsToSymbol(int[] indices, String[] symbols, int textcolor) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                int randomIndex = random.nextInt(symbols.length);
-                String randomsymbol = symbols[randomIndex];
-                for (int i : indices) {
-                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-                    cell.setText(randomsymbol);
-                    cell.setBackgroundColor(Color.parseColor("#50FFFFFF"));
-                    cell.setTextSize(50f);
-                    cell.setTextColor(textcolor);
-                }
-            });
-        }
-    }
+//    @Override
+//    public void setCellsToSymbol(int[] indices, String[] symbols, int textcolor) {
+//        if (getActivity() != null) {
+//            getActivity().runOnUiThread(() -> {
+//                int randomIndex = random.nextInt(symbols.length);
+//                String randomsymbol = symbols[randomIndex];
+//                for (int i : indices) {
+//                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
+//                    cell.setText(randomsymbol);
+//                    cell.setBackgroundColor(Color.parseColor("#50FFFFFF"));
+//                    cell.setTextSize(50f);
+//                    cell.setTextColor(textcolor);
+//                }
+//            });
+//        }
+//    }
 
-    @Override
-    public void clearFruitGrid() {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                for (int i = 0; i < binding.slotGrid.getChildCount(); i++) {
-                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-                    cell.setText("");
-                }
-            });
-        }
-    }
+
 
     @Override
     public void playSound(boolean isWin) {

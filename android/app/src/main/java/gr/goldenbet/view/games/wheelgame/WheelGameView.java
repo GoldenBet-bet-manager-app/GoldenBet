@@ -6,7 +6,7 @@ public interface WheelGameView {
     void showMessage(String message);
     void showBalance(BigDecimal balance);
     void showSpinResult(String result);
-    void setImageBackground(int imageBackgroundId);
+    void setWheelImage(int imageId);
 
     void spinWheel(int sliceIndex);
     void playSound(boolean isWin);

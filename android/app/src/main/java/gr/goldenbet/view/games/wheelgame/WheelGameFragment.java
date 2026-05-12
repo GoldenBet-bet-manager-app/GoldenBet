@@ -81,11 +81,21 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
 
+        binding.btnIncreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            binding.etbetAmount.setText(String.valueOf(currentVal+5));
 
-        binding.btnBack.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                getActivity().onBackPressed();
+        });
+        binding.btnDecreaseBet.setOnClickListener(v -> {
+            String currentbet=binding.etbetAmount.getText().toString();
+            double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
+            if(currentVal>=5) {
+                binding.etbetAmount.setText(String.valueOf(currentVal - 5));
             }
+        });
+        binding.btnBack.setOnClickListener(v -> {
+            getParentFragmentManager().popBackStack();
         });
 
         binding.spinButton.setOnClickListener(v -> {
@@ -171,10 +181,10 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     }
 
     @Override
-    public void setImageBackground(int imageBackgroundId) {
+    public void setWheelImage(int imageId) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-                binding.imageView.setImageResource(imageBackgroundId);
+                binding.wheel.setImageResource(imageId);
             });
         }
     }
@@ -183,12 +193,10 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     public void spinWheel(int sliceIndex) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-
                 float degreesPerSlice = 360f / TOTAL_SLICES;
-                float targetAngle = (sliceIndex * degreesPerSlice) + (degreesPerSlice / 2);
-
+                float targetAngle = -(sliceIndex * degreesPerSlice);
                 float currentRotation = binding.wheel.getRotation();
-                float totalRotation = currentRotation + (360f * 5) + targetAngle - (currentRotation % 360);
+                float totalRotation = currentRotation - (360f * 5) + (targetAngle - (currentRotation % 360));
 
                 ObjectAnimator animator = ObjectAnimator.ofFloat(binding.wheel, "rotation", currentRotation, totalRotation);
                 animator.setDuration(4000);
@@ -202,7 +210,6 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
                 });
 
                 animator.start();
-
             });
         }
     }
