@@ -3,7 +3,7 @@
   "ProviderName": "FruitSlots",
   "Stars": 5,
   "NoOfVotes": 12,
-  "GameLogo": "src/main/resources/logos/fruit_fiesta_logo.png",
+  "GameLogo": "src/main/resources/logos/fruit_fiesta_logo.webp",
   "MinBet": 0.1,
   "MaxBet": 60,
   "RiskLevel": "low",

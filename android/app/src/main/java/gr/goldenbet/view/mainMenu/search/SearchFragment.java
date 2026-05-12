@@ -1,66 +1,425 @@
 package gr.goldenbet.view.mainMenu.search;
 
+
+
 import android.os.Bundle;
+
+
+
+import androidx.annotation.NonNull;
+
+import androidx.annotation.Nullable;
+
+import androidx.core.view.GravityCompat;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.fragment.app.Fragment;
 
+import androidx.lifecycle.ViewModelProvider;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+
+
+import android.text.Editable;
+
+import android.text.TextWatcher;
+
 import android.view.LayoutInflater;
+
 import android.view.View;
+
 import android.view.ViewGroup;
 
-import gr.goldenbet.R;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class SearchFragment extends Fragment implements SearchView{
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+import com.google.android.material.chip.Chip;
 
-    public SearchFragment() {
-        // Required empty public constructor
+
+
+import java.util.ArrayList;
+
+import java.util.List;
+
+
+
+import gr.goldenbet.databinding.FragmentSearchBinding;
+
+import gr.goldenbet.domain.Game;
+
+
+
+
+
+public class SearchFragment extends Fragment implements SearchView, SearchAdapter.SearchListener {
+
+
+
+    private FragmentSearchBinding binding;
+
+    private SearchPresenter presenter;
+
+    private SearchAdapter adapter;
+
+
+
+
+
+    public SearchFragment(){
+
     }
+
+
+
+    @Override
+
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+
+                             Bundle savedInstanceState) {
+
+
+
+        binding = FragmentSearchBinding.inflate(inflater, container, false);
+
+        return binding.getRoot();
+
+    }
+
+
+
+
+
+    @Override
+
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+
+
+        super.onViewCreated(view, savedInstanceState);
+
+        SearchViewModel viewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
+
+        presenter =  viewModel.getPresenter();
+
+        presenter.setView(this);
+
+
+
+        binding.searchDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+
+
+        setupRecyclerView();
+
+        setupClickListeners();
+
+        setupLiveSearch();
+
+        presenter.loadGames();
+
+    }
+
+
+
+    private void setupRecyclerView(){
+
+
+
+        adapter = new SearchAdapter(this);
+
+        binding.rvGameResults.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        binding.rvGameResults.setAdapter(adapter);
+
+    }
+
+
+
+    private void setupClickListeners(){
+
+
+
+        binding.btnSearchFilterTrigger.setOnClickListener(v ->
+
+                binding.searchDrawerLayout.openDrawer(GravityCompat.END));
+
+        binding.includedFiltersDrawer.sliderStars.addOnChangeListener((slider, value, fromUser) -> {
+
+            List<Float> values = slider.getValues();
+
+            binding.includedFiltersDrawer.txtStarRange.setText(values.get(0) + " - " + values.get(1));
+
+        });
+
+        binding.includedFiltersDrawer.btnApplyFilters.setOnClickListener(v ->
+
+                applyFiltersAndSearch());
+
+        binding.includedFiltersDrawer.btnClearFilters.setOnClickListener(v ->
+
+                clearFilters());
+
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+
+            presenter.onSwipeToRefresh();
+
+        });
+
+
+
+    }
+
+
+
+    private void setupLiveSearch() {
+
+
+
+        binding.edtSearchGameName.addTextChangedListener(new TextWatcher() {
+
+            @Override
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+
+
+            @Override
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                presenter.onSearchQueryChanged(s.toString());
+
+            }
+
+
+
+            @Override
+
+            public void afterTextChanged(Editable s) { }
+
+        });
+
+    }
+
+
+
+    private void applyFiltersAndSearch(){
+
+
+
+        List<Float> starValues = binding.includedFiltersDrawer.sliderStars.getValues();
+
+        float minStars = starValues.get(0);
+
+        float maxStars = starValues.get(1);
+
+
+
+        List<String> selectedRisks = new ArrayList<>();
+
+        int riskCount = binding.includedFiltersDrawer.linearGroupRisk.getChildCount();
+
+        for(int i = 0; i < riskCount; i++){
+
+            View view = binding.includedFiltersDrawer.linearGroupRisk.getChildAt(i);
+
+            if(view instanceof Chip){
+
+                Chip chip = (Chip) view;
+
+                if(chip.isChecked()){
+
+                    selectedRisks.add(chip.getText().toString());
+
+                }
+
+            }
+
+        }
+
+
+
+        List<String> selectedBets = new ArrayList<>();
+
+        int betCount = binding.includedFiltersDrawer.linearGroupBet.getChildCount();
+
+        for(int i = 0; i < betCount; i++){
+
+            View view = binding.includedFiltersDrawer.linearGroupBet.getChildAt(i);
+
+            if(view instanceof Chip){
+
+                Chip chip = (Chip) view;
+
+                if(chip.isChecked()){
+
+                    selectedBets.add(chip.getText().toString());
+
+                }
+
+            }
+
+        }
+
+
+
+        presenter.onApplyFilters(minStars, maxStars, selectedBets, selectedRisks);
+
+        binding.searchDrawerLayout.closeDrawer(GravityCompat.END);
+
+    }
+
+    private void clearFilters(){
+
+
+
+        binding.includedFiltersDrawer.sliderStars.setValues(0f, 5f);
+
+
+
+        for (int i = 0; i < binding.includedFiltersDrawer.linearGroupRisk.getChildCount(); i++) {
+
+            View view = binding.includedFiltersDrawer.linearGroupRisk.getChildAt(i);
+
+            if (view instanceof Chip) {
+
+                ((Chip) view).setChecked(false);
+
+            }
+
+        }
+
+
+
+        for (int i = 0; i < binding.includedFiltersDrawer.linearGroupBet.getChildCount(); i++) {
+
+            View view = binding.includedFiltersDrawer.linearGroupBet.getChildAt(i);
+
+            if (view instanceof Chip) {
+
+                ((Chip) view).setChecked(false);
+
+            }
+
+        }
+
+
+
+        presenter.onResetFilters();
+
+        binding.searchDrawerLayout.closeDrawer(GravityCompat.END);
+
+    }
+
+
+
+    @Override
+
+    public void onGameClicked(Game game){
+
+
+
+    }
+
+
+
+    @Override
+
+    public void updateGameList(List<Game> gamesToShow){
+
+        adapter.updateList(gamesToShow);
+
+    }
+
+
+
+    @Override
+
+    public void showEmptyState(){
+
+        binding.tvEmptyState.setVisibility(View.VISIBLE);
+
+        binding.rvGameResults.setVisibility(View.GONE);
+
+    }
+
+
+
+    @Override
+
+    public void hideEmptyState(){
+
+        binding.tvEmptyState.setVisibility(View.GONE);
+
+        binding.rvGameResults.setVisibility(View.VISIBLE);
+
+    }
+
+
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
+
+     *  Ενεργοποιεί το εικονίδιο φόρτωσης του SwipeRefreshLayout
+
      */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
+    public void showLoading(){
+
+        binding.swipeRefreshLayout.setRefreshing(true);
+
+    }
+
+
+
+    /**
+
+     *  Σταματάει το εικονίδιο φόρτωσης του SwipeRefreshLayout
+
+     */
+
+    @Override
+
+    public void hideLoading(){
+
+        binding.swipeRefreshLayout.setRefreshing(false);
+
+    }
+
+
+
+
+
+    @Override
+
+    public void showMessage(String message){
+
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+
+    }
+
+
+
+    @Override
+
+    public void onDestroyView(){
+
+
+
+        super.onDestroyView();
+
+        if (presenter != null) {
+
+            presenter.clearView();
+
         }
+
+        binding = null;
+
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
-    }
 }

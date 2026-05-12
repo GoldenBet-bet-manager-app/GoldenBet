@@ -15,9 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GoldenBet">
         <activity
-            android:name=".view.games.TestGameActivity"
-            android:exported="true" />
-        <activity
             android:name=".view.settings.settingsMenu.SettingsMenuActivity"
             android:exported="false" />
         <activity

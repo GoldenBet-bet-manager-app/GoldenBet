@@ -16,7 +16,12 @@
     <color name="input_bg_light">#EBEBEB</color>
     <color name="gold_dark">#B8860B</color>
     <color name="gold_classic">#C6930A</color>
-    <color name="gold_glow">#FFE45E</color> <color name="white_alpha_80">#CCFFFFFF</color>
+    <color name="gold_glow">#FFE45E</color>
+    <color name="white_alpha_80">#CCFFFFFF</color>
     <color name="white_alpha_20">#33FFFFFF</color>
+    <color name="filter_active_light">#D4AF37</color>
+    <color name="filter_active_dark">#FFC107</color>
+    <color name="filter_bg_unselected_light">#E0E0E0</color>
+    <color name="filter_bg_unselected_dark">#333333</color>
 
 </resources>

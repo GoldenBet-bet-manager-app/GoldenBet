@@ -68,9 +68,9 @@ public class PokerFragment extends Fragment implements PokerView {
         presenter.initializedata();
 
         binding.btnBack.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, SearchFragment.newInstance())
-                    .commit();
+            //requireActivity().getSupportFragmentManager().beginTransaction()
+                    //.replace(R.id.fragment_container, SearchFragment.newInstance())
+                    //.commit();
         });
 
         binding.btnDeal.setOnClickListener(v -> {

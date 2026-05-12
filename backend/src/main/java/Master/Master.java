@@ -32,11 +32,8 @@ public class Master{
     final HashMap<String, Player> registeredPlayers = new HashMap<>();
 
     void openServer() {
-        synchronized (this.registeredPlayers){
-            registeredPlayers.put("gpap123",new Player("Giorgos", "Papadopoulos",
-                    "gpap123",
-                    "pass1234"));
-        }
+
+        createUsers();
 
         ArrayList<WorkerInfo> loadedWorkers = ConfigLoader.getAllWorkers();
         if (loadedWorkers != null) {
@@ -99,6 +96,17 @@ public class Master{
             }
 
         }).start();
+    }
+
+    private void createUsers(){
+
+        synchronized (this.registeredPlayers){
+            registeredPlayers.put("gpap123",new Player("Giorgos", "Papadopoulos",
+                    "gpap123",
+                    "pass1234"));
+
+            registeredPlayers.put("vas" , new Player("vas", "mp", "vas", "vas"));
+        }
     }
 
 }

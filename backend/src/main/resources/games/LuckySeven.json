@@ -3,7 +3,7 @@
   "ProviderName": "ClassicCasino",
   "Stars": 2.5,
   "NoOfVotes": 10,
-  "GameLogo": "src/main/resources/logos/lucky_seven_logo.png",
+  "GameLogo": "src/main/resources/logos/lucky_seven_logo.webp",
   "MinBet": 1.0,
   "MaxBet": 100,
   "RiskLevel": "low",

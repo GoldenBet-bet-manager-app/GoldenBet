@@ -85,8 +85,17 @@ public class MasterHandler extends Thread {
                     routeToSingleWorker ( message, gameToModify.getGameName ( ), "modify" );
                     break;
 
-                case SEARCH, GET_ACTIVE_GAMES,GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
+                case SEARCH:
+                    String searchJson = gson.toJson(message.getPayload());
+                    SearchFilters filters = gson.fromJson(searchJson, SearchFilters.class);
+                    message.setPayload(filters);
+
+                    System.out.println("elaaaaaaaaa ");
                     executeMapReducePhase ( message );
+                    System.out.println("erxomaiiiiiii ");
+                    break;
+                case GET_ACTIVE_GAMES, GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS:
+                    executeMapReducePhase(message);
                     break;
 
                 case PLAY:

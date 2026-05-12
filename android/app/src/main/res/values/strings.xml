@@ -144,6 +144,7 @@
     <string name="common_ok">Ok</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_necessary_fields_msg">Please fill all necessary fields</string>
-    <string name="master_ip" translatable="false">192.168.1.6</string>
+    <string name="master_ip" translatable="false">192.168.1.79</string>
     <integer name="master_port" translatable="false">43210</integer>
+
 </resources>

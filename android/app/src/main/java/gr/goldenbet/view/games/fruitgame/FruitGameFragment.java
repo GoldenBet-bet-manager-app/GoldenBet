@@ -74,9 +74,9 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         presenter.initializedata(currentGameName);
 
         binding.btnBack.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, SearchFragment.newInstance())
-                    .commit();
+            //requireActivity().getSupportFragmentManager().beginTransaction()
+                   // .replace(R.id.fragment_container, SearchFragment.newInstance())
+                   // .commit();
         });
 
         binding.spinButton.setOnClickListener(v -> {

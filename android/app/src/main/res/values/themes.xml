@@ -12,6 +12,8 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="colorSurfaceVariant">@color/input_bg_light</item>
         <item name="colorSecondary">@color/gold_classic</item>
+        <item name="colorFilterActive">@color/filter_active_light</item>
+        <item name="colorFilterUnselected">@color/filter_bg_unselected_light</item>
 
     </style>
 
