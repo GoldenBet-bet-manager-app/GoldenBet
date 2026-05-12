@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
 import gr.goldenbet.R;
-import java.util.List;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.utils.HistoryAdapter;
-
+import java.util.List;
 
 public class HistoryFragment extends Fragment implements HistoryView {
 
@@ -34,18 +34,27 @@ public class HistoryFragment extends Fragment implements HistoryView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        presenter = new HistoryPresenter(this);
+        String username = "";
+        if (getActivity() instanceof MainMenuActivity) {
+            username = ((MainMenuActivity) getActivity()).getCurrentPlayer().getUsername();
+        }
+
+        presenter = new HistoryPresenter(this, username);
+
         recyclerView = view.findViewById(R.id.rvHistory);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Back Button
+        // Back Button Logic
         view.findViewById(R.id.btnBack).setOnClickListener(v -> navigateBack());
 
         // Search Logic
         SearchView searchView = view.findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) { return false; }
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
             @Override
             public boolean onQueryTextChange(String newText) {
                 currentQuery = newText;
@@ -54,7 +63,7 @@ public class HistoryFragment extends Fragment implements HistoryView {
             }
         });
 
-
+        // Chips Logic
         ChipGroup chipGroup = view.findViewById(R.id.filterChipGroup);
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (!checkedIds.isEmpty()) {

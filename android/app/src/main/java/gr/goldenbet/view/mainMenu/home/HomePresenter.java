@@ -28,6 +28,8 @@ public class HomePresenter {
     private Player currentPlayer;
     private List<Map.Entry<String, BigDecimal>> lastSortedData = new ArrayList<>();
 
+
+
     public HomePresenter(HomeView view) {
         this.view = view;
 

@@ -29,6 +29,7 @@ import gr.goldenbet.databinding.FragmentHomeBinding;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.login.LoginActivity;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
+import gr.goldenbet.view.mainMenu.home.history.HistoryFragment;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.deposit.DepositFragment;
 import gr.goldenbet.view.mainMenu.home.stats.StatsFragment;
@@ -172,7 +173,7 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToHistory() {
-        replaceFragmentWithAnimation(new StatsFragment());
+        replaceFragmentWithAnimation(new HistoryFragment());
     }
 
     @Override
@@ -205,7 +206,7 @@ public class HomeFragment extends Fragment implements HomeView {
 
     @Override
     public void navigateToStats() {
-        Toast.makeText(getContext(), R.string.nav_stats_msg, Toast.LENGTH_SHORT).show();
+        replaceFragmentWithAnimation(new StatsFragment());
     }
 
     private void replaceFragmentWithAnimation(Fragment fragment) {

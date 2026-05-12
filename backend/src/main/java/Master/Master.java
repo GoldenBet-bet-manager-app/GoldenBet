@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import Models.MasterMessage;
 import Models.Player;
+import Models.Transaction;
 import Models.WorkerInfo;
 import utils.ConfigLoader;
 
@@ -30,6 +31,7 @@ public class Master{
     final ArrayList<WorkerInfo> workersList = new ArrayList<>();
     final HashMap<Integer, ResultBox> sharedResults = new HashMap<>();
     final HashMap<String, Player> registeredPlayers = new HashMap<>();
+    public static HashMap<String, ArrayList<Transaction>> depositTransactions = new HashMap<>();
 
     void openServer() {
         synchronized (this.registeredPlayers){
