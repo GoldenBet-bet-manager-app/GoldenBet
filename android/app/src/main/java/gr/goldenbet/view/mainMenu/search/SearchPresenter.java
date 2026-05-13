@@ -19,7 +19,7 @@ import gr.goldenbet.utils.NetworkManager;
 public class SearchPresenter{
 
     private SearchView view;
-    private final String MASTER_IP = "192.168.1.24";
+    private final String MASTER_IP = "192.168.1.6";
     private final int MASTER_PORT = 43210;
 
     private boolean hasLoadedData = false;

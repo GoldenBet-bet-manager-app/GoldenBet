@@ -10,6 +10,8 @@ public interface WheelGameView {
 
     void spinWheel(int sliceIndex);
     void playSound(boolean isWin);
+    void setImageBackground(String imageBackground);
+
     void showErrorDialog(String title, String message);
     void lock(Boolean flag);
 }

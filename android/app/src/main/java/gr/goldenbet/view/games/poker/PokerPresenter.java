@@ -1,12 +1,11 @@
 package gr.goldenbet.view.games.poker;
 
-import android.content.SharedPreferences;
-
 import com.google.gson.Gson;
 
 import java.math.BigDecimal;
 
 import gr.goldenbet.domain.Bet;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
@@ -15,7 +14,8 @@ import gr.goldenbet.domain.PokerGameRules;
 
 public class PokerPresenter {
     private PokerView view;
-    private String gameName, winningHandName;
+    private String winningHandName;
+    private Game game;
     private BigDecimal payout, bet;
     private double multiplier;
     Gson gson = new Gson();
@@ -23,9 +23,9 @@ public class PokerPresenter {
     private static int MASTER_PORT;
     private Player player;
 
-    public PokerPresenter(PokerView view, String currentGameName, String ip, int port, Player player) {
+    public PokerPresenter(PokerView view, Game game, String ip, int port, Player player) {
         this.view = view;
-        this.gameName = currentGameName;
+        this.game = game;
         this.MASTER_IP = ip;
         this.MASTER_PORT = port;
         this.player = player;
@@ -63,6 +63,10 @@ public class PokerPresenter {
             view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα δεν μπορεί να είναι μηδέν ή αρνητικό ποσό. Δοκίμασε ξανά!");
             return;
         }
+        if (bet.compareTo(game.getMinBet()) < 0 || bet.compareTo(game.getMaxBet()) > 0) {
+            view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα πρέπει να είναι από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
+            return;
+        }
 
         if (bet.compareTo(player.getBalance()) > 0) {
             view.showErrorDialog("Ανεπαρκές Υπόλοιπο", "Δεν έχεις αρκετά FUNs για αυτό το ποντάρισμα. Το τρέχον υπόλοιπό σου είναι " + player.getBalance() + " FUN.");
@@ -77,7 +81,7 @@ public class PokerPresenter {
 
         new Thread(() -> {
             try {
-                Bet myBet = new Bet(bet, player.getUsername(), player.getPlayerId(), gameName);
+                Bet myBet = new Bet(bet, player.getUsername(), player.getPlayerId(), game.getGameName());
 
                 MasterMessage requestMessage = new MasterMessage(MasterMessageType.PLAY, myBet);
                 String jsonMessage = gson.toJson(requestMessage);
@@ -95,7 +99,7 @@ public class PokerPresenter {
                 } catch (Exception e) {
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showErrorDialog("",serverMessage);
+                    view.showErrorDialog("Όρια Πονταρίσματος", serverMessage);
                     view.showBalance(player.getBalance());
                     view.lock(false);
                     return;
@@ -135,6 +139,7 @@ public class PokerPresenter {
 
     public void initializedata() {
         view.showBalance(player.getBalance());
+        view.showErrorDialog("Όρια Πονταρίσματος", "Ποντάρισμα από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
     }
 }
 

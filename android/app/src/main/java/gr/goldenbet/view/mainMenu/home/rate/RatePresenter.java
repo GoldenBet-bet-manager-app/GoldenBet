@@ -89,12 +89,14 @@ public class RatePresenter {
                 ArrayList<Game> activeGames = gson.fromJson(responseString, listType);
                 if(activeGames!=null) {
                     for (Game g : activeGames) {
-                        if (g != null) gameNames.add(g.getGameName());
+                        if (g != null && g.getGameName() != null) {
+                            gameNames.add(g.getGameName());
+                        }
                     }
                 }
                 rateView.setActiveGames(gameNames);
             } catch (Exception e) {
-                rateView.showMessage(e.getMessage());
+                //rateView.showMessage(e.getMessage());
                 rateView.showMessage("Αποτυχία φόρτωσης παιχνιδιών: " + e.getMessage());
             }
 

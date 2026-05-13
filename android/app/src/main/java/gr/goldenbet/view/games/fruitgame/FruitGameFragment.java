@@ -3,6 +3,7 @@ package gr.goldenbet.view.games.fruitgame;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -22,7 +23,9 @@ import java.util.Random;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentFruitGameBinding;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ImageUtils;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.mainMenu.search.SearchFragment;
 
@@ -31,6 +34,7 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
     private FruitGamePresenter presenter;
     private FragmentFruitGameBinding binding;
     private String currentGameName, betamount;
+    private  Game game;
     Random random = new Random();
     private Player player;
 
@@ -38,9 +42,9 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
 
     }
 
-    public static FruitGameFragment newInstance(String gameName) {
+    public static FruitGameFragment newInstance(Game game) {
         Bundle args = new Bundle();
-        args.putString("GAME_NAME", gameName);
+        args.putSerializable("GAME_OBJECT", game);
         FruitGameFragment fragment = new FruitGameFragment();
         fragment.setArguments(args);
         return fragment;
@@ -50,7 +54,10 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentGameName = getArguments().getString("GAME_NAME");
+            game = (Game) getArguments().getSerializable("GAME_OBJECT");
+            if (game != null) {
+                currentGameName = game.getGameName();
+            }
 
         }
     }
@@ -69,9 +76,9 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         player = ((MainMenuActivity) getActivity()).getCurrentPlayer();
         String ip = getString(R.string.master_ip);
         int port = getResources().getInteger(R.integer.master_port);
-        presenter = new FruitGamePresenter(this, currentGameName, ip, port, player);
+        presenter = new FruitGamePresenter(this, game, ip, port, player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
-        presenter.initializedata(currentGameName);
+        presenter.initializedata();
 
         binding.btnIncreaseBet.setOnClickListener(v -> {
             String currentbet=binding.etbetAmount.getText().toString();
@@ -124,8 +131,21 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
     }
 
     @Override
-    public void setImageBackground(int imageBackgroundId) {
-        binding.imageView.setImageResource(imageBackgroundId);
+    public void setImageBackground(String base64Image) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                if (base64Image != null && !base64Image.trim().isEmpty()) {
+                    Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(base64Image);
+                    if (bitmap != null) {
+                        binding.imageView.setImageBitmap(bitmap);
+                    } else {
+                        binding.imageView.setImageDrawable(null);
+                    }
+                } else {
+                    binding.imageView.setImageDrawable(null);
+                }
+            });
+        }
     }
 
     @Override
@@ -222,22 +242,7 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
         }
     }
 
-//    @Override
-//    public void setCellsToSymbol(int[] indices, String[] symbols, int textcolor) {
-//        if (getActivity() != null) {
-//            getActivity().runOnUiThread(() -> {
-//                int randomIndex = random.nextInt(symbols.length);
-//                String randomsymbol = symbols[randomIndex];
-//                for (int i : indices) {
-//                    TextView cell = (TextView) binding.slotGrid.getChildAt(i);
-//                    cell.setText(randomsymbol);
-//                    cell.setBackgroundColor(Color.parseColor("#50FFFFFF"));
-//                    cell.setTextSize(50f);
-//                    cell.setTextColor(textcolor);
-//                }
-//            });
-//        }
-//    }
+
 
 
 
