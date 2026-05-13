@@ -68,9 +68,11 @@ public class DepositPresenter {
             return;
         }
 
-        String playerUsername = view.getPlayerUsername();
+        String playerId = view.getPlayerId();
+        String playerUsername =view.getPlayerUsername();
 
         Transaction depositTx = new Transaction(
+                playerId,
                 playerUsername,
                 "DEPOSIT",
                 depositAmount,

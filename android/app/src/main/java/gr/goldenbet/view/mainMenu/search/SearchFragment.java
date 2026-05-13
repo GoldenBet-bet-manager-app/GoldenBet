@@ -194,13 +194,13 @@ public class SearchFragment extends Fragment implements SearchView, SearchAdapte
         if (game.getGameCategory() != null) {
             switch (game.getGameCategory().toUpperCase()) {
                 case "FRUIT":
-                    gameFragment = FruitGameFragment.newInstance(game.getGameName());
+                    gameFragment = FruitGameFragment.newInstance(game);
                     break;
                 case "POKER":
-                    gameFragment = PokerFragment.newInstance(game.getGameName());
+                    gameFragment = PokerFragment.newInstance(game);
                     break;
                 case "WHEEL":
-                    gameFragment = WheelGameFragment.newInstance(game.getGameName());
+                    gameFragment = WheelGameFragment.newInstance(game);
                     break;
                 default:
                     showMessage("Η κατηγορία αυτού του παιχνιδιού δεν υποστηρίζεται ακόμα.");

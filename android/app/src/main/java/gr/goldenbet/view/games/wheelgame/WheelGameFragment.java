@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -23,7 +24,9 @@ import java.math.BigDecimal;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentWheelGameBinding;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ImageUtils;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.mainMenu.search.SearchFragment;
 
@@ -38,6 +41,7 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     private FragmentWheelGameBinding binding;
     private String currentGameName,betamount;
     private Player player;
+    private Game game;
     private WheelGamePresenter presenter;
 
     private final int TOTAL_SLICES = 11;
@@ -47,10 +51,11 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     }
 
 
-    public static WheelGameFragment newInstance( String gameName) {
+    public static WheelGameFragment newInstance(Game game){
+
         WheelGameFragment fragment = new WheelGameFragment();
         Bundle args = new Bundle();
-        args.putString("GAME_NAME", gameName);
+        args.putSerializable("GAME_OBJECT", game);
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,7 +64,10 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentGameName = getArguments().getString("GAME_NAME");
+            game = (Game) getArguments().getSerializable("GAME_OBJECT");
+            if (game != null) {
+                currentGameName = game.getGameName();
+            }
         }
     }
 
@@ -72,13 +80,14 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+
         super.onViewCreated(view, savedInstanceState);
         player=((MainMenuActivity) getActivity()).getCurrentPlayer();
 
-        presenter = new WheelGamePresenter(this, currentGameName, player);
+        presenter = new WheelGamePresenter(this, game, player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
-        presenter.initializedata(currentGameName);
+        presenter.initializedata();
 
         binding.btnIncreaseBet.setOnClickListener(v -> {
             String currentbet=binding.etbetAmount.getText().toString();
@@ -122,6 +131,24 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
             });
         }
     }
+
+    public void setImageBackground(String base64Image) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                if (base64Image != null && !base64Image.trim().isEmpty()) {
+                    Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(base64Image);
+                    if (bitmap != null) {
+                        binding.imageView.setImageBitmap(bitmap);
+                    } else {
+                        binding.imageView.setImageDrawable(null);
+                    }
+                } else {
+                    binding.imageView.setImageDrawable(null);
+                }
+            });
+        }
+    }
+
     @Override
     public void showMessage(String message) {
         if (getActivity() != null) {

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 
 import gr.goldenbet.domain.Bet;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
@@ -15,28 +16,31 @@ import gr.goldenbet.utils.ConfigLoader;
 
 public class WheelGamePresenter {
     private WheelGameView view;
-    private String gameName;
+
     private BigDecimal payout, bet;
     private double multiplier;
     Gson gson = new Gson();
+    private Game game;
 
     private Player player;
     private final String MASTER_IP;
     private final int MASTER_PORT;
     private  WheelGameRules rules;
 
-    public WheelGamePresenter(WheelGameView view, String gameName, Player player) {
+    public WheelGamePresenter(WheelGameView view, Game game, Player player) {
         this.view = view;
-        this.gameName = gameName;
+        this.game = game;
         this.player=player;
         MASTER_IP = ConfigLoader.getIp("MASTER");
         MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
-    public void initializedata(String currentGameName) {
-        rules = WheelGameRules.getWheelGraphics(currentGameName);
+    public void initializedata( ) {
+        view.setImageBackground(game.getBase64Image());
+        rules = WheelGameRules.getWheelGraphics(game.getGameName());
         if (rules != null) view.setWheelImage(rules.getLogoResId());
         view.showBalance(player.getBalance());
+        view.showErrorDialog("Όρια Πονταρίσματος", "Ποντάρισμα από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
     }
 
     public void spinClicked(String betamount) {
@@ -47,6 +51,10 @@ public class WheelGamePresenter {
         bet = new BigDecimal(betamount);
         if (bet.compareTo(BigDecimal.ZERO) <= 0) {
             view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα δεν μπορεί να είναι μηδέν ή αρνητικό ποσό. Δοκίμασε ξανά!");
+            return;
+        }
+        if (bet.compareTo(game.getMinBet()) < 0 || bet.compareTo(game.getMaxBet()) > 0) {
+            view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα πρέπει να είναι από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
             return;
         }
 
@@ -63,7 +71,7 @@ public class WheelGamePresenter {
 
         new Thread(() -> {
             try {
-                Bet myBet = new Bet(bet, player.getUsername(), player.getPlayerId(), gameName);
+                Bet myBet = new Bet(bet, player.getUsername(), player.getPlayerId(), game.getGameName());
 
                 MasterMessage requestMessage = new MasterMessage(MasterMessageType.PLAY, myBet);
                 String jsonMessage = gson.toJson(requestMessage);
@@ -81,7 +89,7 @@ public class WheelGamePresenter {
                 } catch (Exception e) {
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showSpinResult(serverMessage);
+                    view.showErrorDialog("Όρια Πονταρίσματος", serverMessage);
                     view.showBalance(player.getBalance());
                     return;
                 }
@@ -110,5 +118,6 @@ public class WheelGamePresenter {
            view.playSound(false);
        }
        view.showBalance(player.getBalance());
+       view.lock(false);
     }
 }

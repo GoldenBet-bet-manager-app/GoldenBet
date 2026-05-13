@@ -18,9 +18,9 @@ import java.util.ArrayList;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentPokerBinding;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
-import gr.goldenbet.view.mainMenu.search.SearchFragment;
 
 
 public class PokerFragment extends Fragment implements PokerView {
@@ -28,25 +28,31 @@ public class PokerFragment extends Fragment implements PokerView {
     private PokerPresenter presenter;
     private FragmentPokerBinding binding;
     private String  currentGameName, betamount;
+    private Game game;
     private Player player;
 
     public PokerFragment() {
         // Required empty public constructor
     }
 
-    public static PokerFragment newInstance( String gameName) {
+    public static PokerFragment newInstance(Game game){
+
         Bundle args = new Bundle();
-        args.putString("GAME_NAME", gameName);
+        args.putSerializable("GAME_OBJECT", game);
         PokerFragment fragment = new PokerFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentGameName = getArguments().getString("GAME_NAME");
+            game = (Game) getArguments().getSerializable("GAME_OBJECT");
+            if (game != null) {
+                currentGameName = game.getGameName();
+            }
         }
     }
 
@@ -59,9 +65,11 @@ public class PokerFragment extends Fragment implements PokerView {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
-        player=((MainMenuActivity) getActivity()).getCurrentPlayer();
-        presenter=new PokerPresenter(this,currentGameName ,player);
+        player = ((MainMenuActivity) getActivity()).getCurrentPlayer();
+
+        presenter = new PokerPresenter(this,game ,player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata();
 
@@ -70,13 +78,13 @@ public class PokerFragment extends Fragment implements PokerView {
         });
 
         binding.btnIncreaseBet.setOnClickListener(v -> {
-            String currentbet=binding.etbetAmount.getText().toString();
+            String currentbet = binding.etbetAmount.getText().toString();
             double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
             binding.etbetAmount.setText(String.valueOf(currentVal+5));
 
         });
         binding.btnDecreaseBet.setOnClickListener(v -> {
-            String currentbet=binding.etbetAmount.getText().toString();
+            String currentbet = binding.etbetAmount.getText().toString();
             double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
             if(currentVal>=5) {
                 binding.etbetAmount.setText(String.valueOf(currentVal - 5));
@@ -101,6 +109,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void showErrorDialog(String title, String message) {
         if (getActivity() != null) {
@@ -115,6 +124,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void lock(Boolean flag) {
         if (getActivity() != null) {
@@ -129,6 +139,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void showBalance(BigDecimal balance) {
         if (getActivity() != null) {
@@ -137,6 +148,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void playSound(boolean isWin) {
         if (getActivity() != null) {
@@ -154,6 +166,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void showWinResult(String result) {
         if (getActivity() != null) {

@@ -7,7 +7,7 @@ public interface FruitGameView {
     void showBalance(BigDecimal balance);
     void showSpinResult(String result);
     void randomizeGrid(String [] symbols);
-    void setImageBackground(int imageBackgroundId);
+    void setImageBackground(String imageBackground);
     void showFinalGrid(int[] winIndices, String winSymbol, String[] allSymbols, int winColor);
     void lock(Boolean flag);
     void playSound(boolean isWin);

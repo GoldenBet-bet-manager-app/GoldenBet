@@ -9,4 +9,5 @@ public interface DepositView {
     void navigateBack();
     void updateActivityBalance(BigDecimal newBalance);
     String getPlayerUsername();
+    String getPlayerId();
 }

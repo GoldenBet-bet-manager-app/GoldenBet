@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import gr.goldenbet.domain.Bet;
 import gr.goldenbet.domain.FruitGameFactory;
 import gr.goldenbet.domain.FruitGameRules;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
@@ -12,11 +13,12 @@ import gr.goldenbet.utils.ConfigLoader;
 
 
 public class FruitGamePresenter {
+
     private FruitGameView view;
-    private String gameName;
     private BigDecimal payout, bet;
     private  Player player;
     private String[] symbols;
+    private Game game;
     private double multiplier;
 
     Gson gson = new Gson();
@@ -26,17 +28,19 @@ public class FruitGamePresenter {
     private  FruitGameRules rules;
 
 
-    public FruitGamePresenter(FruitGameFragment view, String currentGameName, Player player) {
+    public FruitGamePresenter(FruitGameFragment view, Game currentgame, Player player){
+
         this.view = view;
-        this.gameName = currentGameName;
+        this.game=currentgame;
         this.player=player;
         MASTER_IP = ConfigLoader.getIp("MASTER");
         MASTER_PORT = ConfigLoader.getPort("MASTER");
         this.factory=new FruitGameFactory();
     }
 
-    private void showPattern(double multiplier) {
-        rules = factory.getFruitGraphics(gameName);
+    private void showPattern(double multiplier){
+
+        rules = factory.getFruitGraphics(game.getGameName());
         String[] allSymbols = rules.getSymbols();
 
         if (multiplier > 0.0) {
@@ -52,15 +56,16 @@ public class FruitGamePresenter {
         }
     }
 
-    public void initializedata(String currentGameName) {
-        rules = factory.getFruitGraphics(currentGameName);
+    public void initializedata(){
+
+        rules = factory.getFruitGraphics(game.getGameName());
         if (rules != null) {
-            view.setImageBackground(rules.getLogoResId());
+            view.setImageBackground(game.getBase64Image());
             symbols = rules.getSymbols();
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());
         }
-        view.showErrorDialog("Όρια Πονταρίσματος","πονταρισμα απο εδω εωσ εκει");
+        view.showErrorDialog("Όρια Πονταρίσματος", "Ποντάρισμα από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
     }
 
     public void spinClicked(String betamount) {
@@ -69,9 +74,14 @@ public class FruitGamePresenter {
             view.showMessage("Παρακαλώ εισάγετε ποσό πονταρίσματος!");
             return;
         }
+
         bet = new BigDecimal(betamount);
         if (bet.compareTo(BigDecimal.ZERO) <= 0) {
             view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα δεν μπορεί να είναι μηδέν ή αρνητικό ποσό. Δοκίμασε ξανά!");
+            return;
+        }
+        if (bet.compareTo(game.getMinBet()) < 0 || bet.compareTo(game.getMaxBet()) > 0) {
+            view.showErrorDialog("Λάθος Ποντάρισμα", "Το ποντάρισμα πρέπει να είναι από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
             return;
         }
 
@@ -79,7 +89,7 @@ public class FruitGamePresenter {
             view.showErrorDialog("Ανεπαρκές Υπόλοιπο", "Δεν έχεις αρκετά FUNs για αυτό το ποντάρισμα. Το τρέχον υπόλοιπό σου είναι " + player.getBalance() + " FUN.");
             return;
         }
-        //tha balo alterdialog gia ta oria toy pontarismatos!!!!!!!!!!!!!!
+
         player.setBalance(player.getBalance().subtract(bet));
         view.showBalance(player.getBalance());
         view.showSpinResult("Γυρίζουν...🎰...\nΑναμόνη για το αποτέλεσμα!!");
@@ -90,7 +100,7 @@ public class FruitGamePresenter {
 
         new Thread(() -> {
             try {
-                Bet myBet = new Bet(bet, player.getUsername(),player.getPlayerId(), gameName);
+                Bet myBet = new Bet(bet, player.getUsername(),player.getPlayerId(), game.getGameName());
 
                 MasterMessage requestMessage = new MasterMessage(MasterMessageType.PLAY, myBet);
                 String jsonMessage = gson.toJson(requestMessage);
@@ -107,10 +117,9 @@ public class FruitGamePresenter {
                 try {
                     payout = gson.fromJson(response, BigDecimal.class);
                 } catch (Exception e) {
-                    //edo tha balo ton periorismo gia to bet . tha pernao to game sta fragment
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showErrorDialog("Όρια Πονταρίσματος",serverMessage);
+                    view.showErrorDialog("Όρια Πονταρίσματος", serverMessage);
                     view.showBalance(player.getBalance());
                     view.lock(false);
                     return;
@@ -139,6 +148,7 @@ public class FruitGamePresenter {
         }).start();
 
     }
+
     private void finalResult() {
         if (payout.compareTo(BigDecimal.ZERO) > 0) {
             player.addBalance(payout);
