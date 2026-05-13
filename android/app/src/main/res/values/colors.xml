@@ -24,5 +24,8 @@
     <color name="filter_active_dark">#FFC107</color>
     <color name="filter_bg_unselected_light">#E0E0E0</color>
     <color name="filter_bg_unselected_dark">#333333</color>
+    <color name="stats_win">#4CAF50</color>
+    <color name="stats_loss">#F44336</color>
+    <color name="stats_neutral">#A8A8A8</color>
 
 </resources>

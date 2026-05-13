@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -18,7 +19,7 @@ import gr.goldenbet.view.mainMenu.MainMenuActivity;
 public class StatsFragment extends Fragment implements StatsView {
 
     private StatsPresenter presenter;
-    private TextView txtProfit, txtWinRate, txtPpa, txtLpl, txtPpw, txtBiggest;
+    private TextView txtProfit, txtWinRate, txtPpa, txtLpl, txtPpw, txtBiggest, txtYMax, txtYMin;
     private View[] bars = new View[7];
 
     @Nullable
@@ -36,7 +37,9 @@ public class StatsFragment extends Fragment implements StatsView {
         txtPpa = view.findViewById(R.id.txtProfitAttemptValue);
         txtLpl = view.findViewById(R.id.txtLossPerLossValue);
         txtPpw = view.findViewById(R.id.txtProfitPerWinValue);
-        txtBiggest = view.findViewById(R.id.txtBiggestWin);
+        txtBiggest = view.findViewById(R.id.txtBiggestWinRecord);
+        txtYMax = view.findViewById(R.id.txtYMax);
+        txtYMin = view.findViewById(R.id.txtYMin);
 
         bars[0] = view.findViewById(R.id.barMon);
         bars[1] = view.findViewById(R.id.barTue);
@@ -60,8 +63,22 @@ public class StatsFragment extends Fragment implements StatsView {
         if (getActivity() == null) return;
 
         getActivity().runOnUiThread(() -> {
-            String sign = stats.getTotalProfit().signum() >= 0 ? "+" : "";
+            BigDecimal total = stats.getTotalProfit();
+            String sign = total.signum() >= 0 ? "+" : "-";
             txtProfit.setText(sign + stats.getTotalProfit() + " FUN");
+
+            // Use of  colors.xml to change label colors depending on Win/Loss
+            int colorWin = ContextCompat.getColor(requireContext(), R.color.stats_win);
+            int colorLoss = ContextCompat.getColor(requireContext(), R.color.stats_loss);
+
+            txtProfit.setTextColor(total.signum() >= 0 ? colorWin : colorLoss);
+
+            TextView mostFun = getView().findViewById(R.id.txtMostFun);
+            if (mostFun != null) {
+                mostFun.setTextColor(total.signum() >= 0 ? colorWin : colorLoss);
+            }
+
+
             txtWinRate.setText(String.format("%.1f%%", stats.getWinRate()));
             txtPpa.setText(stats.getProfitPerAttempt().toString());
             txtLpl.setText(stats.getLossPerLoss().toString());
@@ -69,7 +86,7 @@ public class StatsFragment extends Fragment implements StatsView {
             txtBiggest.setText(getString(R.string.stats_biggest_win) + ": " + stats.getBiggestWin() + " FUN");
             ((TextView)getView().findViewById(R.id.txtMostTime)).setText(getString(R.string.stats_most_time) + " " + stats.getMostPlayedGame());
             ((TextView)getView().findViewById(R.id.txtMostFun)).setText(getString(R.string.stats_most_fun) + " " + stats.getTotalProfit() + " FUN");
-            ((TextView)getView().findViewById(R.id.txtBiggestWin)).setText(getString(R.string.stats_biggest_win)+ " " + stats.getBiggestWin() + " FUN");
+            ((TextView)getView().findViewById(R.id.txtBiggestWinRecord)).setText(getString(R.string.stats_biggest_win)+ " " + stats.getBiggestWin() + " FUN");
 
             renderChart(stats.getWeeklyActivity());
         });
@@ -80,16 +97,25 @@ public class StatsFragment extends Fragment implements StatsView {
         String[] dayKeys = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
         for (BigDecimal val : data.values()) {
-            if (val.floatValue() > maxVal) {
-                maxVal = val.floatValue();
-            }
+            float absVal = Math.abs(val.floatValue());
+            if (absVal > maxVal) maxVal = absVal;
         }
 
+        txtYMax.setText("+" + (int)maxVal);
+        txtYMin.setText("-" + (int)maxVal);
+
+
         float density = getResources().getDisplayMetrics().density;
-        int maxBarHeightPx = (int) (160 * density);
+        int maxBarHeightPx = (int) (140 * density);
+
+        // Colors for each occasion
+        int colorWin = ContextCompat.getColor(requireContext(), R.color.stats_win);
+        int colorLoss = ContextCompat.getColor(requireContext(), R.color.stats_loss);
+        int colorNeutral = ContextCompat.getColor(requireContext(), R.color.stats_neutral);
 
         for (int i = 0; i < 7; i++) {
             float currentVal = data.getOrDefault(dayKeys[i], BigDecimal.ZERO).floatValue();
+            float absValue = Math.abs(currentVal);
 
             int calculatedHeight = (int) ((currentVal / maxVal) * maxBarHeightPx);
 
@@ -97,9 +123,27 @@ public class StatsFragment extends Fragment implements StatsView {
             if (bar != null) {
                 ViewGroup.LayoutParams params = bar.getLayoutParams();
 
+                // Set bar height
                 int minHeight = (currentVal > 0) ? (int)(8 * density) : (int)(4 * density);
                 params.height = Math.max(calculatedHeight, minHeight);
                 bar.setLayoutParams(params);
+
+                // Set bar color depending on result (Win/Loss or no activity on a certain day)
+                if (currentVal > 0) {
+                    bar.setBackgroundColor(colorWin);
+                } else if (currentVal < 0) {
+                    bar.setBackgroundColor(colorLoss);
+                } else {
+                    bar.setBackgroundColor(colorNeutral);
+                }
+            }
+
+            // DAY LABEL UPDATE
+            int labelId = getResources().getIdentifier("txtLabel" + dayKeys[i], "id", getActivity().getPackageName());
+            TextView txtLabel = getView().findViewById(labelId);
+            if (txtLabel != null) {
+                // ... visibility logic ...
+                txtLabel.setTextColor(currentVal > 0 ? colorWin : colorLoss);
             }
         }
     }
