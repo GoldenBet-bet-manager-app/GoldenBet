@@ -1,68 +1,115 @@
 package gr.goldenbet.view.mainMenu.home.stats;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import java.math.BigDecimal;
 import java.util.Map;
-
 import gr.goldenbet.R;
 import gr.goldenbet.domain.PlayerStats;
-import gr.goldenbet.view.mainMenu.home.stats.StatsPresenter;
+import gr.goldenbet.view.mainMenu.MainMenuActivity;
 
 public class StatsFragment extends Fragment implements StatsView {
+
     private StatsPresenter presenter;
-    private TextView txtTotalProfit, txtWinRate, txtBiggestWin; // κλπ
+    private TextView txtProfit, txtWinRate, txtPpa, txtLpl, txtPpw, txtBiggest;
     private View[] bars = new View[7];
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_stats, container, false);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        txtTotalProfit = view.findViewById(R.id.txtTotalProfit);
+        txtProfit = view.findViewById(R.id.txtTotalProfit);
+        txtWinRate = view.findViewById(R.id.txtWinRateValue);
+        txtPpa = view.findViewById(R.id.txtProfitAttemptValue);
+        txtLpl = view.findViewById(R.id.txtLossPerLossValue);
+        txtPpw = view.findViewById(R.id.txtProfitPerWinValue);
+        txtBiggest = view.findViewById(R.id.txtBiggestWin);
+
+        bars[0] = view.findViewById(R.id.barMon);
+        bars[1] = view.findViewById(R.id.barTue);
+        bars[2] = view.findViewById(R.id.barWed);
+        bars[3] = view.findViewById(R.id.barThu);
+        bars[4] = view.findViewById(R.id.barFri);
+        bars[5] = view.findViewById(R.id.barSat);
+        bars[6] = view.findViewById(R.id.barSun);
 
         presenter = new StatsPresenter(this);
-        presenter.loadPlayerStats("user123");
+
+        if (getActivity() instanceof MainMenuActivity) {
+            String playerId = ((MainMenuActivity) getActivity()).getCurrentPlayer().getPlayerId();
+            String playerUsername = ((MainMenuActivity) getActivity()).getCurrentPlayer().getUsername();
+            presenter.loadPlayerStats(playerId,playerUsername);
+        }
     }
 
     @Override
     public void showStats(PlayerStats stats) {
-        txtTotalProfit.setText(stats.totalProfit + " FUN");
+        if (getActivity() == null) return;
 
+        getActivity().runOnUiThread(() -> {
+            String sign = stats.getTotalProfit().signum() >= 0 ? "+" : "";
+            txtProfit.setText(sign + stats.getTotalProfit() + " FUN");
+            txtWinRate.setText(String.format("%.1f%%", stats.getWinRate()));
+            txtPpa.setText(stats.getProfitPerAttempt().toString());
+            txtLpl.setText(stats.getLossPerLoss().toString());
+            txtPpw.setText(stats.getProfitPerWin().toString());
+            txtBiggest.setText(getString(R.string.stats_biggest_win) + ": " + stats.getBiggestWin() + " FUN");
+            ((TextView)getView().findViewById(R.id.txtMostTime)).setText(getString(R.string.stats_most_time) + " " + stats.getMostPlayedGame());
+            ((TextView)getView().findViewById(R.id.txtMostFun)).setText(getString(R.string.stats_most_fun) + " " + stats.getTotalProfit() + " FUN");
+            ((TextView)getView().findViewById(R.id.txtBiggestWin)).setText(getString(R.string.stats_biggest_win)+ " " + stats.getBiggestWin() + " FUN");
 
-        updateBarGraph(stats.weeklyActivity);
+            renderChart(stats.getWeeklyActivity());
+        });
     }
 
-    private void updateBarGraph(Map<String, BigDecimal> activity) {
-        // Υπολογισμός μέγιστης τιμής για scaling
-        float maxVal = 0;
-        for (BigDecimal val : activity.values()) {
-            if (val.floatValue() > maxVal) maxVal = val.floatValue();
+    private void renderChart(Map<String, BigDecimal> data) {
+        float maxVal = 0.01f;
+        String[] dayKeys = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
+        for (BigDecimal val : data.values()) {
+            if (val.floatValue() > maxVal) {
+                maxVal = val.floatValue();
+            }
         }
 
-        // Ενημέρωση ύψους (Layout Weight ή Height σε pixels)
-        // Εδώ χρησιμοποιούμε την προσέγγιση με LayoutParams
+        float density = getResources().getDisplayMetrics().density;
+        int maxBarHeightPx = (int) (160 * density);
+
         for (int i = 0; i < 7; i++) {
-            float currentVal = activity.getOrDefault(getDayKey(i), BigDecimal.ZERO).floatValue();
-            int newHeight = (int) ((currentVal / maxVal) * 400); // 400px max height
+            float currentVal = data.getOrDefault(dayKeys[i], BigDecimal.ZERO).floatValue();
 
-            ViewGroup.LayoutParams params = bars[i].getLayoutParams();
-            params.height = Math.max(newHeight, 10); // Minimum height 10px για να φαίνεται
-            bars[i].setLayoutParams(params);
+            int calculatedHeight = (int) ((currentVal / maxVal) * maxBarHeightPx);
+
+            View bar = bars[i];
+            if (bar != null) {
+                ViewGroup.LayoutParams params = bar.getLayoutParams();
+
+                int minHeight = (currentVal > 0) ? (int)(8 * density) : (int)(4 * density);
+                params.height = Math.max(calculatedHeight, minHeight);
+                bar.setLayoutParams(params);
+            }
         }
     }
+    @Override public void showLoading() { }
 
-    private String getDayKey(int i) {
-        String[] days = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-        return days[i];
+    @Override
+    public void showError(String message) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() ->
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show());
+        }
     }
-
-    @Override public void showLoading() { /* Εμφάνιση ProgressBar */ }
-    @Override public void showError(String message) { /* Toast.makeText... */ }
 }
