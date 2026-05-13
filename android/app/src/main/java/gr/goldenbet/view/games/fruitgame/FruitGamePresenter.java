@@ -26,15 +26,16 @@ public class FruitGamePresenter {
     private  FruitGameRules rules;
 
 
-    public FruitGamePresenter(FruitGameFragment view, Game currentgame, Player player){
 
-    public FruitGamePresenter(FruitGameFragment view, Game currentgame, String ip, int port, Player player) {
+
+    public FruitGamePresenter(FruitGameFragment view, Game game, Player player){
+
         this.view = view;
-        this.game=currentgame;
-        this.player=player;
+        this.game = game;
+        this.player = player;
         MASTER_IP = ConfigLoader.getIp("MASTER");
         MASTER_PORT = ConfigLoader.getPort("MASTER");
-        this.factory=new FruitGameFactory();
+        this.factory = new FruitGameFactory();
     }
 
     private void showPattern(double multiplier){
@@ -55,8 +56,7 @@ public class FruitGamePresenter {
         }
     }
 
-    public void initializedata() {
-        view.setImageBackground(game.getBase64Image());
+
     public void initializedata(){
 
         rules = factory.getFruitGraphics(game.getGameName());
