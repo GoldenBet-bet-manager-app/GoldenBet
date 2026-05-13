@@ -34,12 +34,14 @@ public class HistoryFragment extends Fragment implements HistoryView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String username = "";
+        String playerId = "";
+        String playerUsername = "";
         if (getActivity() instanceof MainMenuActivity) {
-            username = ((MainMenuActivity) getActivity()).getCurrentPlayer().getUsername();
+            playerId = ((MainMenuActivity) getActivity()).getCurrentPlayer().getPlayerId();
+            playerUsername = ((MainMenuActivity) getActivity()).getCurrentPlayer().getUsername();
         }
 
-        presenter = new HistoryPresenter(this, username);
+        presenter = new HistoryPresenter(this, playerId, playerUsername);
 
         recyclerView = view.findViewById(R.id.rvHistory);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

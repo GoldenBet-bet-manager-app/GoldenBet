@@ -18,15 +18,17 @@ import gr.goldenbet.view.mainMenu.home.HomeFragment;
 
 public class HistoryPresenter {
     private HistoryView view;
-    private String username;
+    private String playerId;
+    private String playerUsername;
     private Gson gson = new Gson();
 
     private final String MASTER_IP;
     private final int MASTER_PORT;
 
-    public HistoryPresenter(HistoryView view, String username) {
+    public HistoryPresenter(HistoryView view, String playerId, String playerUsername) {
         this.view = view;
-        this.username = username;
+        this.playerId = playerId;
+        this.playerUsername = playerUsername;
 
         MASTER_IP = ((HistoryFragment)view).getResources().getString(R.string.master_ip);
         MASTER_PORT = ((HistoryFragment)view).getResources().getInteger(R.integer.master_port);
@@ -45,7 +47,7 @@ public class HistoryPresenter {
             ArrayList<String> types = new ArrayList<>();
             types.add(filterType);
 
-            HistoryFilters filters = new HistoryFilters(username, types, query);
+            HistoryFilters filters = new HistoryFilters(playerId, playerUsername, types, query);
             MasterMessage request = new MasterMessage(MasterMessageType.GET_HISTORY, filters);
             String requestJson = gson.toJson(request);
 

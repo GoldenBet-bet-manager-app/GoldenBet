@@ -143,6 +143,15 @@ public class DepositFragment extends Fragment implements DepositView {
     }
 
     @Override
+    public String getPlayerId() {
+        if (getActivity() instanceof MainMenuActivity) {
+            return ((MainMenuActivity) getActivity()).getCurrentPlayer().getPlayerId();
+        }
+
+        return "";
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
