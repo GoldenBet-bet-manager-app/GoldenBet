@@ -19,6 +19,7 @@ import gr.goldenbet.R;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ConfigLoader;
 
 
 public class LoginPresenter {
@@ -37,8 +38,8 @@ public class LoginPresenter {
         this.prefs = prefs;
 
         // Set master configurations
-        MASTER_IP = ((LoginActivity)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((LoginActivity)view).getResources().getInteger(R.integer.master_port);
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
 
     }
     public void initializeSettings() {

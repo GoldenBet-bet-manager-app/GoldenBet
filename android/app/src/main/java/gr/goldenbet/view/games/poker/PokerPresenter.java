@@ -12,6 +12,7 @@ import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.domain.PokerGameRules;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class PokerPresenter {
     private PokerView view;
@@ -19,16 +20,16 @@ public class PokerPresenter {
     private BigDecimal payout, bet;
     private double multiplier;
     Gson gson = new Gson();
-    private static String MASTER_IP;
-    private static int MASTER_PORT;
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
     private Player player;
 
-    public PokerPresenter(PokerView view, String currentGameName, String ip, int port, Player player) {
+    public PokerPresenter(PokerView view, String currentGameName, Player player) {
         this.view = view;
         this.gameName = currentGameName;
-        this.MASTER_IP = ip;
-        this.MASTER_PORT = port;
         this.player = player;
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
 

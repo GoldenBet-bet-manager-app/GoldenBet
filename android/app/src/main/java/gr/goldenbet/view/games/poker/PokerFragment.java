@@ -61,9 +61,7 @@ public class PokerFragment extends Fragment implements PokerView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         player=((MainMenuActivity) getActivity()).getCurrentPlayer();
-        String ip = getString(R.string.master_ip);
-        int port = getResources().getInteger(R.integer.master_port);
-        presenter=new PokerPresenter(this,currentGameName,ip,port,player);
+        presenter=new PokerPresenter(this,currentGameName ,player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata();
 

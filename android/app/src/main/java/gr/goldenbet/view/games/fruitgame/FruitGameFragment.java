@@ -67,9 +67,8 @@ public class FruitGameFragment extends Fragment implements FruitGameView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         player = ((MainMenuActivity) getActivity()).getCurrentPlayer();
-        String ip = getString(R.string.master_ip);
-        int port = getResources().getInteger(R.integer.master_port);
-        presenter = new FruitGamePresenter(this, currentGameName, ip, port, player);
+
+        presenter = new FruitGamePresenter(this, currentGameName, player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
 

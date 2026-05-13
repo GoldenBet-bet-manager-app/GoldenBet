@@ -11,6 +11,7 @@ import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.domain.WheelGameRules;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class WheelGamePresenter {
     private WheelGameView view;
@@ -20,16 +21,16 @@ public class WheelGamePresenter {
     Gson gson = new Gson();
 
     private Player player;
-    private static String MASTER_IP;
-    private static int MASTER_PORT;
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
     private  WheelGameRules rules;
 
-    public WheelGamePresenter(WheelGameView view, String gameName, String ip, int port, Player player) {
+    public WheelGamePresenter(WheelGameView view, String gameName, Player player) {
         this.view = view;
         this.gameName = gameName;
         this.player=player;
-        this.MASTER_IP = ip;
-        this.MASTER_PORT = port;
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
     public void initializedata(String currentGameName) {

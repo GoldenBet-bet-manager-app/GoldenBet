@@ -75,9 +75,8 @@ public class WheelGameFragment extends Fragment implements WheelGameView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         player=((MainMenuActivity) getActivity()).getCurrentPlayer();
-        String ip = getString(R.string.master_ip);
-        int port = getResources().getInteger(R.integer.master_port);
-        presenter = new WheelGamePresenter(this, currentGameName,ip,port,player);
+
+        presenter = new WheelGamePresenter(this, currentGameName, player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata(currentGameName);
 

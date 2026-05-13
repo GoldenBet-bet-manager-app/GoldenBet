@@ -8,6 +8,7 @@ import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ConfigLoader;
 
 
 public class FruitGamePresenter {
@@ -19,18 +20,18 @@ public class FruitGamePresenter {
     private double multiplier;
 
     Gson gson = new Gson();
-    private static String MASTER_IP;
-    private static int MASTER_PORT;
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
     private FruitGameFactory factory;
     private  FruitGameRules rules;
 
 
-    public FruitGamePresenter(FruitGameFragment view, String currentGameName, String ip, int port, Player player) {
+    public FruitGamePresenter(FruitGameFragment view, String currentGameName, Player player) {
         this.view = view;
         this.gameName = currentGameName;
-        this.MASTER_IP=ip;
-        this.MASTER_PORT=port;
         this.player=player;
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
         this.factory=new FruitGameFactory();
     }
 

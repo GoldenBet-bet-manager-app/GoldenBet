@@ -10,6 +10,7 @@ import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Transaction;
+import gr.goldenbet.utils.ConfigLoader;
 import gr.goldenbet.view.mainMenu.home.HomeFragment;
 
 public class DepositPresenter {
@@ -22,8 +23,8 @@ public class DepositPresenter {
     public DepositPresenter(DepositView view) {
         this.view = view;
 
-        MASTER_IP = ((DepositFragment)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((DepositFragment)view).getResources().getInteger(R.integer.master_port);
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
     public void onQuickAmountSelected(String amount) {

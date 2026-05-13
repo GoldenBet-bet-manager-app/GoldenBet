@@ -17,21 +17,22 @@ import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 
 import gr.goldenbet.domain.Rating;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class RatePresenter {
 
     private RateView rateView;
 
-    private static  String MASTER_IP;
-    private static  int MASTER_PORT ;
+    private final String MASTER_IP;
+    private final int MASTER_PORT ;
     private SharedPreferences prefs;
 
      Gson gson = new Gson();
-    public RatePresenter(RateView rateView, SharedPreferences prefs, String ip, int port) {
+    public RatePresenter(RateView rateView, SharedPreferences prefs) {
         this.rateView = rateView;
         this.prefs=prefs;
-        this.MASTER_IP = ip;
-        this.MASTER_PORT = port;
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
 
     }
 

@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.goldenbet.R;
+import gr.goldenbet.domain.HistoryEntry;
 import gr.goldenbet.domain.HistoryFilters;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Transaction;
 import gr.goldenbet.domain.JsonClient;
-import gr.goldenbet.view.mainMenu.home.HomeFragment;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class HistoryPresenter {
     private HistoryView view;
@@ -28,8 +29,8 @@ public class HistoryPresenter {
         this.view = view;
         this.username = username;
 
-        MASTER_IP = ((HistoryFragment)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((HistoryFragment)view).getResources().getInteger(R.integer.master_port);
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
     public void start() {
