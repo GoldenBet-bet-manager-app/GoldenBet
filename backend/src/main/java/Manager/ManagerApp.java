@@ -144,21 +144,8 @@ public class ManagerApp {
                     jsonObject.getString("HashKey")
             );
 
-            switch (selectedGame.getGameName()) {
-                case "Gates of Olympus","Fruit Fiesta","Lucky Seven":
-                    selectedGame.setGameCategory ("FRUIT");
-                    break;
-                case "Pharaoh's Dynasty","Dragon's Lair","Pirate's Bounty":
-                    selectedGame.setGameCategory ("WHEEL");
-                    break;
 
-                case "High Roller Poker":
-                    selectedGame.setGameCategory ("POKER");
-                    break;
-                default:
-                    selectedGame.setGameCategory ("GENERAL");
-                    break;
-            }
+
 
         } catch (IOException e) {
             System.err.println("Error reading JSON file: " + e.getMessage());
@@ -168,7 +155,27 @@ public class ManagerApp {
 
         if(selectedGame != null) {
             try {
-
+                String categoryChoice="";
+                while (true) {
+                    System.out.println ( "GAME'S CATEGORY:" );
+                    System.out.println ( "1.FRUIT" );
+                    System.out.println ( "2.WHEEL" );
+                    System.out.println ( "3.POKER" );
+                    System.out.print ( "Select the game's category (from 1 to 3):" );
+                    categoryChoice = scanner.nextLine().trim();
+                    if ( categoryChoice.equals ( "1" ) || categoryChoice.equals ( "2" ) || categoryChoice.equals ( "3" ) )
+                        break;
+                    else
+                        System.out.println("Invalid category! Please select 1, 2, or 3.");
+                }
+                String categoryName = "";
+                switch (categoryChoice) {
+                    case "1": categoryName = "FRUIT"; break;
+                    case "2": categoryName = "WHEEL"; break;
+                    case "3": categoryName = "POKER"; break;
+                }
+                System.out.println("The game '" + selectedGame.getGameName() + "' was assigned to category: " + categoryName);
+                selectedGame.setGameCategory(categoryName);
                 String imagePath = selectedGame.getGameLogoPath();
                 File imageFile = new File(imagePath);
 

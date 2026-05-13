@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.FragmentPokerBinding;
+import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.mainMenu.search.SearchFragment;
@@ -28,15 +29,16 @@ public class PokerFragment extends Fragment implements PokerView {
     private PokerPresenter presenter;
     private FragmentPokerBinding binding;
     private String  currentGameName, betamount;
+    private Game game;
     private Player player;
 
     public PokerFragment() {
         // Required empty public constructor
     }
 
-    public static PokerFragment newInstance( String gameName) {
+    public static PokerFragment newInstance( Game game) {
         Bundle args = new Bundle();
-        args.putString("GAME_NAME", gameName);
+        args.putSerializable("GAME_OBJECT", game);
         PokerFragment fragment = new PokerFragment();
         fragment.setArguments(args);
         return fragment;
@@ -46,7 +48,10 @@ public class PokerFragment extends Fragment implements PokerView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentGameName = getArguments().getString("GAME_NAME");
+            game = (Game) getArguments().getSerializable("GAME_OBJECT");
+            if (game != null) {
+                currentGameName = game.getGameName();
+            }
         }
     }
 
@@ -63,7 +68,7 @@ public class PokerFragment extends Fragment implements PokerView {
         player=((MainMenuActivity) getActivity()).getCurrentPlayer();
         String ip = getString(R.string.master_ip);
         int port = getResources().getInteger(R.integer.master_port);
-        presenter=new PokerPresenter(this,currentGameName,ip,port,player);
+        presenter=new PokerPresenter(this,game,ip,port,player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata();
 
