@@ -14,13 +14,14 @@ import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.SearchFilters;
+import gr.goldenbet.utils.ConfigLoader;
 import gr.goldenbet.utils.NetworkManager;
 
 public class SearchPresenter{
 
     private SearchView view;
-    private final String MASTER_IP = "192.168.1.6";
-    private final int MASTER_PORT = 43210;
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
 
     private boolean hasLoadedData = false;
 
@@ -33,7 +34,10 @@ public class SearchPresenter{
 
 
     public SearchPresenter(){
+
         this.gameList = new ArrayList<>();
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
 
@@ -129,6 +133,7 @@ public class SearchPresenter{
 
                         if (view != null) {
                             ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                if (view == null) return;
                                 gameList.clear();
                                 if (fetchedGames != null) {
                                     gameList.addAll(fetchedGames);
@@ -141,6 +146,7 @@ public class SearchPresenter{
                     } else {
                         if (view != null) {
                             ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                if (view == null) return;
                                 view.hideLoading();
                                 view.showMessage("Σφάλμα επικοινωνίας με τον Server.");
                             });

@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import java.util.List;
 
 import gr.goldenbet.databinding.FragmentLanguageListBinding;
-import gr.goldenbet.view.utils.LanguageAdapter;
 
 public class LanguageListFragment extends Fragment implements LanguageListView {
 

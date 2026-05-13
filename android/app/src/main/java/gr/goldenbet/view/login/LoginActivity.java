@@ -16,10 +16,9 @@ import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import gr.goldenbet.R;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ConfigLoader;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
 import gr.goldenbet.view.register.RegisterActivity;
 import gr.goldenbet.view.settings.settingsMenu.SettingsMenuActivity;
@@ -36,10 +35,11 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        super.onCreate(savedInstanceState);
+        ConfigLoader.loadConfig(this, "master_network_config.conf");
         presenter = new LoginPresenter(this, getSharedPreferences("Settings", Context.MODE_PRIVATE));
         presenter.initializeSettings();
 
-        super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.loginActivity), (v, insets) -> {

@@ -1,10 +1,8 @@
 package gr.goldenbet.view.mainMenu.home;
 
-import android.app.Activity;
-import android.util.Log;
+
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -13,12 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import gr.goldenbet.R;
 import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
-import gr.goldenbet.view.register.RegisterActivity;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class HomePresenter {
     private HomeView view;
@@ -33,8 +30,8 @@ public class HomePresenter {
     public HomePresenter(HomeView view) {
         this.view = view;
 
-        MASTER_IP = ((HomeFragment)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((HomeFragment)view).getResources().getInteger(R.integer.master_port);
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
 
     }
 

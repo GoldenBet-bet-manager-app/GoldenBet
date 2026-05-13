@@ -1,4 +1,4 @@
-package gr.goldenbet.view.utils;
+package gr.goldenbet.view.mainMenu.home;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -22,7 +22,6 @@ import java.util.Map;
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.BottomSheetLeaderboardBinding;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
-import gr.goldenbet.view.utils.LeaderboardAdapter;
 
 public class LeaderboardBottomSheet extends BottomSheetDialogFragment {
 

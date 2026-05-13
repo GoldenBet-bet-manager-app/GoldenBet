@@ -9,6 +9,7 @@ import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.domain.Address;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class ProfilePresenter {
     private ProfileView view;
@@ -16,11 +17,11 @@ public class ProfilePresenter {
     private final String MASTER_IP;
     private final int MASTER_PORT;
 
-    public ProfilePresenter(ProfileView view) {
-        this.view = view;
+    public ProfilePresenter(ProfileView view){
 
-        MASTER_IP = ((ProfileFragment)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((ProfileFragment)view).getResources().getInteger(R.integer.master_port);
+        this.view = view;
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
     /**

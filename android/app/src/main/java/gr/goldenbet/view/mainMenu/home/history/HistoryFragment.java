@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
 import gr.goldenbet.R;
+import gr.goldenbet.domain.HistoryEntry;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
-import gr.goldenbet.view.utils.HistoryAdapter;
+
 import java.util.List;
 
 public class HistoryFragment extends Fragment implements HistoryView {
@@ -34,12 +35,14 @@ public class HistoryFragment extends Fragment implements HistoryView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String username = "";
+        String playerId = "";
+        String playerUsername = "";
         if (getActivity() instanceof MainMenuActivity) {
-            username = ((MainMenuActivity) getActivity()).getCurrentPlayer().getUsername();
+            playerId = ((MainMenuActivity) getActivity()).getCurrentPlayer().getPlayerId();
+            playerUsername = ((MainMenuActivity) getActivity()).getCurrentPlayer().getUsername();
         }
 
-        presenter = new HistoryPresenter(this, username);
+        presenter = new HistoryPresenter(this, playerId, playerUsername);
 
         recyclerView = view.findViewById(R.id.rvHistory);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

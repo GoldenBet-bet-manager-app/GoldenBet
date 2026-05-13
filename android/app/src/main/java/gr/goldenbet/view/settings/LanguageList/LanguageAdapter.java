@@ -1,4 +1,4 @@
-package gr.goldenbet.view.utils;
+package gr.goldenbet.view.settings.LanguageList;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import gr.goldenbet.R;
-import gr.goldenbet.view.settings.LanguageList.LanguageModel;
 
 public class LanguageAdapter extends RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder> {
 

@@ -21,7 +21,6 @@ import gr.goldenbet.databinding.FragmentPokerBinding;
 import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
-import gr.goldenbet.view.mainMenu.search.SearchFragment;
 
 
 public class PokerFragment extends Fragment implements PokerView {
@@ -36,7 +35,8 @@ public class PokerFragment extends Fragment implements PokerView {
         // Required empty public constructor
     }
 
-    public static PokerFragment newInstance( Game game) {
+    public static PokerFragment newInstance(Game game){
+
         Bundle args = new Bundle();
         args.putSerializable("GAME_OBJECT", game);
         PokerFragment fragment = new PokerFragment();
@@ -45,7 +45,8 @@ public class PokerFragment extends Fragment implements PokerView {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             game = (Game) getArguments().getSerializable("GAME_OBJECT");
@@ -64,11 +65,11 @@ public class PokerFragment extends Fragment implements PokerView {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
-        player=((MainMenuActivity) getActivity()).getCurrentPlayer();
-        String ip = getString(R.string.master_ip);
-        int port = getResources().getInteger(R.integer.master_port);
-        presenter=new PokerPresenter(this,game,ip,port,player);
+        player = ((MainMenuActivity) getActivity()).getCurrentPlayer();
+
+        presenter = new PokerPresenter(this,game ,player);
         binding.tvTitle.setText(currentGameName.toUpperCase());
         presenter.initializedata();
 
@@ -77,13 +78,13 @@ public class PokerFragment extends Fragment implements PokerView {
         });
 
         binding.btnIncreaseBet.setOnClickListener(v -> {
-            String currentbet=binding.etbetAmount.getText().toString();
+            String currentbet = binding.etbetAmount.getText().toString();
             double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
             binding.etbetAmount.setText(String.valueOf(currentVal+5));
 
         });
         binding.btnDecreaseBet.setOnClickListener(v -> {
-            String currentbet=binding.etbetAmount.getText().toString();
+            String currentbet = binding.etbetAmount.getText().toString();
             double currentVal = currentbet.isEmpty() ? 0 : Double.parseDouble(currentbet);
             if(currentVal>=5) {
                 binding.etbetAmount.setText(String.valueOf(currentVal - 5));
@@ -108,6 +109,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void showErrorDialog(String title, String message) {
         if (getActivity() != null) {
@@ -122,6 +124,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void lock(Boolean flag) {
         if (getActivity() != null) {
@@ -136,6 +139,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void showBalance(BigDecimal balance) {
         if (getActivity() != null) {
@@ -144,6 +148,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void playSound(boolean isWin) {
         if (getActivity() != null) {
@@ -161,6 +166,7 @@ public class PokerFragment extends Fragment implements PokerView {
             });
         }
     }
+
     @Override
     public void showWinResult(String result) {
         if (getActivity() != null) {

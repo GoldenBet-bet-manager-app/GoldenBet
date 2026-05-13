@@ -9,8 +9,10 @@ import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class FruitGamePresenter {
+
     private FruitGameView view;
     private BigDecimal payout, bet;
     private  Player player;
@@ -18,21 +20,25 @@ public class FruitGamePresenter {
     private Game game;
     private double multiplier;
     Gson gson = new Gson();
-    private static String MASTER_IP;
-    private static int MASTER_PORT;
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
     private FruitGameFactory factory;
     private  FruitGameRules rules;
+
+
+    public FruitGamePresenter(FruitGameFragment view, Game currentgame, Player player){
 
     public FruitGamePresenter(FruitGameFragment view, Game currentgame, String ip, int port, Player player) {
         this.view = view;
         this.game=currentgame;
-        this.MASTER_IP=ip;
-        this.MASTER_PORT=port;
         this.player=player;
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
         this.factory=new FruitGameFactory();
     }
 
-    private void showPattern(double multiplier) {
+    private void showPattern(double multiplier){
+
         rules = factory.getFruitGraphics(game.getGameName());
         String[] allSymbols = rules.getSymbols();
 
@@ -51,6 +57,8 @@ public class FruitGamePresenter {
 
     public void initializedata() {
         view.setImageBackground(game.getBase64Image());
+    public void initializedata(){
+
         rules = factory.getFruitGraphics(game.getGameName());
         if (rules != null) {
 
@@ -58,7 +66,8 @@ public class FruitGamePresenter {
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());
         }
-        view.showErrorDialog("Όρια Πονταρίσματος", "Ποντάρισμα από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");    }
+        view.showErrorDialog("Όρια Πονταρίσματος", "Ποντάρισμα από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");
+    }
 
     public void spinClicked(String betamount) {
 
@@ -140,6 +149,7 @@ public class FruitGamePresenter {
         }).start();
 
     }
+
     private void finalResult() {
         if (payout.compareTo(BigDecimal.ZERO) > 0) {
             player.addBalance(payout);

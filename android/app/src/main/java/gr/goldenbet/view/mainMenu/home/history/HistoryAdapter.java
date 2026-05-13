@@ -1,4 +1,4 @@
-package gr.goldenbet.view.utils;
+package gr.goldenbet.view.mainMenu.home.history;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -9,7 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import gr.goldenbet.R;
-import gr.goldenbet.view.mainMenu.home.history.HistoryEntry;
+import gr.goldenbet.domain.HistoryEntry;
+
 import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {

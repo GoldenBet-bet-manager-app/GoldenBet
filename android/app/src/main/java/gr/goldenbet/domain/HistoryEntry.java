@@ -1,4 +1,4 @@
-package gr.goldenbet.view.mainMenu.home.history;
+package gr.goldenbet.domain;
 
 import java.math.BigDecimal;
 

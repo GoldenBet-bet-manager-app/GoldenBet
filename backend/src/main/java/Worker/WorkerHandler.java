@@ -14,9 +14,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static Worker.Worker.backupPlayersProfits;
-import static Worker.Worker.primaryPlayersProfits;
 import static Models.SHA256Generator.computeSHA256;
+import static Worker.Worker.*;
 
 public class WorkerHandler extends Thread {
 
@@ -245,7 +244,7 @@ public class WorkerHandler extends Thread {
         ArrayList<Transaction> matchedTxs = new ArrayList<>();
 
         synchronized (Worker.primaryTransactions) {
-            ArrayList<Transaction> primary = Worker.primaryTransactions.get(filters.getUsername());
+            ArrayList<Transaction> primary = Worker.primaryTransactions.get(filters.getPlayerId());
             if (primary != null) {
                 matchedTxs.addAll(applyHistoryFilters(primary, filters));
             }
@@ -253,7 +252,7 @@ public class WorkerHandler extends Thread {
 
         if (Worker.includeBackUps()) {
             synchronized (Worker.backupTransactions) {
-                ArrayList<Transaction> backup = Worker.backupTransactions.get(filters.getUsername());
+                ArrayList<Transaction> backup = Worker.backupTransactions.get(filters.getPlayerId());
                 if (backup != null) {
                     matchedTxs.addAll(applyHistoryFilters(backup, filters));
                 }
@@ -458,6 +457,7 @@ public class WorkerHandler extends Thread {
 
             userTxs.add(new Transaction(
                     bet.getPlayerid(),
+                    bet.getPlayerusername(),
                     "GAME_BET",
                     bet.getAmount().negate(),
                     "Bet on " + bet.getGameName()
@@ -465,6 +465,7 @@ public class WorkerHandler extends Thread {
 
             userTxs.add(new Transaction(
                     bet.getPlayerid(),
+                    bet.getPlayerusername(),
                     "GAME_RESULT",
                     payout,
                     "Payout from " + bet.getGameName()
