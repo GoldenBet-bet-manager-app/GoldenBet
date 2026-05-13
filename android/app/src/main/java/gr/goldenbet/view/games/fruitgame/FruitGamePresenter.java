@@ -11,7 +11,6 @@ import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
 import gr.goldenbet.utils.ConfigLoader;
 
-
 public class FruitGamePresenter {
 
     private FruitGameView view;
@@ -20,7 +19,6 @@ public class FruitGamePresenter {
     private String[] symbols;
     private Game game;
     private double multiplier;
-
     Gson gson = new Gson();
     private final String MASTER_IP;
     private final int MASTER_PORT;
@@ -30,6 +28,7 @@ public class FruitGamePresenter {
 
     public FruitGamePresenter(FruitGameFragment view, Game currentgame, Player player){
 
+    public FruitGamePresenter(FruitGameFragment view, Game currentgame, String ip, int port, Player player) {
         this.view = view;
         this.game=currentgame;
         this.player=player;
@@ -56,11 +55,13 @@ public class FruitGamePresenter {
         }
     }
 
+    public void initializedata() {
+        view.setImageBackground(game.getBase64Image());
     public void initializedata(){
 
         rules = factory.getFruitGraphics(game.getGameName());
         if (rules != null) {
-            view.setImageBackground(game.getBase64Image());
+
             symbols = rules.getSymbols();
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());

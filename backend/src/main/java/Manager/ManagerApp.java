@@ -26,6 +26,7 @@ public class ManagerApp {
     private static Scanner scanner;
     private static String masterIp;
     private static int masterPort;
+    private static HashMap<String, String> gamescategories = new HashMap<>();
 
     private static ArrayList<File> showGamesList (String folderPath, String operation) {
         File folder = new File ( folderPath );
@@ -155,27 +156,41 @@ public class ManagerApp {
 
         if(selectedGame != null) {
             try {
-                String categoryChoice="";
-                while (true) {
-                    System.out.println ( "GAME'S CATEGORY:" );
-                    System.out.println ( "1.FRUIT" );
-                    System.out.println ( "2.WHEEL" );
-                    System.out.println ( "3.POKER" );
-                    System.out.print ( "Select the game's category (from 1 to 3):" );
-                    categoryChoice = scanner.nextLine().trim();
-                    if ( categoryChoice.equals ( "1" ) || categoryChoice.equals ( "2" ) || categoryChoice.equals ( "3" ) )
-                        break;
-                    else
-                        System.out.println("Invalid category! Please select 1, 2, or 3.");
-                }
                 String categoryName = "";
-                switch (categoryChoice) {
-                    case "1": categoryName = "FRUIT"; break;
-                    case "2": categoryName = "WHEEL"; break;
-                    case "3": categoryName = "POKER"; break;
+                if( gamescategories.containsKey ( selectedGame.getGameName ()) ){
+                    categoryName=gamescategories.get ( selectedGame.getGameName () );
+                    selectedGame.setGameCategory(categoryName);
+                    System.out.println("The game '" + selectedGame.getGameName() + "' automatically retained its previous category: " + categoryName);
                 }
-                System.out.println("The game '" + selectedGame.getGameName() + "' was assigned to category: " + categoryName);
-                selectedGame.setGameCategory(categoryName);
+                else {
+                    String categoryChoice = "";
+                    while (true) {
+                        System.out.println ( "GAME'S CATEGORY:" );
+                        System.out.println ( "1.FRUIT" );
+                        System.out.println ( "2.WHEEL" );
+                        System.out.println ( "3.POKER" );
+                        System.out.print ( "Select the game's category (from 1 to 3):" );
+                        categoryChoice = scanner.nextLine ( ).trim ( );
+                        if ( categoryChoice.equals ( "1" ) || categoryChoice.equals ( "2" ) || categoryChoice.equals ( "3" ) )
+                            break;
+                        else
+                            System.out.println ( "Invalid category! Please select 1, 2, or 3." );
+                    }
+                    switch (categoryChoice) {
+                        case "1":
+                            categoryName = "FRUIT";
+                            break;
+                        case "2":
+                            categoryName = "WHEEL";
+                            break;
+                        case "3":
+                            categoryName = "POKER";
+                            break;
+                    }
+                    System.out.println ( "The game '" + selectedGame.getGameName ( ) + "' was assigned to category: " + categoryName );
+                    selectedGame.setGameCategory ( categoryName );
+                    gamescategories.put ( selectedGame.getGameName (),categoryName );
+                }
                 String imagePath = selectedGame.getGameLogoPath();
                 File imageFile = new File(imagePath);
 
