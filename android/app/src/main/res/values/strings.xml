@@ -15,6 +15,7 @@
 
     <!--activity_register.xml-->
     <string name="register_header">Join the Club</string>
+    <string name="register_profile_picture_header">Add profile picture</string>
     <string name="register_username_hint">Username</string>
     <string name="register_password_hint">Password</string>
     <string name="register_first_name_hint">First Name</string>
@@ -32,6 +33,13 @@
     <string name="confirm_title">Confirm Registration</string>
     <string name="confirm_msg">Are you sure you want to register with these details?</string>
     <string name="register_success">Successful registration</string>
+    <string name="register_image_picker_title">Select Photo</string>
+    <string name="register_image_option_camera">Camera</string>
+    <string name="register_image_option_gallery">Gallery</string>
+    <string name="register_image_add_label">Add Photo</string>
+    <string name="register_image_error_camera">Camera error: %s</string>
+    <string name="register_image_error_processing">Image processing error</string>
+
 
 
     <!--activity_settings.xml-->

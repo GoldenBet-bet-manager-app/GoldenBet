@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import gr.goldenbet.R;
+import gr.goldenbet.domain.Address;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
@@ -28,7 +29,7 @@ public class RegisterPresenter {
     }
 
     public void onRegisterClick( String username, String password, String name, String surname
-    ,String email, String phone, String street, String streetNumber, String city, String zip) {
+    ,String email, String phone, String street, String streetNumber, String city, String zip, byte[] profileImage) {
         if (username.isEmpty() || password.isEmpty() || name.isEmpty() || surname.isEmpty() ||
         email.isEmpty() || phone.isEmpty()) {
             view.onRegisterError(((RegisterActivity)view).getString(R.string.common_necessary_fields_msg));
@@ -36,7 +37,14 @@ public class RegisterPresenter {
         }
 
 
-        Player newPlayer = new Player(name, surname, username, password);
+        String fStreet = street.trim().isEmpty() ? "-" : street;
+        String fStreetNum = streetNumber.trim().isEmpty() ? "-" : streetNumber;
+        String fCity = city.trim().isEmpty() ? "-" : city;
+        String fZip = zip.trim().isEmpty() ? "-" : zip;
+
+        Address playerAddress = new Address(fStreet, fStreetNum, fCity, fZip);
+
+        Player newPlayer = new Player(name, surname, username, password, email, phone, playerAddress, profileImage);
 
         view.showConfirmDialog(newPlayer);
     }

@@ -61,6 +61,11 @@ public class ProfilePresenter {
             addr.setCity(city);
             addr.setZipCode(zip);
 
+            byte[] imageBytes = view.getProfileImageBytes();
+            if (imageBytes != null) {
+                playerToUpdate.setProfileImage(imageBytes);
+            }
+
             view.showSaveConfirmation(playerToUpdate);
         }
     }

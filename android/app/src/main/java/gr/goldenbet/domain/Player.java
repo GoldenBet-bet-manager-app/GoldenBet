@@ -23,20 +23,24 @@ public class Player implements Serializable {
 
     // System Attributes
     private String playerId;
+    private byte[] profileImage;
     private static final AtomicInteger idCounter = new AtomicInteger(1);
 
     /**
      * Full constructor for Player with nested Address object.
      */
     public Player(String name, String surname, String username, String password,
-                  String email, String phone, Address address) {
+                  String email, String phone, Address address, byte[] profileImage) {
         this.name = name;
         this.surname = surname;
         this.username = username;
         this.password = password;
         this.email = email;
         this.phone = phone;
+        this.profileImage = profileImage;
         this.address = address;
+        this.balance = BigDecimal.ZERO;
+
 
         // Generates unique Player ID for the current session
         this.playerId = "Player_" + idCounter.getAndIncrement();
@@ -86,7 +90,8 @@ public class Player implements Serializable {
     public String getPlayerId() { return playerId; }
     public void setPlayerId(String playerId) { this.playerId = playerId; }
 
-
+    public byte[] getProfileImage() { return profileImage; }
+    public void setProfileImage(byte[] profileImage) { this.profileImage = profileImage; }
 
     public BigDecimal getBalance() {
         return balance;
