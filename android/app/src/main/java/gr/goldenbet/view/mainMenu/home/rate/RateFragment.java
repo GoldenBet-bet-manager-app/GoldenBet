@@ -41,10 +41,8 @@ public class RateFragment extends Fragment implements RateView {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String ip = getString(R.string.master_ip);
-        int port = getResources().getInteger(R.integer.master_port);
         SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
-        presenter = new RatePresenter(this,prefs,ip,port);
+        presenter = new RatePresenter(this, prefs);
         presenter.initializedata();
         binding.btnBack.setOnClickListener(v -> {
             if (getParentFragmentManager().getBackStackEntryCount() > 0) {

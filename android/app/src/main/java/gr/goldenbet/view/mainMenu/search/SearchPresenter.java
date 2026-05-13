@@ -10,19 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import gr.goldenbet.R;
 import gr.goldenbet.domain.Game;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.SearchFilters;
+import gr.goldenbet.utils.ConfigLoader;
 import gr.goldenbet.utils.NetworkManager;
-import gr.goldenbet.view.mainMenu.home.HomeFragment;
 
 public class SearchPresenter{
 
     private SearchView view;
-    private String MASTER_IP;
-    private int MASTER_PORT;
+    private final String MASTER_IP;
+    private final int MASTER_PORT;
 
     private boolean hasLoadedData = false;
 
@@ -35,7 +34,10 @@ public class SearchPresenter{
 
 
     public SearchPresenter(){
+
         this.gameList = new ArrayList<>();
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
 
@@ -131,6 +133,7 @@ public class SearchPresenter{
 
                         if (view != null) {
                             ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                if (view == null) return;
                                 gameList.clear();
                                 if (fetchedGames != null) {
                                     gameList.addAll(fetchedGames);
@@ -143,6 +146,7 @@ public class SearchPresenter{
                     } else {
                         if (view != null) {
                             ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                if (view == null) return;
                                 view.hideLoading();
                                 view.showMessage("Σφάλμα επικοινωνίας με τον Server.");
                             });
@@ -153,9 +157,6 @@ public class SearchPresenter{
 
     public void setView(SearchView view){
         this.view = view;
-
-        MASTER_IP = ((SearchFragment)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((SearchFragment)view).getResources().getInteger(R.integer.master_port);
     }
 
     public void clearView() {

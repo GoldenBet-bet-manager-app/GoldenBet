@@ -12,20 +12,18 @@ import gr.goldenbet.domain.Address;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType; // Υποθέτουμε ότι υπάρχει το REGIST
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.utils.ConfigLoader;
 
 public class RegisterPresenter {
     private RegisterView view;
     private final String MASTER_IP;
     private final int MASTER_PORT;
 
-    public RegisterPresenter(RegisterView view) {
+    public RegisterPresenter(RegisterView view){
+
         this.view = view;
-
-        // Set master configurations
-        MASTER_IP = ((RegisterActivity)view).getResources().getString(R.string.master_ip);
-        MASTER_PORT = ((RegisterActivity)view).getResources().getInteger(R.integer.master_port);
-
-
+        MASTER_IP = ConfigLoader.getIp("MASTER");
+        MASTER_PORT = ConfigLoader.getPort("MASTER");
     }
 
     public void onRegisterClick( String username, String password, String name, String surname

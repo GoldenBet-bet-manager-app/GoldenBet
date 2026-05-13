@@ -182,21 +182,11 @@ public class HomeFragment extends Fragment implements HomeView {
     }
 
     @Override
-    public void navigateToLogin() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.nav_logout_dialog_title)
-                .setMessage(R.string.nav_logout_dialog_msg)
-                .setIcon(R.drawable.ic_logout)
-                .setPositiveButton(R.string.common_ok, (dialog, which) -> {
+    public void navigateToLogin(){
 
-                    Intent intent = new Intent(requireContext(), LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    requireActivity().finish();
-
-                })
-                .setNegativeButton(R.string.common_cancel, (dialog, which) -> dialog.dismiss())
-                .show();
+        if (getActivity() instanceof MainMenuActivity) {
+            ((MainMenuActivity) getActivity()).showExitConfirmationDialog(presenter);
+        }
     }
 
     @Override
@@ -223,5 +213,9 @@ public class HomeFragment extends Fragment implements HomeView {
         super.onDestroyView();
         // binding is nullified not to have memory leaks
         binding = null;
+    }
+
+    public HomePresenter getPresenter() {
+        return presenter;
     }
 }

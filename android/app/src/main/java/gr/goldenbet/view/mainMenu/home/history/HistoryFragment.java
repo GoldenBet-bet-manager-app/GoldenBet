@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
 import gr.goldenbet.R;
+import gr.goldenbet.domain.HistoryEntry;
 import gr.goldenbet.view.mainMenu.MainMenuActivity;
-import gr.goldenbet.view.utils.HistoryAdapter;
+
 import java.util.List;
 
 public class HistoryFragment extends Fragment implements HistoryView {

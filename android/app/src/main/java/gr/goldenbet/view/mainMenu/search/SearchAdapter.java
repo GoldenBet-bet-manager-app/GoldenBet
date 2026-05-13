@@ -2,7 +2,6 @@ package gr.goldenbet.view.mainMenu.search;
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,7 +11,6 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import gr.goldenbet.R;
 import gr.goldenbet.databinding.ItemGameBinding;
 import gr.goldenbet.domain.Game;
 import gr.goldenbet.utils.ImageUtils;

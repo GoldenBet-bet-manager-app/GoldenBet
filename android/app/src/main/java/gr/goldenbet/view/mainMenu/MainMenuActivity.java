@@ -1,8 +1,10 @@
 package gr.goldenbet.view.mainMenu;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -10,9 +12,13 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import gr.goldenbet.R;
 import gr.goldenbet.databinding.ActivityMainMenuBinding;
 import gr.goldenbet.domain.Player;
+import gr.goldenbet.view.login.LoginActivity;
+import gr.goldenbet.view.mainMenu.home.HomePresenter;
 import gr.goldenbet.view.mainMenu.home.rate.RateFragment;
 import gr.goldenbet.view.mainMenu.home.HomeFragment;
 import gr.goldenbet.view.mainMenu.profile.ProfileFragment;
@@ -35,7 +41,7 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
 
@@ -55,6 +61,30 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
         // UI Setup
         setupNavigation();
 
+        // Διαχείρηση κουμπιού πίσω του κινητού
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack();
+                    return;
+                }
+
+                int currentTab = binding.bottomNavigationView.getSelectedItemId();
+
+                if (currentTab == R.id.main_menu_search || currentTab == R.id.main_menu_profile ) {
+                    binding.bottomNavigationView.setSelectedItemId(R.id.main_menu_home);
+                } else {
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    if(currentFragment instanceof HomeFragment){
+
+                        showExitConfirmationDialog(((HomeFragment) currentFragment).getPresenter());
+                    }
+                }
+            }
+        });
+
         if (savedInstanceState == null) {
             showHome();
         }
@@ -66,6 +96,26 @@ public class MainMenuActivity extends AppCompatActivity implements MainMenuView 
             presenter.onNavigationItemSelected(item.getItemId());
             return true;
         });
+    }
+
+    public void showExitConfirmationDialog(HomePresenter presenter) {
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.nav_logout_dialog_title)
+                .setMessage(R.string.nav_logout_dialog_msg)
+                .setIcon(R.drawable.ic_logout)
+                .setPositiveButton(R.string.common_ok, (dialog, which) -> {
+
+                    presenter.confirmLogout();
+                    Intent intent = new Intent(MainMenuActivity.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton(R.string.common_cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
 
 
