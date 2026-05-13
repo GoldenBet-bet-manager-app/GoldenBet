@@ -37,7 +37,7 @@ public class WheelGamePresenter {
 
     public void initializedata( ) {
         view.setImageBackground(game.getBase64Image());
-        rules = WheelGameRules.getWheelGraphics(game);
+        rules = WheelGameRules.getWheelGraphics(game.getGameName());
         if (rules != null) view.setWheelImage(rules.getLogoResId());
         view.showBalance(player.getBalance());
         view.showErrorDialog("Όρια Πονταρίσματος", "Ποντάρισμα από " + game.getMinBet() + " έως " + game.getMaxBet() + " FUN.");

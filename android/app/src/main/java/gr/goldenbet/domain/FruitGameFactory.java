@@ -2,7 +2,7 @@ package gr.goldenbet.domain;
 
 
 import android.graphics.Color;
-
+import gr.goldenbet.R;
 
 public class FruitGameFactory {
 
