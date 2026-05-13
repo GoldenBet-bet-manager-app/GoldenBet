@@ -10,7 +10,6 @@ import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.Player;
 
-
 public class FruitGamePresenter {
     private FruitGameView view;
     private BigDecimal payout, bet;
@@ -18,13 +17,11 @@ public class FruitGamePresenter {
     private String[] symbols;
     private Game game;
     private double multiplier;
-
     Gson gson = new Gson();
     private static String MASTER_IP;
     private static int MASTER_PORT;
     private FruitGameFactory factory;
     private  FruitGameRules rules;
-
 
     public FruitGamePresenter(FruitGameFragment view, Game currentgame, String ip, int port, Player player) {
         this.view = view;
@@ -53,9 +50,10 @@ public class FruitGamePresenter {
     }
 
     public void initializedata() {
+        view.setImageBackground(game.getBase64Image());
         rules = factory.getFruitGraphics(game.getGameName());
         if (rules != null) {
-            view.setImageBackground(game.getBase64Image());
+
             symbols = rules.getSymbols();
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());
