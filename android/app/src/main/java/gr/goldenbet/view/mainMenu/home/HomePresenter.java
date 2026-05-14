@@ -42,13 +42,14 @@ public class HomePresenter {
     public void initData(Player player) {
         if (player != null) {
             this.currentPlayer = player;
-            // Ενημέρωση του View αμέσως από τη μνήμη
-            view.updatePlayerInfo(player.getUsername(), player.getBalance() + " €");
-        }
+
+            view.updatePlayerInfo(player.getUsername(),
+                    player.getBalance() + " €",
+                    player.getProfileImage());}
     }
 
     public void onLeaderboardClicked() {
-        // Στέλνουμε τα τελευταία δεδομένα που έχουμε στη μνήμη
+
         view.showLeaderboard(lastSortedData);
     }
 
