@@ -6,6 +6,6 @@
   "GameLogo": "src/main/resources/logos/dragons_lair_logo.webp",
   "MinBet": 5.0,
   "MaxBet": 100,
-  "RiskLevel": "high",
+  "RiskLevel": "low",
   "HashKey": "Dragon_Lair_secret_33"
 }
