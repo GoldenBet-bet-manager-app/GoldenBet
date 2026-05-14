@@ -15,7 +15,7 @@ public class FruitGamePresenter {
 
     private FruitGameView view;
     private BigDecimal payout, bet;
-    private Player player;
+    private  Player player;
     private String[] symbols;
     private Game game;
     private double multiplier;
@@ -23,19 +23,22 @@ public class FruitGamePresenter {
     private final String MASTER_IP;
     private final int MASTER_PORT;
     private FruitGameFactory factory;
-    private FruitGameRules rules;
+    private  FruitGameRules rules;
 
 
-    public FruitGamePresenter(FruitGameFragment view, Game currentgame, Player player) {
+
+
+    public FruitGamePresenter(FruitGameFragment view, Game game, Player player){
+
         this.view = view;
-        this.game = currentgame;
+        this.game = game;
         this.player = player;
         MASTER_IP = ConfigLoader.getIp("MASTER");
         MASTER_PORT = ConfigLoader.getPort("MASTER");
         this.factory = new FruitGameFactory();
     }
 
-    private void showPattern(double multiplier) {
+    private void showPattern(double multiplier){
 
         rules = factory.getFruitGraphics(game.getGameName());
         String[] allSymbols = rules.getSymbols();
@@ -53,10 +56,12 @@ public class FruitGamePresenter {
         }
     }
 
-    public void initializedata() {
-        view.setImageBackground(game.getBase64Image());
+
+    public void initializedata(){
+
         rules = factory.getFruitGraphics(game.getGameName());
         if (rules != null) {
+
             symbols = rules.getSymbols();
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());

@@ -17,6 +17,7 @@
 
     <!--activity_register.xml-->
     <string name="register_header">Γίνετε μέλος του Club</string>
+    <string name="register_profile_picture_header">Προσθήκη φωτογραφίας προφίλ</string>
     <string name="register_username_hint">Όνομα χρήστη</string>
     <string name="register_password_hint">Κωδικός πρόσβασης</string>
     <string name="register_first_name_hint">Όνομα</string>
@@ -34,6 +35,12 @@
     <string name="confirm_title">Επιβεβαίωση Εγγραφής</string>
     <string name="confirm_msg">Είστε σίγουροι ότι θέλετε να προχωρήσετε στην εγγραφή με αυτά τα στοιχεία;</string>
     <string name="register_success">Επιτυχημένη εγγραφή</string>
+    <string name="register_image_picker_title">Επιλογή φωτογραφίας</string>
+    <string name="register_image_option_camera">Κάμερα</string>
+    <string name="register_image_option_gallery">Συλλογή</string>
+    <string name="register_image_add_label">Προσθήκη Φωτογραφίας</string>
+    <string name="register_image_error_camera">Σφάλμα κάμερας: %s</string>
+    <string name="register_image_error_processing">Σφάλμα επεξεργασίας εικόνας</string>
 
 
 

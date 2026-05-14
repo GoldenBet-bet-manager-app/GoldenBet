@@ -8,7 +8,6 @@
     android:fillViewport="true"
     android:overScrollMode="never"
     android:background="?android:attr/windowBackground"
-    android:fitsSystemWindows="false"
     tools:context=".view.mainMenu.home.HomeFragment">
 
     <LinearLayout
@@ -16,101 +15,131 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:paddingBottom="24dp"
-        android:paddingTop="0dp"> <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="8dp">
+        android:paddingBottom="24dp">
 
-        <ImageButton
-            android:id="@+id/homeBtnLogout"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_logout"
-            app:tint="@color/luxury_red"
-            android:contentDescription="Logout" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="GOLDEN BET"
-            android:letterSpacing="0.2"
-            android:textColor="@color/gold_classic"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <ImageButton
+                android:id="@+id/homeBtnLogout"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_logout"
+                app:tint="@color/luxury_red"
+                android:contentDescription="Logout" />
 
-        <ImageButton
-            android:id="@+id/homeBtnSettings"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_settings"
-            app:tint="?attr/colorOnSurface"
-            android:contentDescription="Settings" />
-    </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="GOLDEN BET"
+                android:letterSpacing="0.2"
+                android:textColor="@color/gold_classic"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/homeBtnSettings"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_settings"
+                app:tint="?attr/colorOnSurface"
+                android:contentDescription="Settings" />
+        </RelativeLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             app:cardBackgroundColor="@color/luxury_red"
-            app:cardCornerRadius="22dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="8dp"
             app:strokeWidth="0dp">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="24dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/fragment_home_hello_message"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@+id/imgHomeAvatar"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/txtHomePlayerName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Player One"
-                    android:textColor="#FFFFFF"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_home_hello_message"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtHomePlayerName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Player One"
+                        android:textColor="#FFFFFF"
+                        android:textSize="26sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgHomeAvatar"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="false"
+                    android:padding="2dp"
+                    android:src="@drawable/ic_person"
+                    android:scaleType="centerCrop"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/gold_classic"
+                    app:shapeAppearanceOverlay="@style/CircleImage" />
 
                 <View
+                    android:id="@+id/dividerHome"
                     android:layout_width="match_parent"
                     android:layout_height="1.5dp"
+                    android:layout_below="@+id/imgHomeAvatar"
                     android:layout_marginVertical="18dp"
                     android:background="#44FFFFFF" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/fragment_home_balance"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:layout_below="@+id/dividerHome"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/txtHomeBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1,250.00 €"
-                    android:textColor="@color/gold_classic"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_home_balance"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtHomeBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1,250.00 €"
+                        android:textColor="@color/gold_classic"
+                        android:textSize="36sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
@@ -190,30 +219,16 @@
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_margin="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                app:layout_columnWeight="1">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_deposit"
-                        app:tint="?attr/colorPrimary" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/fragment_home_deposit"
-                        android:textStyle="bold" />
+                app:layout_columnWeight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_deposit" app:tint="?attr/colorPrimary" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/fragment_home_deposit" android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -222,30 +237,16 @@
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_margin="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                app:layout_columnWeight="1">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_history"
-                        app:tint="?attr/colorPrimary" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/fragment_home_history"
-                        android:textStyle="bold" />
+                app:layout_columnWeight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_history" app:tint="?attr/colorPrimary" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/fragment_home_history" android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -254,30 +255,16 @@
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_margin="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                app:layout_columnWeight="1">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_leaderboard"
-                        app:tint="?attr/colorPrimary" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/fragment_home_statistics"
-                        android:textStyle="bold" />
+                app:layout_columnWeight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_leaderboard" app:tint="?attr/colorPrimary" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/fragment_home_statistics" android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -286,30 +273,16 @@
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_margin="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                app:layout_columnWeight="1">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_star_rate"
-                        app:tint="?attr/colorPrimary" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/fragment_home_ratings"
-                        android:textStyle="bold" />
+                app:layout_columnWeight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_star_rate" app:tint="?attr/colorPrimary" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/fragment_home_ratings" android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

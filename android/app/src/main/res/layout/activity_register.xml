@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="48dp"
-        tools:context=".view.user.register.RegisterActivity">
+        tools:context=".view.register.RegisterActivity">
 
         <TextView
             android:id="@+id/txtRegisterHeader"
@@ -47,6 +47,37 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/imgProfile"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:padding="2dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_person"
+                        app:strokeColor="?attr/colorSecondary"
+                        app:strokeWidth="2dp"
+                        app:shapeAppearanceOverlay="@style/CircleImage" />
+
+                    <TextView
+                        android:id="@+id/btnChangePhoto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="@string/register_profile_picture_header"
+                        android:textColor="?attr/colorSecondary"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -57,9 +88,7 @@
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    android:textColorHint="?attr/colorOnSurface"
                     app:boxStrokeColor="#C5A059"
-                    app:hintTextColor="?attr/colorSecondary"
                     app:startIconDrawable="@drawable/ic_person"
                     app:startIconTint="?attr/colorSecondary">
 
@@ -67,8 +96,7 @@
                         android:id="@+id/edtRegisterUsername"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -78,11 +106,8 @@
                     android:layout_marginTop="12dp"
                     android:hint="@string/login_password_hint"
                     app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                    android:textColorHint="?attr/colorOnSurface"
-                    app:boxStrokeColor="#C5A059"
                     app:endIconMode="password_toggle"
-                    app:endIconTint="#AAAAAA"
-                    app:hintTextColor="?attr/colorSecondary"
+                    app:boxStrokeColor="#C5A059"
                     app:startIconDrawable="@drawable/ic_lock"
                     app:startIconTint="?attr/colorSecondary"
                     app:boxCornerRadiusBottomEnd="12dp"
@@ -94,8 +119,7 @@
                         android:id="@+id/edtRegisterPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -112,9 +136,7 @@
                         android:layout_weight="1"
                         android:hint="@string/register_first_name_hint"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                        android:textColorHint="?attr/colorOnSurface"
                         app:boxStrokeColor="#C5A059"
-                        app:hintTextColor="?attr/colorSecondary"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -124,8 +146,7 @@
                             android:id="@+id/edtRegisterName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPersonName"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:inputType="textPersonName" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -136,9 +157,7 @@
                         android:layout_weight="1"
                         android:hint="@string/register_last_name_hint"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                        android:textColorHint="?attr/colorOnSurface"
                         app:boxStrokeColor="#C5A059"
-                        app:hintTextColor="?attr/colorSecondary"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -148,8 +167,7 @@
                             android:id="@+id/edtRegisterSurname"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPersonName"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:inputType="textPersonName" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -160,9 +178,7 @@
                     android:layout_marginTop="12dp"
                     android:hint="@string/register_email_hint"
                     app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                    android:textColorHint="?attr/colorOnSurface"
                     app:boxStrokeColor="#C5A059"
-                    app:hintTextColor="?attr/colorSecondary"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
@@ -172,8 +188,7 @@
                         android:id="@+id/edtRegisterEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:inputType="textEmailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -183,9 +198,7 @@
                     android:layout_marginTop="12dp"
                     android:hint="@string/register_phone_hint"
                     app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                    android:textColorHint="?attr/colorOnSurface"
                     app:boxStrokeColor="#C5A059"
-                    app:hintTextColor="?attr/colorSecondary"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
@@ -195,8 +208,7 @@
                         android:id="@+id/edtRegisterPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="phone"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:inputType="phone" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -220,9 +232,7 @@
                         android:layout_weight="2"
                         android:hint="@string/register_street_hint"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                        android:textColorHint="?attr/colorOnSurface"
                         app:boxStrokeColor="#C5A059"
-                        app:hintTextColor="?attr/colorSecondary"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -231,8 +241,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edtRegisterStreet"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -243,9 +252,7 @@
                         android:layout_weight="1"
                         android:hint="@string/register_number_hint"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                        android:textColorHint="?attr/colorOnSurface"
                         app:boxStrokeColor="#C5A059"
-                        app:hintTextColor="?attr/colorSecondary"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -254,8 +261,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edtRegisterStreetNumber"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -273,9 +279,7 @@
                         android:layout_weight="1"
                         android:hint="@string/register_city_hint"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                        android:textColorHint="?attr/colorOnSurface"
                         app:boxStrokeColor="#C5A059"
-                        app:hintTextColor="?attr/colorSecondary"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -284,8 +288,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edtRegisterCity"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -296,9 +299,7 @@
                         android:layout_weight="1"
                         android:hint="@string/register_zip_hint"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
-                        android:textColorHint="?attr/colorOnSurface"
                         app:boxStrokeColor="#C5A059"
-                        app:hintTextColor="?attr/colorSecondary"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -308,8 +309,7 @@
                             android:id="@+id/edtRegisterZip"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -339,7 +339,6 @@
             app:layout_constraintTop_toBottomOf="@+id/registerCardView">
 
             <TextView
-                android:id="@+id/registertxtAlreadyMember"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/register_already_member"

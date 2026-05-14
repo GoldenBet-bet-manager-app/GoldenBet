@@ -17,8 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -88,13 +89,20 @@ public class HomeFragment extends Fragment implements HomeView {
 
 
     @Override
-    public void updatePlayerInfo(String name, String balance) {
-        FragmentActivity activity = getActivity();
-
+    public void updatePlayerInfo(String name, String balance, byte[] profileImage) {
         // Check if binding is available
         if (binding != null) {
             binding.txtHomePlayerName.setText(name);
             binding.txtHomeBalance.setText(balance);
+
+            // Check: If the profile picture reference is not null, it is converted into Bitmap
+            if (profileImage != null && profileImage.length > 0) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(profileImage, 0, profileImage.length);
+                binding.imgHomeAvatar.setImageBitmap(bitmap);
+            } else {
+                // If profile picture reference is null, the default icon ic_person is displayed
+                binding.imgHomeAvatar.setImageResource(R.drawable.ic_person);
+            }
         }
 
     }
@@ -182,21 +190,11 @@ public class HomeFragment extends Fragment implements HomeView {
     }
 
     @Override
-    public void navigateToLogin() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.nav_logout_dialog_title)
-                .setMessage(R.string.nav_logout_dialog_msg)
-                .setIcon(R.drawable.ic_logout)
-                .setPositiveButton(R.string.common_ok, (dialog, which) -> {
+    public void navigateToLogin(){
 
-                    Intent intent = new Intent(requireContext(), LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    requireActivity().finish();
-
-                })
-                .setNegativeButton(R.string.common_cancel, (dialog, which) -> dialog.dismiss())
-                .show();
+        if (getActivity() instanceof MainMenuActivity) {
+            ((MainMenuActivity) getActivity()).showExitConfirmationDialog(presenter);
+        }
     }
 
     @Override
@@ -223,5 +221,9 @@ public class HomeFragment extends Fragment implements HomeView {
         super.onDestroyView();
         // binding is nullified not to have memory leaks
         binding = null;
+    }
+
+    public HomePresenter getPresenter() {
+        return presenter;
     }
 }

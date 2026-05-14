@@ -11,4 +11,5 @@ public interface ProfileView {
     // Access to MainMenuActivity's player
     Player getPlayerFromActivity();
     void syncPlayerWithActivity(Player updatedPlayer);
+    byte[] getProfileImageBytes();
 }

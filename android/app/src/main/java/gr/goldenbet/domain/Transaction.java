@@ -13,7 +13,7 @@ public class Transaction implements Serializable {
     private String description; // Transaction's description
 
     public Transaction(String playerId,String username, String type, BigDecimal amount, String description) {
-        this.transactionId = "TX-" + System.currentTimeMillis();
+        this.transactionId = "TX_" + System.currentTimeMillis();
         this.playerId = playerId;
         this.username = username;
         this.type = type;

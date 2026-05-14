@@ -80,6 +80,7 @@ public class LoginActivity extends AppCompatActivity implements LoginView{
 
             intent.putExtra("PLAYER_DATA", player);
             startActivity(intent);
+            finish();
         });
 
     }

@@ -42,13 +42,14 @@ public class HomePresenter {
     public void initData(Player player) {
         if (player != null) {
             this.currentPlayer = player;
-            // Ενημέρωση του View αμέσως από τη μνήμη
-            view.updatePlayerInfo(player.getUsername(), player.getBalance() + " €");
-        }
+
+            view.updatePlayerInfo(player.getUsername(),
+                    player.getBalance() + " €",
+                    player.getProfileImage());}
     }
 
     public void onLeaderboardClicked() {
-        // Στέλνουμε τα τελευταία δεδομένα που έχουμε στη μνήμη
+
         view.showLeaderboard(lastSortedData);
     }
 
@@ -97,11 +98,14 @@ public class HomePresenter {
     public void onSettingsClicked() {view.navigateToSettings();}
 
 
+    public void onLogoutClicked(){
+        view.navigateToLogin();
+    }
 
-    public void onLogoutClicked() {
+    public void confirmLogout(){
+
         if (currentPlayer == null) return;
 
-        // Εκτέλεση Logout στον Master σε background thread
         new Thread(() -> {
             Gson gson = new Gson();
             ArrayList<String> credentials = new ArrayList<>();
@@ -111,10 +115,7 @@ public class HomePresenter {
             MasterMessage message = new MasterMessage(MasterMessageType.LOGOUT, credentials);
             JsonClient client = new JsonClient(MASTER_IP, MASTER_PORT, gson.toJson(message));
             client.start();
-            // Δεν περιμένουμε απάντηση για το logout, προχωράμε στο UI
         }).start();
-
-        view.navigateToLogin();
     }
 
 

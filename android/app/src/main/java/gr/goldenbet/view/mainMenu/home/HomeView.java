@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface HomeView {
-    void updatePlayerInfo(String name, String balance);
+    void updatePlayerInfo(String name, String balance, byte[] profileImage);
 
     void navigateToDeposit();
     void navigateToHistory();
