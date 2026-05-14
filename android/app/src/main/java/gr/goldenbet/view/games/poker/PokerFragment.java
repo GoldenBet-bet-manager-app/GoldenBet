@@ -121,6 +121,7 @@ public class PokerFragment extends Fragment implements PokerView {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setCancelable(false)
                         .show();
+                lock(false);
             });
         }
     }

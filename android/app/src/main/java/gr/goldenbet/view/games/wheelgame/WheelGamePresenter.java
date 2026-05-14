@@ -89,7 +89,7 @@ public class WheelGamePresenter {
                 } catch (Exception e) {
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showErrorDialog("Όρια Πονταρίσματος", serverMessage);
+                    view.showErrorDialog("ΠΡΟΕΙΟΔΟΠΙΣΗ", serverMessage);
                     view.showBalance(player.getBalance());
                     return;
                 }

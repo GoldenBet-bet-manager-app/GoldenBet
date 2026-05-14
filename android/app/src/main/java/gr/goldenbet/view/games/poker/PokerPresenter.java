@@ -101,7 +101,7 @@ public class PokerPresenter {
                 } catch (Exception e) {
                     player.addBalance(bet);
                     String serverMessage = response.replace("\"", "");
-                    view.showErrorDialog("Όρια Πονταρίσματος", serverMessage);
+                    view.showErrorDialog("ΠΡΟΕΙΟΔΟΠΙΣΗ", serverMessage);
                     view.showBalance(player.getBalance());
                     view.lock(false);
                     return;
@@ -136,6 +136,7 @@ public class PokerPresenter {
         }
         view.showBalance(player.getBalance());
         view.showFlipResult(winningHandName);
+        view.lock(false);
     }
 
 

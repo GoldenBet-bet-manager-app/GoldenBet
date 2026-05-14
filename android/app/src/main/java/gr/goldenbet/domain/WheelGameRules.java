@@ -2,7 +2,6 @@ package gr.goldenbet.domain;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 import gr.goldenbet.R;
 
 public class WheelGameRules {
@@ -25,11 +24,11 @@ public class WheelGameRules {
             return new WheelGameRules(R.drawable.wheel_high,
                     new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 6.5, 40.0, 0.0});
 
-        } else if (game.getRiskLevel().equals("medium")) {
-            return new WheelGameRules(R.drawable.wheel_medium,
-                    new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.5, 2.5, 3.5, 20.0});
+        } else if (game.getRiskLevel().equals("low")) {
+            return new WheelGameRules(R.drawable.wheel_low,
+                    new double[]{0.0 , 0.0 , 0.0 , 0.1 , 0.5 , 1.0 , 1.1 , 1.3 , 2.0 , 2.5, 10.0});
         }
-        return null;
+        return null;//Low: [0.0 , 0.0 , 0.0 , 0.1 , 0.5 , 1.0 , 1.1 , 1.3 , 2.0 , 2.5, 10.0]
     }
 
 
