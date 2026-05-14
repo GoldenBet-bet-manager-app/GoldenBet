@@ -19,7 +19,7 @@ import gr.goldenbet.view.mainMenu.MainMenuActivity;
 public class StatsFragment extends Fragment implements StatsView {
 
     private StatsPresenter presenter;
-    private TextView txtProfit, txtWinRate, txtPpa, txtLpl, txtPpw, txtBiggest, txtYMax, txtYMin;
+    private TextView txtProfit, txtWinRate, txtPpa, txtLpl, txtPpw, txtBiggest;
     private View[] bars = new View[7];
 
     @Nullable
@@ -38,8 +38,7 @@ public class StatsFragment extends Fragment implements StatsView {
         txtLpl = view.findViewById(R.id.txtLossPerLossValue);
         txtPpw = view.findViewById(R.id.txtProfitPerWinValue);
         txtBiggest = view.findViewById(R.id.txtBiggestWinRecord);
-        txtYMax = view.findViewById(R.id.txtYMax);
-        txtYMin = view.findViewById(R.id.txtYMin);
+
 
         bars[0] = view.findViewById(R.id.barMon);
         bars[1] = view.findViewById(R.id.barTue);
@@ -64,7 +63,7 @@ public class StatsFragment extends Fragment implements StatsView {
 
         getActivity().runOnUiThread(() -> {
             BigDecimal total = stats.getTotalProfit();
-            String sign = total.signum() >= 0 ? "+" : "-";
+            String sign = total.signum() >= 0 ? "+" : "";
             txtProfit.setText(sign + stats.getTotalProfit() + " FUN");
 
             // Use of  colors.xml to change label colors depending on Win/Loss
@@ -101,12 +100,9 @@ public class StatsFragment extends Fragment implements StatsView {
             if (absVal > maxVal) maxVal = absVal;
         }
 
-        txtYMax.setText("+" + (int)maxVal);
-        txtYMin.setText("-" + (int)maxVal);
-
 
         float density = getResources().getDisplayMetrics().density;
-        int maxBarHeightPx = (int) (140 * density);
+        int maxBarHeightPx = (int) (160 * density);
 
         // Colors for each occasion
         int colorWin = ContextCompat.getColor(requireContext(), R.color.stats_win);
@@ -117,18 +113,15 @@ public class StatsFragment extends Fragment implements StatsView {
             float currentVal = data.getOrDefault(dayKeys[i], BigDecimal.ZERO).floatValue();
             float absValue = Math.abs(currentVal);
 
-            int calculatedHeight = (int) ((currentVal / maxVal) * maxBarHeightPx);
+            int calculatedHeight = (int) ((absValue / maxVal) * maxBarHeightPx);
+            int finalHeight = Math.max(calculatedHeight, (int) (2 * density));
 
             View bar = bars[i];
             if (bar != null) {
                 ViewGroup.LayoutParams params = bar.getLayoutParams();
-
-                // Set bar height
-                int minHeight = (currentVal > 0) ? (int)(8 * density) : (int)(4 * density);
-                params.height = Math.max(calculatedHeight, minHeight);
+                params.height = finalHeight;
                 bar.setLayoutParams(params);
 
-                // Set bar color depending on result (Win/Loss or no activity on a certain day)
                 if (currentVal > 0) {
                     bar.setBackgroundColor(colorWin);
                 } else if (currentVal < 0) {
@@ -138,12 +131,21 @@ public class StatsFragment extends Fragment implements StatsView {
                 }
             }
 
-            // DAY LABEL UPDATE
+            // Update labels above each day
             int labelId = getResources().getIdentifier("txtLabel" + dayKeys[i], "id", getActivity().getPackageName());
             TextView txtLabel = getView().findViewById(labelId);
             if (txtLabel != null) {
-                // ... visibility logic ...
-                txtLabel.setTextColor(currentVal > 0 ? colorWin : colorLoss);
+                // Display value with sign (π.χ. +50 ή -20) for all days
+                String formattedValue = String.format("%+.0f", currentVal);
+                txtLabel.setText(formattedValue);
+
+
+                // Label gets the color of it state (positive,negative,neutral)
+                if (currentVal > 0) txtLabel.setTextColor(colorWin);
+                else if (currentVal < 0) txtLabel.setTextColor(colorLoss);
+                else txtLabel.setTextColor(colorNeutral);
+
+                txtLabel.setVisibility(View.VISIBLE);
             }
         }
     }
