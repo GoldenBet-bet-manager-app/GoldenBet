@@ -89,7 +89,7 @@ public class MasterHandler extends Thread {
                     executeMapReducePhase ( message );
                     break;
 
-                case GET_ACTIVE_GAMES, GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS, GET_HISTORY:
+                case GET_ACTIVE_GAMES, GET_ALL_GAMES, PROVIDER_GAME_PROFITS, GAMES_PROFITS, PLAYERS_PROFITS, GET_HISTORY,GET_ACTIVE_GAMES_FOR_RATE:
                     executeMapReducePhase(message);
                     break;
 
@@ -328,7 +328,7 @@ public class MasterHandler extends Thread {
 
         else if ( !message.getType ( ).equals ( MasterMessageType.PLAY ) ) {
             System.out.println ( "Synchronizing data with Backup Worker " + backupIndex + "..." );
-            sendRequestToWorker ( backupTarget, message, false, false );
+            sendRequestToWorker ( backupTarget, message, true, false );
         }
         else if ( response instanceof BigDecimal ) {
             BigDecimal payout = (BigDecimal) response;
@@ -436,6 +436,18 @@ public class MasterHandler extends Thread {
             workerTransactions.sort((t1, t2) -> t2.getTransactionId().compareTo(t1.getTransactionId()));
 
             finalPayload = workerTransactions;
+        }else if(message.getType() == MasterMessageType.GET_ACTIVE_GAMES_FOR_RATE){
+           // Gson tempGson = new Gson();
+           // Type listType = new TypeToken<ArrayList<Game>>(){}.getType();
+          //  ArrayList<Game> games = tempGson.fromJson(tempGson.toJsonTree(finalPayload), listType);
+            ArrayList<Game> games=(ArrayList<Game>) finalPayload;
+            if(games!=null){
+                for(Game g:games){
+                    if(g!=null)
+                        g.setBase64Image ( null );
+                }
+            }
+            finalPayload=games;
         }
 
         // Final Response: Serialize the merged/aggregated result to JSON and send it to the Android client

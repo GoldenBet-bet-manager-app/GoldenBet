@@ -1,6 +1,7 @@
 package gr.goldenbet.view.mainMenu.home.rate;
 
 import static gr.goldenbet.domain.MasterMessageType.GET_ACTIVE_GAMES;
+import static gr.goldenbet.domain.MasterMessageType.GET_ACTIVE_GAMES_FOR_RATE;
 
 import android.content.SharedPreferences;
 
@@ -74,10 +75,15 @@ public class RatePresenter {
     }
 
     public void initializedata() {
+        ArrayList<String> cachedNames = rateView.getGameNames();
+        if (cachedNames != null && !cachedNames.isEmpty()) {
+            rateView.setActiveGames(cachedNames);
+            return;
+        }
         ArrayList<String> gameNames = new ArrayList<>();
         new Thread(() -> {
             try {
-                MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES, null);
+                MasterMessage message = new MasterMessage(GET_ACTIVE_GAMES_FOR_RATE, null);
                 String jsonMessage = gson.toJson(message);
                 JsonClient jsonClient = new JsonClient(MASTER_IP, MASTER_PORT, jsonMessage);
                 jsonClient.start();
@@ -95,9 +101,9 @@ public class RatePresenter {
                         }
                     }
                 }
+                rateView.setGameNames(gameNames);
                 rateView.setActiveGames(gameNames);
             } catch (Exception e) {
-                //rateView.showMessage(e.getMessage());
                 rateView.showMessage("Αποτυχία φόρτωσης παιχνιδιών: " + e.getMessage());
             }
 

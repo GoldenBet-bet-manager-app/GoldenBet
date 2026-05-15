@@ -5,6 +5,7 @@ public enum MasterMessageType {
     REMOVE_GAME,
     MODIFY_GAME,
     GET_ACTIVE_GAMES,
+    GET_ACTIVE_GAMES_FOR_RATE,
     SEARCH,
     PLAY,
     PROVIDER_GAME_PROFITS,

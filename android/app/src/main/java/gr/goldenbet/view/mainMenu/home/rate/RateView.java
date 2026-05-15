@@ -8,4 +8,6 @@ public interface RateView {
     void showErrorDialog(int titleResId, int messageResId, String gameName);
     void clearRateForm();
     void setActiveGames(ArrayList<String> gameNames);
+    void setGameNames(ArrayList<String> gameNames);
+    ArrayList<String> getGameNames();
 }

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ public class RateFragment extends Fragment implements RateView {
     private FragmentRateBinding binding;
     private float currentstars;
     private String currentGameName;
+    private RateViewModel viewModel;
     public RateFragment() {
     }
 
@@ -42,6 +44,7 @@ public class RateFragment extends Fragment implements RateView {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SharedPreferences prefs = requireActivity().getSharedPreferences("GoldenBetPrefs", Context.MODE_PRIVATE);
+        viewModel = new ViewModelProvider(this).get(RateViewModel.class);
         presenter = new RatePresenter(this, prefs);
         presenter.initializedata();
         binding.btnBack.setOnClickListener(v -> {
@@ -113,6 +116,15 @@ public class RateFragment extends Fragment implements RateView {
                 binding.autoCompleteGameName.setAdapter(adapter);
             });
         }
+    }
+    @Override
+    public void setGameNames(ArrayList<String> gameNames) {
+        viewModel.setGameNames(gameNames);
+    }
+
+    @Override
+    public ArrayList<String> getGameNames() {
+        return viewModel.getGameNames();
     }
 
     @Override

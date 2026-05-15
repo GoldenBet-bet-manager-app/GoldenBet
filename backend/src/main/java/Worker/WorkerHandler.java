@@ -90,7 +90,7 @@ public class WorkerHandler extends Thread {
                         response = executeModifyGame((Game) message.getPayload());
                         break;
 
-                    case SEARCH, GET_ACTIVE_GAMES, GET_ALL_GAMES:
+                    case SEARCH, GET_ACTIVE_GAMES, GET_ALL_GAMES,GET_ACTIVE_GAMES_FOR_RATE:
                         executeMapReduceTask(message);
                         break;
                     case GET_HISTORY:
