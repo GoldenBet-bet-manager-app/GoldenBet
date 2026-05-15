@@ -141,11 +141,34 @@
     <string name="stats_profit_header">TOTAL PROFIT</string>
     <string name="stats_win_rate_header">WIN RATE</string>
     <string name="stats_profit_per_attempt_header">PROFIT/LOSS PER ATTEMPT</string>
-    <string name="stats_loss_per_loss">LOSS PER LOSS</string>
+    <string name="stats_loss_per_loss">LOSS PER LOST GAME</string>
     <string name="stats_profit_per_win">PROFIT PER WIN</string>
     <string name="stats_most_time">Game with most time:</string>
     <string name="stats_most_fun">Attempt with most profit :</string>
     <string name="stats_biggest_win">Largest win: </string>
+
+
+    <!--fragment_search.xml-->
+    <string name="search_app_title">GOLDEN BET</string>
+    <string name="search_app_logo_desc">App Logo</string>
+    <string name="search_game_hint">Search game...</string>
+    <string name="search_empty_state_msg">No games found with these filters</string>
+
+
+    <!--layout_search_filters.xml-->
+    <string name="filter_title">Search Filters</string>
+    <string name="filter_popularity">Popularity</string>
+    <string name="filter_bet_limits">Bet Limits</string>
+    <string name="filter_bet_low">$ (0.1 FUN)</string>
+    <string name="filter_bet_medium">$$ (1.0 FUN)</string>
+    <string name="filter_bet_high">$$$ (5.0 FUN)</string>
+    <string name="filter_risk_level">Risk Level</string>
+    <string name="filter_risk_low">Low Risk</string>
+    <string name="filter_risk_medium">Medium Risk</string>
+    <string name="filter_risk_high">High Risk</string>
+    <string name="filter_btn_reset">Reset</string>
+    <string name="filter_btn_apply">Apply</string>
+
 
 
     <!--bottom_sheet_leaderboard.xml-->

@@ -37,7 +37,7 @@
                         android:id="@+id/searchAppLogo"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:contentDescription="App Logo"
+                        android:contentDescription="@string/search_app_logo_desc"
                         android:src="@drawable/login_logo" />
 
                     <TextView
@@ -47,7 +47,7 @@
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:letterSpacing="0.1"
-                        android:text="GOLDEN BET"
+                        android:text="@string/search_app_title"
                         android:textColor="?attr/colorSecondary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -71,7 +71,7 @@
                                 android:id="@+id/txtSearchTokenBalance"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="1.250 FUN"
+                                tools:text="1.250 FUN"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
@@ -119,7 +119,7 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
-                            android:hint="Αναζήτηση παιχνιδιού..."
+                            android:hint="@string/search_game_hint"
                             android:inputType="text"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="15sp" />
@@ -159,7 +159,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Δεν βρέθηκαν παιχνίδια με αυτά τα φίλτρα."
+                    android:text="@string/search_empty_state_msg"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp"
                     android:textStyle="bold"

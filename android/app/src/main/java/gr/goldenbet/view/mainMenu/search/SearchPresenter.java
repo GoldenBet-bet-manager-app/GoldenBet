@@ -1,5 +1,7 @@
 package gr.goldenbet.view.mainMenu.search;
 
+import static java.util.Collections.sort;
+
 import android.app.Activity;
 
 import com.google.gson.Gson;
@@ -24,6 +26,7 @@ public class SearchPresenter{
     private final int MASTER_PORT;
 
     private boolean hasLoadedData = false;
+    private int currentRequestId = 0;
 
     private final List<Game> gameList;
     private String currentQuery = "";
@@ -90,7 +93,7 @@ public class SearchPresenter{
             List<Game> gamesToShow = new ArrayList<>();
 
             if(currentQuery.trim().isEmpty() || Objects.equals(currentQuery, "")){
-                gamesToShow = gameList;
+                gamesToShow.addAll(gameList);
             }else{
                 for (Game game : gameList) {
                     if (game.getGameName().toLowerCase().contains(currentQuery)) {
@@ -98,6 +101,10 @@ public class SearchPresenter{
                     }
                 }
             }
+            //ταξινόμηση κατα βαθμολογία παιχνιδιού
+            sort(gamesToShow, (g1, g2) ->
+                    Float.compare(g2.getStars(), g1.getStars())
+            );
 
             view.updateGameList(gamesToShow);
 
@@ -117,6 +124,9 @@ public class SearchPresenter{
             view.showLoading();
         }
 
+        currentRequestId++;
+        int myTicket = currentRequestId;
+
         String riskString = String.join(",", currentRiskLevels);
         String betString = String.join(",", currentBetLimits);
 
@@ -127,23 +137,38 @@ public class SearchPresenter{
 
         NetworkManager.sendRequest(MASTER_IP, MASTER_PORT, jsonToSend)
                 .thenAccept(response -> {
+
+                    if (myTicket != currentRequestId) return;
                     if (response != null){
+                        try {
+                            ArrayList<Game> fetchedGames = new Gson().fromJson(response, new TypeToken<ArrayList<Game>>() {
+                            }.getType());
 
-                        ArrayList<Game> fetchedGames = new Gson().fromJson(response, new TypeToken<ArrayList<Game>>(){}.getType());
+                            if (view != null) {
+                                ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                    if (view == null) return;
+                                    gameList.clear();
+                                    if (fetchedGames != null) {
+                                        gameList.addAll(fetchedGames);
+                                    }
+                                    hasLoadedData = true;
+                                    updateViewWithCurrentList();
+                                    view.hideLoading();
+                                });
+                            }
 
-                        if (view != null) {
-                            ((Fragment) view).requireActivity().runOnUiThread(() -> {
-                                if (view == null) return;
-                                gameList.clear();
-                                if (fetchedGames != null) {
-                                    gameList.addAll(fetchedGames);
+                        }catch (Exception e){
+                            if (view != null) {
+                                    ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                        if (view == null) return;
+                                        view.hideLoading();
+                                        view.showMessage("Προέκυψε σφάλμα. Ξανακάντε αναζήτηση παιχνδιών");
+                                    });
                                 }
-                                hasLoadedData = true;
-                                updateViewWithCurrentList();
-                                view.hideLoading();
-                            });
+                            }
                         }
-                    } else {
+
+                    else {
                         if (view != null) {
                             ((Fragment) view).requireActivity().runOnUiThread(() -> {
                                 if (view == null) return;
