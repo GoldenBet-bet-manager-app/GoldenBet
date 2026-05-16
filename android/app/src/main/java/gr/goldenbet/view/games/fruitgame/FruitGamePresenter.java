@@ -58,10 +58,9 @@ public class FruitGamePresenter {
 
 
     public void initializedata(){
-
+        view.setImageBackground(game.getBase64Image());
         rules = factory.getFruitGraphics(game.getGameName());
         if (rules != null) {
-
             symbols = rules.getSymbols();
             view.showFinalGrid(null, null, symbols, rules.getColor());
             view.showBalance(player.getBalance());
