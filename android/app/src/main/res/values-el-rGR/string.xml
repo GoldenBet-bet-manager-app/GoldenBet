@@ -140,11 +140,33 @@
     <string name="stats_profit_header">ΣΥΝΟΛΙΚΟ ΚΕΡΔΟΣ</string>
     <string name="stats_win_rate_header">ΠΟΣΟΣΤΟ ΝΙΚΩΝ</string>
     <string name="stats_profit_per_attempt_header">ΚΕΡΔΟΣ/ΑΠΩΛΕΙΑ ΑΝΑ ΠΡΟΣΠΑΘΕΙΑ</string>
-    <string name="stats_loss_per_loss">ΑΠΩΛΕΙΑ ΑΝΑ ΑΠΩΛΕΙΑ</string>
+    <string name="stats_loss_per_loss">ΑΠΩΛΕΙΑ ΑΝΑ ΧΑΜΕΝΟ ΠΑΙΧΝΙΔΙ</string>
     <string name="stats_profit_per_win">ΚΕΡΔΟΣ ΑΝΑ ΝΙΚΗ</string>
     <string name="stats_most_time">Παιχνίδι με περισσότερο χρόνο:</string>
     <string name="stats_most_fun">Προσπάθεια με το μεγαλύτερος κέρδος :</string>
     <string name="stats_biggest_win">Μεγαλύτερη Νίκη: </string>
+
+    <!--fragment_search.xml-->
+    <string name="search_app_title">GOLDEN BET</string>
+    <string name="search_app_logo_desc">App Logo</string>
+    <string name="search_game_hint">Search game...</string>
+    <string name="search_empty_state_msg">No games found with these filters</string>
+
+
+    <!--layout_search_filters.xml-->
+    <string name="filter_title">Φίλτρα Αναζήτησης</string>
+    <string name="filter_popularity">Δημοτικότητα</string>
+    <string name="filter_bet_limits">Όρια Πονταρίσματος</string>
+    <string name="filter_bet_low">$ (0.1 FUN)</string>
+    <string name="filter_bet_medium">$$ (1.0 FUN)</string>
+    <string name="filter_bet_high">$$$ (5.0 FUN)</string>
+    <string name="filter_risk_level">Επίπεδο Ρίσκου</string>
+    <string name="filter_risk_low">Low Risk</string>
+    <string name="filter_risk_medium">Medium Risk</string>
+    <string name="filter_risk_high">High Risk</string>
+    <string name="filter_btn_reset">Επαναφορά</string>
+    <string name="filter_btn_apply">Εφαρμογή</string>
+
 
 
     <!--bottom_sheet_leaderboard.xml-->

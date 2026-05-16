@@ -44,8 +44,8 @@ public class DepositFragment extends Fragment implements DepositView {
         binding.depositBtnBack.setOnClickListener(v -> navigateBack());
         binding.cardAmount20.setOnClickListener(v -> presenter.onQuickAmountSelected("20"));
         binding.cardAmount50.setOnClickListener(v -> presenter.onQuickAmountSelected("50"));
-        binding.btnMethodCard.setOnClickListener(v -> presenter.onMethodSelected("CARD"));
-        binding.btnMethodPaypal.setOnClickListener(v -> presenter.onMethodSelected("PAYPAL"));
+        binding.btnMethodCard.setOnClickListener(v -> handleMethodSelection("CARD"));
+        binding.btnMethodPaypal.setOnClickListener(v -> handleMethodSelection("PAYPAL"));
 
         binding.btnConfirmDeposit.setOnClickListener(v -> {
             presenter.onDepositClicked(binding.etDepositAmount.getText().toString());
@@ -73,6 +73,14 @@ public class DepositFragment extends Fragment implements DepositView {
             });
         }
 
+    }
+
+    private void handleMethodSelection(String method){
+
+        presenter.onMethodSelected(method);
+        // Ποιό κουμπί ειναι πατημένο
+        binding.btnMethodCard.setChecked(method.equals("CARD"));
+        binding.btnMethodPaypal.setChecked(method.equals("PAYPAL"));
     }
 
     @Override

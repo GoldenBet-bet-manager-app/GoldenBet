@@ -146,12 +146,14 @@
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
+                    android:checkable="true"
+                    app:backgroundTint="@color/selector_payment_method_bg"
+                    android:textColor="@color/selector_payment_method_content"
+                    app:iconTint="@color/selector_payment_method_content"
                     android:text="@string/deposit_method_card"
-                    android:textColor="?attr/colorOnSurface"
-                    android:gravity="start|center_vertical"
                     app:icon="@drawable/ic_card"
                     app:iconSize="28dp"
-                    app:iconTint="@color/gold_classic" />
+                    android:gravity="start|center_vertical" />
 
                 <View
                     android:layout_width="match_parent"
@@ -164,12 +166,14 @@
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
-                    android:gravity="start|center_vertical"
+                    android:checkable="true"
+                    app:backgroundTint="@color/selector_payment_method_bg"
+                    android:textColor="@color/selector_payment_method_content"
+                    app:iconTint="@color/selector_payment_method_content"
                     android:text="@string/deposit_method_paypal"
-                    android:textColor="?attr/colorOnSurface"
                     app:icon="@drawable/ic_paypal"
                     app:iconSize="30dp"
-                    app:iconTint="@color/gold_classic" />
+                    android:gravity="start|center_vertical" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -41,7 +41,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         holder.binding.txtGameName.setText(game.getGameName());
         holder.binding.txtProviderName.setText(game.getProviderName());
 
-        holder.binding.txtRating.setText(String.valueOf(game.getStars()));
+        holder.binding.txtRating.setText(String.format("%.1f", game.getStars()));
 
         Bitmap gameImage = ImageUtils.decodeBase64ToBitmap(game.getBase64Image());
         if (gameImage != null) {
