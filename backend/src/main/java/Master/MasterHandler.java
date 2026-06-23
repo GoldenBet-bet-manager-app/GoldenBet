@@ -318,6 +318,7 @@ public class MasterHandler extends Thread {
             String jsonResponse = gson.toJson(response);
             out.writeObject(jsonResponse);
             out.flush();
+            return;
         }
 
         if ( message.getType ( ).equals ( MasterMessageType.ADD_GAME ) )

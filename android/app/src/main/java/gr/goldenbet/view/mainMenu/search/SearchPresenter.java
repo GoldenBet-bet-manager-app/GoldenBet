@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 import gr.goldenbet.domain.Game;
+import gr.goldenbet.domain.JsonClient;
 import gr.goldenbet.domain.MasterMessage;
 import gr.goldenbet.domain.MasterMessageType;
 import gr.goldenbet.domain.SearchFilters;
@@ -135,49 +136,67 @@ public class SearchPresenter{
         MasterMessage searchMsg = new MasterMessage(MasterMessageType.SEARCH, filters);
         String jsonToSend = new Gson().toJson(searchMsg);
 
-        NetworkManager.sendRequest(MASTER_IP, MASTER_PORT, jsonToSend)
-                .thenAccept(response -> {
+        new Thread(()->{
+            try {
 
-                    if (myTicket != currentRequestId) return;
-                    if (response != null){
-                        try {
-                            ArrayList<Game> fetchedGames = new Gson().fromJson(response, new TypeToken<ArrayList<Game>>() {
-                            }.getType());
+                JsonClient client = new JsonClient(MASTER_IP, MASTER_PORT, jsonToSend);
+                client.start();
+                client.join();
 
-                            if (view != null) {
-                                ((Fragment) view).requireActivity().runOnUiThread(() -> {
-                                    if (view == null) return;
-                                    gameList.clear();
-                                    if (fetchedGames != null) {
-                                        gameList.addAll(fetchedGames);
-                                    }
-                                    hasLoadedData = true;
-                                    updateViewWithCurrentList();
-                                    view.hideLoading();
-                                });
-                            }
+                String response = client.getJsonResponse();
 
-                        }catch (Exception e){
-                            if (view != null) {
-                                    ((Fragment) view).requireActivity().runOnUiThread(() -> {
-                                        if (view == null) return;
-                                        view.hideLoading();
-                                        view.showMessage("Προέκυψε σφάλμα. Ξανακάντε αναζήτηση παιχνδιών");
-                                    });
+                if (myTicket != currentRequestId) return;
+                if (response != null){
+                    try {
+                        ArrayList<Game> fetchedGames = new Gson().fromJson(response, new TypeToken<ArrayList<Game>>() {
+                        }.getType());
+
+                        if (view != null) {
+                            ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                                if (view == null) return;
+                                gameList.clear();
+                                if (fetchedGames != null) {
+                                    gameList.addAll(fetchedGames);
                                 }
-                            }
+                                hasLoadedData = true;
+                                updateViewWithCurrentList();
+                                view.hideLoading();
+                            });
                         }
 
-                    else {
+                    }catch (Exception e){
                         if (view != null) {
                             ((Fragment) view).requireActivity().runOnUiThread(() -> {
                                 if (view == null) return;
                                 view.hideLoading();
-                                view.showMessage("Σφάλμα επικοινωνίας με τον Server.");
+                                view.showMessage("Προέκυψε σφάλμα. Ξανακάντε αναζήτηση παιχνδιών");
                             });
                         }
                     }
-                });
+                }
+
+                else {
+                    if (view != null) {
+                        ((Fragment) view).requireActivity().runOnUiThread(() -> {
+                            if (view == null) return;
+                            view.hideLoading();
+                            view.showMessage("Σφάλμα επικοινωνίας με τον Server.");
+                        });
+                    }
+                }
+
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+                view.showMessage("Connection interrupted");
+            }
+        }).start();
+
+
+       // NetworkManager.sendRequest(MASTER_IP, MASTER_PORT, jsonToSend)
+               // .thenAccept(response -> {
+
+
+              //});
     }
 
     public void setView(SearchView view){
